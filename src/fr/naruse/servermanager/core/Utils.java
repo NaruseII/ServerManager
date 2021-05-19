@@ -29,4 +29,12 @@ public class Utils {
         return RANDOM.nextBoolean() ? ALPHABET[RANDOM.nextInt(ALPHABET.length)] : Character.toUpperCase(ALPHABET[RANDOM.nextInt(ALPHABET.length)]);
     }
 
+    public static double getDoubleFromPacket(Object o) {
+        return Double.parseDouble(o.toString());
+    }
+
+    public static int getIntegerFromPacket(Object o) {
+        return (int) getDoubleFromPacket(o.toString());
+    }
+
 }

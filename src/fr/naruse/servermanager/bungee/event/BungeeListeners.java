@@ -1,10 +1,10 @@
 package fr.naruse.servermanager.bungee.event;
 
 import fr.naruse.servermanager.bungee.main.BungeeManagerPlugin;
+import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import org.bukkit.event.player.PlayerLoginEvent;
 
 public class BungeeListeners implements Listener {
 
@@ -15,8 +15,8 @@ public class BungeeListeners implements Listener {
     }
 
     @EventHandler
-    public void join(PlayerLoginEvent e){
-        this.pl.getServerManager().getCurrentServer().getData().getUUIDByNameMap().put(e.getPlayer().getName(), e.getPlayer().getUniqueId().toString());
+    public void join(LoginEvent e){
+        this.pl.getServerManager().getCurrentServer().getData().getUUIDByNameMap().put(e.getConnection().getName(), e.getConnection().getUniqueId().toString());
     }
 
     @EventHandler

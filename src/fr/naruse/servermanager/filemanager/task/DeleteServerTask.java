@@ -1,7 +1,8 @@
-package fr.naruse.servermanager.filemanager;
+package fr.naruse.servermanager.filemanager.task;
 
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.filemanager.FileManager;
 
 import java.io.File;
 import java.util.*;

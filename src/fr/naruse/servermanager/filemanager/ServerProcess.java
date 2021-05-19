@@ -4,6 +4,7 @@ import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.filemanager.task.DeleteServerTask;
 
 import java.io.*;
 
@@ -18,15 +19,15 @@ public class ServerProcess {
     private final String name;
     private final String templateName;
     private final File logFile;
+    private final File serverFolder;
 
-    private final StringBuilder stringBuilder = new StringBuilder();
-
-    public ServerProcess(FileManager fileManager, ProcessBuilder processBuilder, String name, String templateName) {
+    public ServerProcess(FileManager fileManager, ProcessBuilder processBuilder, String name, String templateName, File serverFolder) {
         LOGGER.info("Starting following process for '"+name+"'...");
         this.fileManager = fileManager;
         this.name = name;
         this.templateName = templateName;
         this.processBuilder = processBuilder;
+        this.serverFolder = serverFolder;
 
         if(!LOG_FOLDER.exists()){
             LOGGER.info("Creating log folder...");
@@ -64,7 +65,7 @@ public class ServerProcess {
             if(server != null){
                 this.fileManager.getServerManager().getConnectionManager().sendPacket(server, new PacketShutdown());
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -83,5 +84,21 @@ public class ServerProcess {
 
     public String getName() {
         return name;
+    }
+
+    public File getLogFile() {
+        return logFile;
+    }
+
+    public static File getLogFolder() {
+        return LOG_FOLDER;
+    }
+
+    public String getTemplateName() {
+        return templateName;
+    }
+
+    public File getServerFolder() {
+        return serverFolder;
     }
 }

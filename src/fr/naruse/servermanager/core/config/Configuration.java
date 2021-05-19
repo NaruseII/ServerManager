@@ -114,5 +114,9 @@ public class Configuration {
         public void set(String path, Object o){
             ((Map<String, Object>) map.get(initialPath)).put(path, o);
         }
+
+        public Map<String, Object> getAll(){
+            return ((Map<String, Object>) map.get(initialPath));
+        }
     }
 }

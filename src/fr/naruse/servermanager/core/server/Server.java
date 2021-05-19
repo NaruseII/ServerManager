@@ -4,6 +4,8 @@ import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.connection.packet.IPacket;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -45,6 +47,15 @@ public class Server {
 
     public void sendPacket(IPacket packet){
         this.serverManager.getConnectionManager().sendPacket(this, packet);
+    }
+
+    public InetAddress getAddress() {
+        try {
+            return InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static class Data {

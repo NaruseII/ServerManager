@@ -1,8 +1,11 @@
-package fr.naruse.servermanager.filemanager;
+package fr.naruse.servermanager.filemanager.task;
 
+import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.filemanager.FileManager;
+import fr.naruse.servermanager.filemanager.ServerProcess;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -10,6 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -54,6 +59,11 @@ public class CreateServerTask {
         LOGGER.info("Starting copy...");
         this.copyDirectory(templateFolder, serverFolder);
         LOGGER.info("Copy done !");
+
+        LOGGER.info("Editing 'ServerManager/config.json'...");
+        this.editConfigJson(serverFolder, name);
+        LOGGER.info("'ServerManager/config.json' edited");
+
         LOGGER.info("Getting ready to start the server...");
 
         String startFileName = template.get("startFileName");
@@ -64,7 +74,10 @@ public class CreateServerTask {
         boolean isJarFile = template.get("isJarFile");
 
         try {
-            this.editServerProperties(template, new File(serverFolder, "server.properties"), name);
+            File serverProperties = new File(serverFolder, "server.properties");
+            if(serverProperties.exists()){
+                this.editServerProperties(template, serverProperties, name);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,8 +92,33 @@ public class CreateServerTask {
         }else{
             processBuilder = new ProcessBuilder(startFileName);
         }
-        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, templateName));
+        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, templateName, serverFolder));
         LOGGER.info("Server started!");
+    }
+
+    private void editConfigJson(File serverFolder, String serverName) {
+        File configJson = new File(serverFolder, "plugins/ServerManager/config.json");
+        configJson.getParentFile().mkdirs();
+        if(configJson.exists()){
+            configJson.delete();
+        }
+        try {
+            configJson.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", ServerManager.get().getConfigurationManager().getConfig().get("key"));
+        map.put("currentServerName", serverName);
+
+        try {
+            FileWriter fileWriter = new FileWriter(configJson);
+            fileWriter.write(Utils.GSON.toJson(map));
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void editServerProperties(Configuration template, File propertiesFile, String serverName) throws IOException {
@@ -92,45 +130,21 @@ public class CreateServerTask {
         boolean editServerName = section.get("editServerName");
         boolean editMaxPlayers = section.get("editMaxPlayers");
 
-        if(propertiesFile.exists()){
-            propertiesFile.createNewFile();
+        propertiesFile.createNewFile();
 
-            if(editServerIP){
-                stringBuilder.append("server-ip="+ InetAddress.getLocalHost().getHostAddress()+"\n");
-            }
-            if(editServerPort){
-                ServerSocket socket = new ServerSocket(0);
-                stringBuilder.append("server-port="+ socket.getLocalPort()+"\n");
-                socket.close();
-            }
-            if(editServerName){
-                stringBuilder.append("server-name="+ serverName+"\n");
-            }
-            if(editMaxPlayers){
-                stringBuilder.append("max-players="+this.getIntegerFromPacket(section.get("maxPlayers"))+"\n");
-            }
-        }else{
-            BufferedReader reader = new BufferedReader(new FileReader(propertiesFile));
-            reader.lines().forEach(s -> {
-                try {
-                    if(s.contains("server-ip") && editServerIP){
-                        stringBuilder.append("server-ip="+ InetAddress.getLocalHost().getHostAddress()+"\n");
-                    }else if(s.contains("server-port") && editServerPort){
-                        ServerSocket socket = new ServerSocket(0);
-                        stringBuilder.append("server-port="+ socket.getLocalPort()+"\n");
-                        socket.close();
-                    }else if(s.contains("server-name") && editServerName){
-                        stringBuilder.append("server-name="+ serverName+"\n");
-                    }else if(s.contains("max-players") && editServerIP){
-                        stringBuilder.append("max-players="+this.getIntegerFromPacket(section.get("maxPlayers"))+"\n");
-                    }else{
-                        stringBuilder.append(s);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-            reader.close();
+        if(editServerIP){
+            stringBuilder.append("server-ip="+ InetAddress.getLocalHost().getHostAddress()+"\n");
+        }
+        if(editServerPort){
+            ServerSocket socket = new ServerSocket(0);
+            stringBuilder.append("server-port="+ socket.getLocalPort()+"\n");
+            socket.close();
+        }
+        if(editServerName){
+            stringBuilder.append("server-name="+ serverName+"\n");
+        }
+        if(editMaxPlayers){
+            stringBuilder.append("max-players="+Utils.getIntegerFromPacket(section.get("maxPlayers"))+"\n");
         }
 
         FileWriter fileWriter = new FileWriter(propertiesFile);
@@ -175,13 +189,5 @@ public class CreateServerTask {
         }catch (Exception e){
             e.printStackTrace();
         }
-    }
-
-    private double getDoubleFromPacket(Object o) {
-        return Double.parseDouble(o.toString());
-    }
-
-    private int getIntegerFromPacket(Object o) {
-        return (int) this.getDoubleFromPacket(o.toString());
     }
 }

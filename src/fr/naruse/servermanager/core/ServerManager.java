@@ -1,15 +1,17 @@
 package fr.naruse.servermanager.core;
 
-import fr.naruse.servermanager.core.api.events.IEvent;
-import fr.naruse.servermanager.core.api.events.InitializationEndedEvent;
-import fr.naruse.servermanager.core.api.events.InitializationStartEvent;
-import fr.naruse.servermanager.core.api.events.ShutdownEvent;
+import fr.naruse.servermanager.core.api.events.*;
+import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
 import fr.naruse.servermanager.core.config.ConfigurationManager;
 import fr.naruse.servermanager.core.connection.ConnectionManager;
 import fr.naruse.servermanager.core.connection.KeepAliveServerThread;
-import fr.naruse.servermanager.core.connection.packet.Packets;
+import fr.naruse.servermanager.core.connection.packet.*;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public class ServerManager {
 
@@ -25,28 +27,30 @@ public class ServerManager {
     private final IServerManagerPlugin plugin;
 
     private final Server server;
+    private final Set<EventListener> eventListenerSet = new HashSet<>();
+    private final Set<PacketProcessing> packetProcessingSet = new HashSet<>();
     private boolean isShutDowned = false;
 
     public ServerManager(CoreData coreData) {
-        this(coreData, new IServerManagerPlugin() {
-            @Override
-            public void shutdown() { }
-
-            @Override
-            public void callEvent(IEvent event) { }
-        });
+        this(coreData, null);
     }
 
     public ServerManager(CoreData coreData, IServerManagerPlugin plugin) {
         ServerManagerLogger.info("Initialising ServerManager Core on '"+coreData.getCoreServerType().name()+"'...");
+        if(plugin == null){
+            plugin = new BasicServerManagerPlugin(this.eventListenerSet);
+        }
         plugin.callEvent(new InitializationStartEvent());
 
         instance = this;
         this.primaryThread = Thread.currentThread();
-
         this.coreData = coreData;
         this.plugin = plugin;
+
         this.configurationManager = new ConfigurationManager(this);
+        if(coreData.getServerName() == null){
+            coreData.setServerName(configurationManager.getConfig().get("currentServerName"));
+        }
         this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getCoreServerType());
         Packets.load();
         this.connectionManager = new ConnectionManager(this);
@@ -84,6 +88,22 @@ public class ServerManager {
         this.configurationManager.getConfig().set("key", finalString);
         this.configurationManager.getConfig().save();
         return finalString;
+    }
+
+    public void registerEventListener(EventListener eventListener){
+        this.eventListenerSet.add(eventListener);
+    }
+
+    public void registerPacketProcessing(PacketProcessing packetProcessing){
+        this.packetProcessingSet.add(packetProcessing);
+    }
+
+    public void processPacket(IPacket packet){
+        if(packet instanceof PacketReloadBungeeServers){
+            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processReloadBungeeServers());
+        }else if(packet instanceof PacketBungeeRequestConfigWrite){
+            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processBungeeRequestConfigWrite((PacketBungeeRequestConfigWrite) packet));
+        }
     }
 
     public boolean isPrimaryThread(){

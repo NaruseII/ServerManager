@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class ServerList {
 
@@ -30,11 +32,7 @@ public class ServerList {
         }
 
         if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)){
-            try {
-                ServerManagerLogger.info("Registering server '"+name+"' -> ["+ InetAddress.getLocalHost().getHostAddress()+":"+port+"]");
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
+            ServerManagerLogger.info("Registering server '"+name+"' -> ["+ server.getAddress().getHostAddress()+":"+port+"]");
         }
 
         map.put(name, server);
@@ -50,13 +48,13 @@ public class ServerList {
 
             map.remove(name);
             if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)) {
-                try {
-                    ServerManagerLogger.info("Deleting server '" + name + "' -> [" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "]");
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
+                ServerManagerLogger.info("Deleting server '" + name + "' -> [" + server.getAddress().getHostAddress() + ":" + port + "]");
             }
         }
+    }
+
+    public static Set<Server> findServer(CoreServerType coreServerType){
+        return getAll().stream().filter(server -> server.getCoreServerType() == coreServerType).collect(Collectors.toSet());
     }
 
     public static Server getByName(String name){

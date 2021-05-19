@@ -23,6 +23,8 @@ public class Packets {
         addPacket("CREATE_SERVER", PacketCreateServer.class);
         addPacket("SHUTDOWN", PacketShutdown.class);
         addPacket("SERVER_LIST", PacketServerList.class);
+        addPacket("RELOAD_BUNGEE_SERVERS", PacketReloadBungeeServers.class);
+        addPacket("BUNGEE_REQUEST_CONFIG_WRITE", PacketBungeeRequestConfigWrite.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

@@ -3,14 +3,15 @@ package fr.naruse.servermanager.filemanager;
 import fr.naruse.servermanager.core.CoreData;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.Utils;
+import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.filemanager.task.CreateServerTask;
+import fr.naruse.servermanager.filemanager.task.EditBungeeConfigFile;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class FileManager {
 
@@ -23,7 +24,7 @@ public class FileManager {
         new FileManager();
     }
 
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     private final ServerManager serverManager;
     private final Map<String, ServerProcess> serverProcesses = new HashMap<>();
 
@@ -37,18 +38,30 @@ public class FileManager {
             public void shutdown() {
                 ServerManagerLogger.info("Stopping servers...");
                 for (ServerProcess serverProcess : serverProcesses.values()) {
-                    EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
+                    serverProcess.shutdown();
                 }
                 ServerManagerLogger.info("Stopping server creator thread pool...");
                 EXECUTOR_SERVICE.shutdown();
+                ServerManagerLogger.info("Stopping task threads...");
+                EditBungeeConfigFile.EXECUTOR_SERVICE.shutdown();
                 super.shutdown();
             }
         };
+        serverManager.registerPacketProcessing(new FileManagerPacketProcessing(this));
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
 
         ServerManagerLogger.info("");
         ServerManagerLogger.info("Type help to see commands");
+
+        Configuration.ConfigurationSection section = this.serverManager.getConfigurationManager().getConfig().getSection("startServerOnStart");
+        section.getAll().forEach((templateName, o) -> {
+            int count = Utils.getIntegerFromPacket(o);
+            for (int i = 0; i < count; i++) {
+                this.createServer(templateName);
+            }
+        });
+
 
         Scanner scanner = new Scanner(System.in);
         while (true){
@@ -99,6 +112,10 @@ public class FileManager {
     public void followProcess(ServerProcess process) {
         this.serverProcesses.put(process.getName(), process);
         process.start();
+    }
+
+    public ServerProcess getServerProcess(String serverName){
+        return this.serverProcesses.get(serverName);
     }
 
     public void shutdownServer(String name){
