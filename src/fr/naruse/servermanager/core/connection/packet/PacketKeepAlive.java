@@ -1,13 +1,13 @@
 package fr.naruse.servermanager.core.connection.packet;
 
 import fr.naruse.servermanager.core.*;
+import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.packetmanager.KeepAliveBuffer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 public class PacketKeepAlive implements IPacket {
 
@@ -18,16 +18,16 @@ public class PacketKeepAlive implements IPacket {
     private int port;
     private CoreServerType coreServerType;
     private int capacity;
-    private int playerSize;
     private Map<String, String> uuidByNameMap;
+    private Map<String, Object> dataMap;
 
     public PacketKeepAlive(Server server) {
         this.name = server.getName();
         this.port = server.getPort();
         this.coreServerType = server.getCoreServerType();
         this.capacity = server.getData().getCapacity();
-        this.playerSize = server.getData().getPlayerSize();
         this.uuidByNameMap = server.getData().getUUIDByNameMap();
+        this.dataMap = server.getData().getDataMap();
     }
 
     @Override
@@ -36,8 +36,8 @@ public class PacketKeepAlive implements IPacket {
         stream.writeUTF(this.name);
         stream.writeUTF(this.coreServerType.name());
         stream.writeInt(this.capacity);
-        stream.writeInt(this.playerSize);
         stream.writeUTF(Utils.GSON.toJson(this.uuidByNameMap));
+        stream.writeUTF(Utils.GSON.toJson(this.dataMap));
     }
 
     @Override
@@ -46,8 +46,8 @@ public class PacketKeepAlive implements IPacket {
         this.name = stream.readUTF();
         this.coreServerType = CoreServerType.valueOf(stream.readUTF());
         this.capacity = stream.readInt();
-        this.playerSize = stream.readInt();
         this.uuidByNameMap = Utils.GSON.fromJson(stream.readUTF(), Utils.MAP_STRING_TYPE);
+        this.dataMap = Utils.GSON.fromJson(stream.readUTF(), Utils.MAP_TYPE);
     }
 
     @Override
@@ -67,15 +67,15 @@ public class PacketKeepAlive implements IPacket {
         return coreServerType;
     }
 
-    public int getPlayerSize() {
-        return playerSize;
-    }
-
     public int getCapacity() {
         return capacity;
     }
 
     public Map<String, String> getUUIDByNameMap() {
         return uuidByNameMap;
+    }
+
+    public Map<String, Object> getDataMap() {
+        return dataMap;
     }
 }

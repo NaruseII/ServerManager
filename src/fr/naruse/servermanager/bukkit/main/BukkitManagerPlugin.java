@@ -3,13 +3,14 @@ package fr.naruse.servermanager.bukkit.main;
 import fr.naruse.servermanager.bukkit.event.BukkitListeners;
 import fr.naruse.servermanager.core.CoreData;
 import fr.naruse.servermanager.core.CoreServerType;
+import fr.naruse.servermanager.core.IServerManagerPlugin;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class BukkitManagerPlugin extends JavaPlugin {
+public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlugin {
 
     private ServerManager serverManager;
 
@@ -19,9 +20,8 @@ public class BukkitManagerPlugin extends JavaPlugin {
         ServerManagerLogger.load(this.getLogger());
         ServerManagerLogger.info("Starting BukkitManager...");
 
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.BUKKIT_MANAGER, this.getDataFolder(), 4848, Bukkit.getServerName(), 0));
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.BUKKIT_MANAGER, this.getDataFolder(), 4848, Bukkit.getServerName(), 0), this);
 
-        this.serverManager.getCurrentServer().getData().setPlayerSize(Bukkit.getOnlinePlayers().size());
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.serverManager.getCurrentServer().getData().getUUIDByNameMap().put(player.getName(), player.getUniqueId().toString());
         }
@@ -36,6 +36,11 @@ public class BukkitManagerPlugin extends JavaPlugin {
         if(this.serverManager != null){
             this.serverManager.shutdown();
         }
+    }
+
+    @Override
+    public void shutdown() {
+        Bukkit.shutdown();
     }
 
     public ServerManager getServerManager() {

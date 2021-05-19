@@ -5,8 +5,7 @@ import fr.naruse.servermanager.core.connection.ConnectionManager;
 import fr.naruse.servermanager.core.connection.KeepAliveServerThread;
 import fr.naruse.servermanager.core.connection.packet.Packets;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
-
-import java.util.Random;
+import fr.naruse.servermanager.core.server.Server;
 
 public class ServerManager {
 
@@ -19,16 +18,22 @@ public class ServerManager {
     private final ConfigurationManager configurationManager;
     private final ConnectionManager connectionManager;
     private final Thread primaryThread;
+    private final IServerManagerPlugin plugin;
 
     private final Server server;
     private boolean isShutDowned = false;
 
     public ServerManager(CoreData coreData) {
+        this(coreData, null);
+    }
+
+    public ServerManager(CoreData coreData, IServerManagerPlugin plugin) {
         ServerManagerLogger.info("Initialising ServerManager Core on '"+coreData.getCoreServerType().name()+"'...");
         instance = this;
         this.primaryThread = Thread.currentThread();
 
         this.coreData = coreData;
+        this.plugin = plugin;
         this.configurationManager = new ConfigurationManager(this);
         this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getCoreServerType());
         Packets.load();
@@ -83,5 +88,9 @@ public class ServerManager {
 
     public Server getCurrentServer() {
         return server;
+    }
+
+    public IServerManagerPlugin getPlugin() {
+        return plugin;
     }
 }

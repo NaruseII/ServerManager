@@ -17,13 +17,11 @@ public class BukkitListeners implements Listener {
 
     @EventHandler
     public void join(PlayerJoinEvent e){
-        pl.getServerManager().getCurrentServer().getData().setPlayerSize(Bukkit.getOnlinePlayers().size());
         pl.getServerManager().getCurrentServer().getData().getUUIDByNameMap().put(e.getPlayer().getName(), e.getPlayer().getUniqueId().toString());
     }
 
     @EventHandler
     public void quit(PlayerQuitEvent e){
-        pl.getServerManager().getCurrentServer().getData().setPlayerSize(Bukkit.getOnlinePlayers().size()-1);
         pl.getServerManager().getCurrentServer().getData().getUUIDByNameMap().remove(e.getPlayer().getName());
     }
 }

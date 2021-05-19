@@ -37,7 +37,7 @@ public class FileManager {
             public void shutdown() {
                 ServerManagerLogger.info("Stopping servers...");
                 for (ServerProcess serverProcess : serverProcesses.values()) {
-                    serverProcess.shutdown();
+                    EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
                 }
                 ServerManagerLogger.info("Stopping server creator thread pool...");
                 EXECUTOR_SERVICE.shutdown();
@@ -85,16 +85,13 @@ public class FileManager {
         Future future = EXECUTOR_SERVICE.submit(() -> {
             new CreateServerTask(this, templateName);
         });
-        EXECUTOR_SERVICE.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    future.get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
+        EXECUTOR_SERVICE.submit(() -> {
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
             }
         });
     }

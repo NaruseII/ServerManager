@@ -1,5 +1,7 @@
-package fr.naruse.servermanager.core;
+package fr.naruse.servermanager.core.server;
 
+import fr.naruse.servermanager.core.CoreServerType;
+import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.net.InetAddress;
@@ -17,11 +19,15 @@ public class ServerList {
         if(map.containsKey(name)){
             return null;
         }
-        try {
-            ServerManagerLogger.info("Registering server '"+name+"' -> ["+ InetAddress.getLocalHost().getHostAddress()+":"+port+"]");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+
+        if(ServerManager.get().getCoreData().getCoreServerType() == CoreServerType.PACKET_MANAGER){
+            try {
+                ServerManagerLogger.info("Registering server '"+name+"' -> ["+ InetAddress.getLocalHost().getHostAddress()+":"+port+"]");
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
         }
+
         Server server = new Server(name, port, coreServerType);
         map.put(name, server);
         return server;
@@ -30,10 +36,12 @@ public class ServerList {
     public static void deleteServer(String name, int port) {
         if(map.containsKey(name)){
             map.remove(name);
-            try {
-                ServerManagerLogger.info("Deleting server '"+name+"' -> ["+ InetAddress.getLocalHost().getHostAddress()+":"+port+"]");
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
+            if(ServerManager.get().getCoreData().getCoreServerType() == CoreServerType.PACKET_MANAGER) {
+                try {
+                    ServerManagerLogger.info("Deleting server '" + name + "' -> [" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "]");
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

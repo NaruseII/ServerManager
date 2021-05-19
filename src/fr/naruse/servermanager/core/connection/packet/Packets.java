@@ -15,12 +15,12 @@ public class Packets {
     public static void load(){
         LOGGER.info("Loading packets...");
 
-        packetByName.put("CONNECTION", PacketConnection.class);
-        packetByName.put("DISCONNECTION", PacketDisconnection.class);
-        packetByName.put("KEEP_ALIVE", PacketKeepAlive.class);
-        packetByName.put("CREATE_SERVER", PacketCreateServer.class);
-
-        packetByName.forEach((s, aClass) -> nameByPacket.put(aClass, s));
+        addPacket("CONNECTION", PacketConnection.class);
+        addPacket("DISCONNECTION", PacketDisconnection.class);
+        addPacket("KEEP_ALIVE", PacketKeepAlive.class);
+        addPacket("CREATE_SERVER", PacketCreateServer.class);
+        addPacket("SHUTDOWN", PacketShutdown.class);
+        addPacket("SERVER_LIST", PacketServerList.class);
 
         LOGGER.info(packetByName.size()+" Packets loaded");
     }

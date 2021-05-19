@@ -1,5 +1,7 @@
-package fr.naruse.servermanager.core;
+package fr.naruse.servermanager.core.server;
 
+import fr.naruse.servermanager.core.CoreServerType;
+import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.connection.packet.IPacket;
 
 import java.util.HashMap;
@@ -47,10 +49,9 @@ public class Server {
 
     public static class Data {
 
-        private final Map<String, Object> dataMap = new HashMap<>();
+        private Map<String, Object> dataMap = new HashMap<>();
         private Map<String, String> uuidByNameMap = new HashMap<>(); // Name -> UUID
         private int capacity;
-        private int playerSize;
 
         public <T> T get(String dataName){
             return (T) this.dataMap.get(dataName);
@@ -65,15 +66,11 @@ public class Server {
         }
 
         public int getPlayerSize() {
-            return playerSize;
+            return this.uuidByNameMap.size();
         }
 
         public void setCapacity(int capacity) {
             this.capacity = capacity;
-        }
-
-        public void setPlayerSize(int playerSize) {
-            this.playerSize = playerSize;
         }
 
         public UUID getByName(String name){
@@ -91,5 +88,14 @@ public class Server {
         public void setUUIDByNameMap(Map<String, String> uuidByNameMap) {
             this.uuidByNameMap = uuidByNameMap;
         }
+
+        public Map<String, Object> getDataMap() {
+            return dataMap;
+        }
+
+        public void setDataMap(Map<String, Object> dataMap) {
+            this.dataMap = dataMap;
+        }
+
     }
 }

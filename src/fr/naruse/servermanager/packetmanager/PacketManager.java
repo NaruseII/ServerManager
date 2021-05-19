@@ -3,6 +3,8 @@ package fr.naruse.servermanager.packetmanager;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.connection.packet.PacketCreateServer;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.core.server.Server;
+import fr.naruse.servermanager.core.server.ServerList;
 
 import java.io.File;
 import java.util.Scanner;
@@ -51,7 +53,8 @@ public class PacketManager {
             }else if(line.startsWith("status")){
                 ServerManagerLogger.info("Server list:");
                 for (Server server : ServerList.getAll()) {
-                    ServerManagerLogger.info(" -> "+server.getName());
+                    ServerManagerLogger.info(" -> "+server.getName()+" ["+server.getCoreServerType()+"]");
+                    ServerManagerLogger.info("    Port: "+server.getPort());
                     ServerManagerLogger.info("    Capacity: "+server.getData().getCapacity());
                     ServerManagerLogger.info("    PlayerSize: "+server.getData().getPlayerSize());
                     ServerManagerLogger.info("    Players: "+server.getData().getUUIDByNameMap().toString());

@@ -1,20 +1,23 @@
 package fr.naruse.servermanager.core.connection;
 
 import fr.naruse.servermanager.core.CoreServerType;
-import fr.naruse.servermanager.core.Server;
+import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.connection.packet.IPacket;
 import fr.naruse.servermanager.core.connection.packet.PacketConnection;
 import fr.naruse.servermanager.core.connection.packet.PacketDisconnection;
 import fr.naruse.servermanager.core.connection.packet.Packets;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.core.server.ServerList;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public class ConnectionManager {
 
@@ -89,9 +92,19 @@ public class ConnectionManager {
         });
     }
 
+    public void sendPacketToAll(IPacket packet){
+        this.sendPacket(ServerList.getAll(), packet);
+    }
+
     public void sendPacket(Server server, IPacket packet){
         this.sendPacket(packet, this.inetAddress, server.getPort());
     }
+
+    public void sendPacket(Set<Server> servers, IPacket packet){
+        servers.forEach(server -> this.sendPacket(packet, this.inetAddress, server.getPort()));
+    }
+
+    // to Packet-Manager
     public void sendPacket(IPacket packet){
         this.sendPacket(packet, this.inetAddress, this.serverManager.getCoreData().getServerPort());
     }

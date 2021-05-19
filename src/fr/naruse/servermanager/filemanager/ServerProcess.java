@@ -1,6 +1,9 @@
 package fr.naruse.servermanager.filemanager;
 
+import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.core.server.Server;
+import fr.naruse.servermanager.core.server.ServerList;
 
 import java.io.*;
 
@@ -33,7 +36,7 @@ public class ServerProcess {
         File serverLogFolder = new File(LOG_FOLDER, name);
         LOGGER.info("Creating 'serverLogs/"+serverLogFolder.getName()+"'...");
         if(serverLogFolder.exists()){
-           serverLogFolder.delete();
+            serverLogFolder.delete();
         }
         serverLogFolder.mkdirs();
 
@@ -42,7 +45,7 @@ public class ServerProcess {
     }
 
     public void start() {
-         try {
+        try {
             this.logFile.createNewFile();
 
             processBuilder.redirectError(logFile);
@@ -56,7 +59,23 @@ public class ServerProcess {
     public void shutdown() {
         if(process.isAlive()){
             LOGGER.info("Stopping server '"+this.name+"'...");
-            process.destroy();
+
+            Server server = ServerList.getByName(this.name);
+            if(server != null){
+                this.fileManager.getServerManager().getConnectionManager().sendPacket(server, new PacketShutdown());
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if(process.isAlive()){
+                    LOGGER.info("Server '"+this.name+"' is still alive! Killing it...");
+                    process.destroy();
+                }
+            }else{
+                process.destroy();
+            }
             LOGGER.info("Server '"+this.name+"' stopped");
         }
         new DeleteServerTask(this.fileManager, this.templateName, this.name);

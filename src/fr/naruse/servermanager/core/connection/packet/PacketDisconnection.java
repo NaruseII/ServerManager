@@ -1,7 +1,7 @@
 package fr.naruse.servermanager.core.connection.packet;
 
-import fr.naruse.servermanager.core.Server;
-import fr.naruse.servermanager.core.ServerList;
+import fr.naruse.servermanager.core.server.Server;
+import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.ServerManager;
 
 import java.io.DataInputStream;
