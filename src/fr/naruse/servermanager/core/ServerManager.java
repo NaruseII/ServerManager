@@ -1,5 +1,9 @@
 package fr.naruse.servermanager.core;
 
+import fr.naruse.servermanager.core.api.events.IEvent;
+import fr.naruse.servermanager.core.api.events.InitializationEndedEvent;
+import fr.naruse.servermanager.core.api.events.InitializationStartEvent;
+import fr.naruse.servermanager.core.api.events.ShutdownEvent;
 import fr.naruse.servermanager.core.config.ConfigurationManager;
 import fr.naruse.servermanager.core.connection.ConnectionManager;
 import fr.naruse.servermanager.core.connection.KeepAliveServerThread;
@@ -24,11 +28,19 @@ public class ServerManager {
     private boolean isShutDowned = false;
 
     public ServerManager(CoreData coreData) {
-        this(coreData, null);
+        this(coreData, new IServerManagerPlugin() {
+            @Override
+            public void shutdown() { }
+
+            @Override
+            public void callEvent(IEvent event) { }
+        });
     }
 
     public ServerManager(CoreData coreData, IServerManagerPlugin plugin) {
         ServerManagerLogger.info("Initialising ServerManager Core on '"+coreData.getCoreServerType().name()+"'...");
+        plugin.callEvent(new InitializationStartEvent());
+
         instance = this;
         this.primaryThread = Thread.currentThread();
 
@@ -41,6 +53,7 @@ public class ServerManager {
 
         KeepAliveServerThread.launch(this);
 
+        plugin.callEvent(new InitializationEndedEvent());
         ServerManagerLogger.info("ServerManager Core initialised");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> this.shutdown()));
@@ -51,6 +64,9 @@ public class ServerManager {
             return;
         }
         this.isShutDowned = true;
+
+        this.plugin.callEvent(new ShutdownEvent());
+
         ServerManagerLogger.info("Shutting down...");
         KeepAliveServerThread.shutdown();
         this.configurationManager.shutdown();

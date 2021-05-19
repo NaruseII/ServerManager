@@ -1,6 +1,8 @@
 package fr.naruse.servermanager.core.connection;
 
 import fr.naruse.servermanager.core.CoreServerType;
+import fr.naruse.servermanager.core.api.events.packet.AsyncPacketReceiveEvent;
+import fr.naruse.servermanager.core.api.events.packet.AsyncPacketSendEvent;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.connection.packet.IPacket;
@@ -17,7 +19,6 @@ import java.net.*;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 public class ConnectionManager {
 
@@ -80,6 +81,12 @@ public class ConnectionManager {
                             IPacket packet = Packets.buildPacket(packetName);
                             packet.read(dataInputStream);
 
+                            AsyncPacketReceiveEvent event = new AsyncPacketReceiveEvent(packet, packetName);
+                            this.serverManager.getPlugin().callEvent(event);
+                            if(event.isCancelled()){
+                                return;
+                            }
+
                             packet.process(this.serverManager);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -112,10 +119,20 @@ public class ConnectionManager {
     private void sendPacket(IPacket packet, InetAddress inetAddress, int port){
         EXECUTOR_SERVICE.submit(() -> {
             try {
-                Socket socket = new Socket(inetAddress, port);
+                String packetName = Packets.getNameByPacket(packet.getClass());
+
+                AsyncPacketSendEvent event = new AsyncPacketSendEvent(packet, packetName, inetAddress, port);
+                this.serverManager.getPlugin().callEvent(event);
+                if(event.isCancelled()){
+                    return;
+                }
+                InetAddress finalInetAddress = event.getDestinationAddress();
+                int finalPort = event.getDestinationPort();
+
+                Socket socket = new Socket(finalInetAddress, finalPort);
 
                 DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                dataOutputStream.writeUTF(Packets.getNameByPacket(packet.getClass()));
+                dataOutputStream.writeUTF(packetName);
                 dataOutputStream.writeUTF(this.serverManager.getConfigurationManager().getConfig().get("key"));
                 packet.write(dataOutputStream);
 

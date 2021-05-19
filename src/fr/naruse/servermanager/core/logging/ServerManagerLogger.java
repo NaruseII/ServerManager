@@ -3,11 +3,11 @@ package fr.naruse.servermanager.core.logging;
 import java.time.Instant;
 import java.util.Date;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ServerManagerLogger {
 
     private static java.util.logging.Logger PLUGIN_LOGGER;
+
     public static void info(String msg){
         log(Level.INFO, msg);
     }

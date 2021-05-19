@@ -1,5 +1,7 @@
 package fr.naruse.servermanager.core.connection.packet;
 
+import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.api.events.packet.PacketLoadEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.util.HashMap;
@@ -21,6 +23,8 @@ public class Packets {
         addPacket("CREATE_SERVER", PacketCreateServer.class);
         addPacket("SHUTDOWN", PacketShutdown.class);
         addPacket("SERVER_LIST", PacketServerList.class);
+
+        ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 
         LOGGER.info(packetByName.size()+" Packets loaded");
     }

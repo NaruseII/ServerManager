@@ -19,7 +19,6 @@ public class KeepAliveBuffer {
         if(server == null){
             server = ServerList.createNewServer(packet.getName(), packet.getPort(), packet.getCoreServerType());
             if(server == null){
-                LOGGER.error("Server '"+packet.getName()+"' is null!");
                 return;
             }
         }

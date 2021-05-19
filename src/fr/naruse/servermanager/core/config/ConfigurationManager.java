@@ -1,6 +1,7 @@
 package fr.naruse.servermanager.core.config;
 
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.api.events.config.ConfigurationLoadedEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.io.*;
@@ -15,21 +16,17 @@ public class ConfigurationManager {
     private final File serverTemplateFolder;
 
     private Configuration config;
-    private Map<String, Configuration> serverTemplateSet = new HashMap<>();
+    private Map<String, Configuration> serverTemplateMap = new HashMap<>();
 
     public ConfigurationManager(ServerManager serverManager) {
         this.serverManager = serverManager;
         this.serverTemplateFolder = new File(serverManager.getCoreData().getDataFolder(), "serverTemplate");
         this.serverTemplateFolder.mkdirs();
 
-        try {
-            this.load();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.load();
     }
 
-    private void load() throws Exception {
+    private void load() {
         LOGGER.info("Loading configurations...");
 
         File configFile = new File(serverManager.getCoreData().getDataFolder(), "config.json");
@@ -44,24 +41,30 @@ public class ConfigurationManager {
                 if(!file.getName().endsWith(".json")){
                     LOGGER.warn("File '"+file.getName()+"' is weird. I only want .json file in this folder!");
                 }else{
-                    this.serverTemplateSet.put(file.getName().replace(".json", ""), new Configuration(file, "serverTemplate.json"));
+                    this.serverTemplateMap.put(file.getName().replace(".json", ""), new Configuration(file, "serverTemplate.json"));
                 }
             }
         }
 
-        LOGGER.info(this.serverTemplateSet.size()+" server template configuration loaded");
+        this.serverManager.getPlugin().callEvent(new ConfigurationLoadedEvent(this.serverTemplateFolder, this.config, this.serverTemplateMap));
+
+        LOGGER.info(this.serverTemplateMap.size()+" server template configuration loaded");
     }
 
     public void shutdown() {
         LOGGER.info("Saving configurations...");
         this.config.save();
-        for (Configuration configuration : this.serverTemplateSet.values()) {
+        for (Configuration configuration : this.serverTemplateMap.values()) {
             configuration.save();
         }
     }
 
+    public void addTemplate(String templateName, Configuration template){
+        this.serverTemplateMap.put(templateName, template);
+    }
+
     public Configuration getTemplate(String templateName){
-        return this.serverTemplateSet.get(templateName);
+        return this.serverTemplateMap.get(templateName);
     }
 
     public Configuration getConfig() {

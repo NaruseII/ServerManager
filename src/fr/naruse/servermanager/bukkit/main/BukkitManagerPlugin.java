@@ -1,10 +1,12 @@
 package fr.naruse.servermanager.bukkit.main;
 
+import fr.naruse.servermanager.bukkit.api.ServerManagerBukkitEvent;
 import fr.naruse.servermanager.bukkit.event.BukkitListeners;
 import fr.naruse.servermanager.core.CoreData;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.IServerManagerPlugin;
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -41,6 +43,11 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
     @Override
     public void shutdown() {
         Bukkit.shutdown();
+    }
+
+    @Override
+    public void callEvent(IEvent event) {
+        Bukkit.getPluginManager().callEvent(new ServerManagerBukkitEvent(event));
     }
 
     public ServerManager getServerManager() {

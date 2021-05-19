@@ -2,6 +2,8 @@ package fr.naruse.servermanager.core.server;
 
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.api.events.server.ServerDeleteEvent;
+import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.net.InetAddress;
@@ -20,7 +22,14 @@ public class ServerList {
             return null;
         }
 
-        if(ServerManager.get().getCoreData().getCoreServerType() == CoreServerType.PACKET_MANAGER){
+        Server server = new Server(name, port, coreServerType);
+        ServerRegisterEvent event = new ServerRegisterEvent(server);
+        ServerManager.get().getPlugin().callEvent(event);
+        if(event.isCancelled()){
+            return null;
+        }
+
+        if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)){
             try {
                 ServerManagerLogger.info("Registering server '"+name+"' -> ["+ InetAddress.getLocalHost().getHostAddress()+":"+port+"]");
             } catch (UnknownHostException e) {
@@ -28,15 +37,19 @@ public class ServerList {
             }
         }
 
-        Server server = new Server(name, port, coreServerType);
         map.put(name, server);
         return server;
     }
 
     public static void deleteServer(String name, int port) {
-        if(map.containsKey(name)){
+        Server server = map.get(name);
+        if(server != null) {
+
+            ServerDeleteEvent event = new ServerDeleteEvent(server);
+            ServerManager.get().getPlugin().callEvent(event);
+
             map.remove(name);
-            if(ServerManager.get().getCoreData().getCoreServerType() == CoreServerType.PACKET_MANAGER) {
+            if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)) {
                 try {
                     ServerManagerLogger.info("Deleting server '" + name + "' -> [" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "]");
                 } catch (UnknownHostException e) {
