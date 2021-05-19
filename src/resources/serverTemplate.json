@@ -1,0 +1,16 @@
+{
+  "baseName": "example-",
+  "pathTemplate": "D:/Desktop/mon serveur TEST/SERVEUR/Serveur-1.12.2",
+  "pathTarget": "D:/Desktop/mon serveur TEST/SERVEUR/ServerManager",
+  "startFileName": "run (1.12).bat",
+  "isBatchFile": true,
+  "isShellFile": false,
+  "isJarFile": false,
+  "server.properties": {
+    "editServerIP": false,
+    "editServerPort": true,
+    "editServerName": true,
+    "editMaxPlayers": true,
+    "maxPlayers": 50
+  }
+}

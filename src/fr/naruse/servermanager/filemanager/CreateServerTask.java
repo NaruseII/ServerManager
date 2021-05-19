@@ -1,0 +1,187 @@
+package fr.naruse.servermanager.filemanager;
+
+import fr.naruse.servermanager.core.Utils;
+import fr.naruse.servermanager.core.config.Configuration;
+import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+
+import java.io.*;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.nio.channels.FileChannel;
+import java.util.Random;
+import java.util.function.Consumer;
+
+public class CreateServerTask {
+
+    private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("CreateServerTask");
+
+    public CreateServerTask(FileManager fileManager, String templateName) {
+        LOGGER.info("Launching new task...");
+        Configuration template = fileManager.getServerManager().getConfigurationManager().getTemplate(templateName);
+        if(template == null){
+            LOGGER.error("Template '"+templateName+".json' not found!");
+            return;
+        }
+        String name = template.get("baseName")+ Utils.randomLetters()+"-"+Utils.randomLetters();
+        LOGGER.info("Starting creation of '"+name+"'...");
+
+        String templateFolderUrl = template.get("pathTemplate");
+        LOGGER.info("Template folder URL is '"+templateFolderUrl+"'");
+        File templateFolder = new File(templateFolderUrl);
+        if(!templateFolder.exists()){
+            LOGGER.error("Template folder '"+templateFolder.getAbsolutePath()+"' not found!");
+            return;
+        }
+
+        String targetFolderUrl = template.get("pathTarget");
+        LOGGER.info("Target folder URL is '"+targetFolderUrl+"'");
+        File targetFolder = new File(targetFolderUrl);
+        if(!templateFolder.exists()){
+            templateFolder.mkdirs();
+        }
+
+        File serverFolder = new File(targetFolder, name);
+        LOGGER.info("Server folder URL is '"+serverFolder.getAbsolutePath()+"'");
+        serverFolder.mkdirs();
+
+        if(templateFolder.listFiles() == null){
+            LOGGER.error("Template folder '"+templateFolder.getAbsolutePath()+"' is empty!");
+            return;
+        }
+
+        LOGGER.info("Starting copy...");
+        this.copyDirectory(templateFolder, serverFolder);
+        LOGGER.info("Copy done !");
+        LOGGER.info("Getting ready to start the server...");
+
+        String startFileName = template.get("startFileName");
+        LOGGER.info("Server start file name is '"+startFileName+"'");
+
+        boolean isBatchFile = template.get("isBatchFile");
+        boolean isShellFile = template.get("isShellFile");
+        boolean isJarFile = template.get("isJarFile");
+
+        try {
+            this.editServerProperties(template, new File(serverFolder, "server.properties"), name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.info("Starting server...");
+        ProcessBuilder processBuilder;
+        if(isBatchFile){
+            processBuilder = new ProcessBuilder(new File(serverFolder, startFileName).getAbsolutePath());
+        }else if(isJarFile){
+            processBuilder = new ProcessBuilder("java", "-jar", startFileName);
+            processBuilder.directory(serverFolder);
+        }else{
+            processBuilder = new ProcessBuilder(startFileName);
+        }
+        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, templateName));
+        LOGGER.info("Server started!");
+    }
+
+    private void editServerProperties(Configuration template, File propertiesFile, String serverName) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Configuration.ConfigurationSection section = template.getSection("server.properties");
+        boolean editServerIP = section.get("editServerIP");
+        boolean editServerPort = section.get("editServerPort");
+        boolean editServerName = section.get("editServerName");
+        boolean editMaxPlayers = section.get("editMaxPlayers");
+
+        if(propertiesFile.exists()){
+            propertiesFile.createNewFile();
+
+            if(editServerIP){
+                stringBuilder.append("server-ip="+ InetAddress.getLocalHost().getHostAddress()+"\n");
+            }
+            if(editServerPort){
+                ServerSocket socket = new ServerSocket(0);
+                stringBuilder.append("server-port="+ socket.getLocalPort()+"\n");
+                socket.close();
+            }
+            if(editServerName){
+                stringBuilder.append("server-name="+ serverName+"\n");
+            }
+            if(editMaxPlayers){
+                stringBuilder.append("max-players="+this.getIntegerFromPacket(section.get("maxPlayers"))+"\n");
+            }
+        }else{
+            BufferedReader reader = new BufferedReader(new FileReader(propertiesFile));
+            reader.lines().forEach(s -> {
+                try {
+                    if(s.contains("server-ip") && editServerIP){
+                        stringBuilder.append("server-ip="+ InetAddress.getLocalHost().getHostAddress()+"\n");
+                    }else if(s.contains("server-port") && editServerPort){
+                        ServerSocket socket = new ServerSocket(0);
+                        stringBuilder.append("server-port="+ socket.getLocalPort()+"\n");
+                        socket.close();
+                    }else if(s.contains("server-name") && editServerName){
+                        stringBuilder.append("server-name="+ serverName+"\n");
+                    }else if(s.contains("max-players") && editServerIP){
+                        stringBuilder.append("max-players="+this.getIntegerFromPacket(section.get("maxPlayers"))+"\n");
+                    }else{
+                        stringBuilder.append(s);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            reader.close();
+        }
+
+        FileWriter fileWriter = new FileWriter(propertiesFile);
+        fileWriter.write(stringBuilder.toString());
+        fileWriter.close();
+    }
+
+    private void copyDirectory(File source, File dest) {
+        for (File file : source.listFiles()) {
+            if(file.isDirectory()){
+                this.copyDirectory(file, new File(dest, file.getName()));
+            }else{
+                this.copyFile(file, new File(dest, file.getName()));
+            }
+        }
+    }
+
+    private void copyFile(File sourceFile, File destFile) {
+        try{
+            if (!sourceFile.exists()) {
+                return;
+            }
+            if(!destFile.getParentFile().exists()){
+                destFile.getParentFile().mkdirs();
+            }
+            if (!destFile.exists()) {
+                destFile.createNewFile();
+            }
+            FileChannel source = null;
+            FileChannel destination = null;
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(destFile).getChannel();
+            if (destination != null && source != null) {
+                destination.transferFrom(source, 0, source.size());
+            }
+            if (source != null) {
+                source.close();
+            }
+            if (destination != null) {
+                destination.close();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private double getDoubleFromPacket(Object o) {
+        return Double.parseDouble(o.toString());
+    }
+
+    private int getIntegerFromPacket(Object o) {
+        return (int) this.getDoubleFromPacket(o.toString());
+    }
+}
