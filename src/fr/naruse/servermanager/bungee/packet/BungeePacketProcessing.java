@@ -2,7 +2,7 @@ package fr.naruse.servermanager.bungee.packet;
 
 import com.google.common.collect.Sets;
 import fr.naruse.servermanager.bungee.main.BungeeManagerPlugin;
-import fr.naruse.servermanager.core.Utils;
+import fr.naruse.servermanager.bungee.utils.BungeeUtils;
 import fr.naruse.servermanager.core.connection.packet.PacketProcessing;
 import fr.naruse.servermanager.core.connection.packet.PacketReloadBungeeServers;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
@@ -80,7 +80,7 @@ public class BungeePacketProcessing extends PacketProcessing {
             return null;
         }
 
-        return ProxyServer.getInstance().constructServerInfo(server.getName(), Utils.getAddr(address), server.getName(), false);
+        return ProxyServer.getInstance().constructServerInfo(server.getName(), BungeeUtils.getAddr(address), server.getName(), false);
     }
 
 }

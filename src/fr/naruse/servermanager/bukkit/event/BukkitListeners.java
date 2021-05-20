@@ -1,6 +1,7 @@
 package fr.naruse.servermanager.bukkit.event;
 
 import fr.naruse.servermanager.bukkit.main.BukkitManagerPlugin;
+import fr.naruse.servermanager.core.server.Server;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,11 +18,21 @@ public class BukkitListeners implements Listener {
 
     @EventHandler
     public void join(PlayerJoinEvent e){
-        pl.getServerManager().getCurrentServer().getData().getUUIDByNameMap().put(e.getPlayer().getName(), e.getPlayer().getUniqueId().toString());
+        Server server = this.pl.getServerManager().getCurrentServer();
+        server.getData().getUUIDByNameMap().put(e.getPlayer().getName(), e.getPlayer().getUniqueId().toString());
+        if(Bukkit.getOnlinePlayers().size() == 1){
+            server.getData().removeStatus(Server.Status.READY);
+            server.getData().addStatus(Server.Status.ALLOCATED);
+        }
     }
 
     @EventHandler
     public void quit(PlayerQuitEvent e){
-        pl.getServerManager().getCurrentServer().getData().getUUIDByNameMap().remove(e.getPlayer().getName());
+        Server server = this.pl.getServerManager().getCurrentServer();
+        server.getData().getUUIDByNameMap().remove(e.getPlayer().getName());
+        if(Bukkit.getOnlinePlayers().size() == 1){
+            server.getData().removeStatus(Server.Status.ALLOCATED);
+            server.getData().addStatus(Server.Status.READY);
+        }
     }
 }

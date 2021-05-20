@@ -1,5 +1,5 @@
 {
-  "baseName": "example-",
+  "baseName": "example",
   "pathTemplate": "/home/server-manager/template/Server-example-1.12.2",
   "pathTarget": "/home/server-manager/servers/",
   "startFileName": "spigot-1.12.2.jar",

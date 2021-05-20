@@ -29,7 +29,7 @@ public class CreateServerTask {
             LOGGER.error("Template '"+templateName+".json' not found!");
             return;
         }
-        String name = template.get("baseName")+ Utils.randomLetters()+"-"+Utils.randomLetters();
+        String name = template.get("baseName")+ "-" +Utils.randomLetters()+"-"+Utils.randomLetters();
         LOGGER.setTag("CreateServerTask - "+name);
         LOGGER.info("Starting creation of '"+name+"'...");
 

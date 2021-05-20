@@ -38,6 +38,7 @@ public class KeepAliveBuffer {
             server.getData().setUUIDByNameMap(packet.getUUIDByNameMap());
             server.getData().setDataMap(packet.getDataMap());
             server.setServerManagerPort(packet.getServerManagerPort());
+            server.getData().setStatusSet(packet.getStatusSet());
         });
 
         map.clear();

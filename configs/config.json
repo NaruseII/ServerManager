@@ -1,1 +1,16 @@
-{"key":"LdGocGuZJrpprQJXviqZuXIzCuQynPYzqMkzwHldqhIRdqKkmXnpjWLTUFRPpxnBamJSuzpTSHYZHUcDOhzbnvrHpuJiInKplmWOCKHyfOzMUIyeTytZDsjTTRvWtLTFPgFpBoojbJCVQXnKEMqNqfNBUWtFcdRHDdBYmdRihwxcrYiljwxZIlsKzpxAYFNmcHiFCCAOJkQJOfQGunTBczBbixkYthLqZsJKOLqlUlkbMiWqjgermPOWgBCJnlbCBDuWQJPTOWAfUYmDHodFSfIxxwisdJocKLmIgtTXETGDcVEcqmujmrEvgfvFuymrZwuOgPzRizXtblTeWOQTPCdtYpyShvMsDggxjIAQaSZzuYpnQTUmBADyeIqldoHexqtCBlYyHBzIezSUEsNCNFSgHypGCLkgBcfMwakjPGGRtkyGOvWcOZJkxVGwmtFkaxRVxcNYRCCySeIzrVIPIuCDaRhdkSdWPgigEtDSgAxSmcpIKYqoDttEMImAJhYSgtXkTFOjcOsepbMkHPggqvzOYWZDXgCoiQQjOTDvqxblKoEiTErwtZNJZdKS","startServerOnStart":{"proxy":1.0,"hub":1.0},"serverPort":4848.0}
+{
+  "key": "LdGocGuZJrpprQJXviqZuXIzCuQynPYzqMkzwHldqhIRdqKkmXnpjWLTUFRPpxnBamJSuzpTSHYZHUcDOhzbnvrHpuJiInKplmWOCKHyfOzMUIyeTytZDsjTTRvWtLTFPgFpBoojbJCVQXnKEMqNqfNBUWtFcdRHDdBYmdRihwxcrYiljwxZIlsKzpxAYFNmcHiFCCAOJkQJOfQGunTBczBbixkYthLqZsJKOLqlUlkbMiWqjgermPOWgBCJnlbCBDuWQJPTOWAfUYmDHodFSfIxxwisdJocKLmIgtTXETGDcVEcqmujmrEvgfvFuymrZwuOgPzRizXtblTeWOQTPCdtYpyShvMsDggxjIAQaSZzuYpnQTUmBADyeIqldoHexqtCBlYyHBzIezSUEsNCNFSgHypGCLkgBcfMwakjPGGRtkyGOvWcOZJkxVGwmtFkaxRVxcNYRCCySeIzrVIPIuCDaRhdkSdWPgigEtDSgAxSmcpIKYqoDttEMImAJhYSgtXkTFOjcOsepbMkHPggqvzOYWZDXgCoiQQjOTDvqxblKoEiTErwtZNJZdKS",
+  "startServerOnStart": {
+    "proxy": 1.0,
+    "hub": 1.0
+  },
+  "serverPort": 4848.0,
+  "autoScaler": {
+    "enabled": true,
+    "hub": {
+      "match": "WHEN_ALL_ON_STATUS",
+      "value": "ALLOCATED",
+      "startServers": 1.0
+    }
+  }
+}

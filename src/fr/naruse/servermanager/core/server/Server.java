@@ -3,12 +3,11 @@ package fr.naruse.servermanager.core.server;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.connection.packet.IPacket;
+import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Server {
 
@@ -68,11 +67,24 @@ public class Server {
         return null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Server)){
+            return false;
+        }
+        return this.name.equals(((Server) o).getName());
+    }
+
     public static class Data {
 
         private Map<String, Object> dataMap = new HashMap<>();
         private Map<String, String> uuidByNameMap = new HashMap<>(); // Name -> UUID
         private int capacity;
+        private Set<Status> statusSet = new HashSet<>();
+
+        public Data() {
+            this.statusSet.add(Status.READY);
+        }
 
         public <T> T get(String dataName){
             return (T) this.dataMap.get(dataName);
@@ -118,5 +130,81 @@ public class Server {
             this.dataMap = dataMap;
         }
 
+        public Set<Status> getStatusSet() {
+            return statusSet;
+        }
+
+        public void setStatusSet(Set<Status> statusSet) {
+            this.statusSet = statusSet;
+        }
+
+        public boolean hasStatus(Status... status){
+            for (Status s : this.statusSet) {
+                if(s.is(status)){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void addStatus(Status status){
+            if(this.statusSet.contains(status)){
+                return;
+            }
+            this.statusSet.add(status);
+        }
+
+        public void removeStatus(Status status){
+            this.statusSet.remove(status);
+        }
+    }
+
+    public static class Status {
+
+        private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("Server Status");
+        private static final Map<String, Status> statusMap = new HashMap<>();
+
+        public static final Status READY = registerNewStatus("ready");
+        public static final Status ALLOCATED = registerNewStatus("allocated");
+
+        public static Status registerNewStatus(String name){
+            name = name.toUpperCase();
+            if(statusMap.containsKey(name)){
+                LOGGER.error("Status '"+name+"' already exists!");
+                return null;
+            }
+            Status status = new Status(name);
+            statusMap.put(name, status);
+            return status;
+        }
+
+        public static Status valueOf(String name){
+            return statusMap.get(name.toUpperCase());
+        }
+
+
+        private final String statusName;
+
+        private Status(String statusName) {
+            this.statusName = statusName;
+        }
+
+        public boolean is(Status... status){
+            for (Status s : status) {
+                if(this == s){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public String name() {
+            return this.statusName;
+        }
+
+        @Override
+        public String toString() {
+            return this.statusName;
+        }
     }
 }

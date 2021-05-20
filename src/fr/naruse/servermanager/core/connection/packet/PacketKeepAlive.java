@@ -8,6 +8,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class PacketKeepAlive implements IPacket {
 
@@ -21,6 +24,7 @@ public class PacketKeepAlive implements IPacket {
     private int capacity;
     private Map<String, String> uuidByNameMap;
     private Map<String, Object> dataMap;
+    private Set<Server.Status> statusSet;
 
     public PacketKeepAlive(Server server) {
         this.name = server.getName();
@@ -30,6 +34,7 @@ public class PacketKeepAlive implements IPacket {
         this.capacity = server.getData().getCapacity();
         this.uuidByNameMap = server.getData().getUUIDByNameMap();
         this.dataMap = server.getData().getDataMap();
+        this.statusSet = server.getData().getStatusSet();
     }
 
     @Override
@@ -41,6 +46,7 @@ public class PacketKeepAlive implements IPacket {
         stream.writeInt(this.capacity);
         stream.writeUTF(Utils.GSON.toJson(this.uuidByNameMap));
         stream.writeUTF(Utils.GSON.toJson(this.dataMap));
+        stream.writeUTF(Utils.GSON.toJson(this.statusSet.stream().map(status -> status.name()).collect(Collectors.toSet())));
     }
 
     @Override
@@ -52,6 +58,13 @@ public class PacketKeepAlive implements IPacket {
         this.capacity = stream.readInt();
         this.uuidByNameMap = Utils.GSON.fromJson(stream.readUTF(), Utils.MAP_STRING_TYPE);
         this.dataMap = Utils.GSON.fromJson(stream.readUTF(), Utils.MAP_TYPE);
+        this.statusSet = ((Set<String>) Utils.GSON.fromJson(stream.readUTF(), Utils.SET_TYPE)).stream().map(s -> {
+            Server.Status status = Server.Status.valueOf(s);
+            if(status == null){
+                status = Server.Status.registerNewStatus(s);
+            }
+            return status;
+        }).collect(Collectors.toSet());
     }
 
     @Override
@@ -85,5 +98,9 @@ public class PacketKeepAlive implements IPacket {
 
     public int getServerManagerPort() {
         return serverManagerPort;
+    }
+
+    public Set<Server.Status> getStatusSet() {
+        return statusSet;
     }
 }

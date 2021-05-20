@@ -1,5 +1,5 @@
 {
-  "baseName": "hub-",
+  "baseName": "hub",
   "pathTemplate": "D:/Desktop/mon serveur TEST/SERVEUR/ServerManager/template/hub",
   "pathTarget": "D:/Desktop/mon serveur TEST/SERVEUR/ServerManager/servers",
   "startFileName": "spigot-1.12.2.jar",

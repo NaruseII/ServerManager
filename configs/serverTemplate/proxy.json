@@ -1,5 +1,5 @@
 {
-  "baseName": "proxy-",
+  "baseName": "proxy",
   "pathTemplate": "D:/Desktop/mon serveur TEST/SERVEUR/ServerManager/template/proxy",
   "pathTarget": "D:/Desktop/mon serveur TEST/SERVEUR/ServerManager/servers",
   "startFileName": "BungeeCord.jar",

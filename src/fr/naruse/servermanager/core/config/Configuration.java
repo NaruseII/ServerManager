@@ -1,11 +1,8 @@
 package fr.naruse.servermanager.core.config;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import fr.naruse.servermanager.core.Utils;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,19 +48,19 @@ public class Configuration {
             if(inputStream != null){
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
+                StringBuilder stringBuilder = new StringBuilder();
                 FileWriter fileWriter = new FileWriter(file);
+
                 reader.lines().forEach(s -> {
-                    try {
-                        fileWriter.write(s);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    stringBuilder.append(s);
                 });
 
-                map = Utils.GSON.fromJson(reader.lines().collect(Collectors.joining()), Utils.MAP_TYPE);
+                map = Utils.GSON.fromJson(stringBuilder.toString(), Utils.MAP_TYPE);
                 if(map != null){
                     this.map = map;
                 }
+                fileWriter.write(Utils.GSON.toJson(map));
+
                 fileWriter.close();
                 reader.close();
                 inputStream.close();
@@ -77,6 +74,10 @@ public class Configuration {
 
     public void set(String path, Object o){
         this.map.put(path, o);
+    }
+
+    public boolean contains(String path){
+        return this.map.containsKey(path);
     }
 
     public ConfigurationSection getSection(String path){
@@ -128,6 +129,13 @@ public class Configuration {
             }
         }
 
+        public boolean contains(String path){
+            if(this.section != null){
+                return ((Map<String, Object>) section.get(initialPath)).containsKey(path);
+            }
+            return ((Map<String, Object>) map.get(initialPath)).containsKey(path);
+        }
+
         public ConfigurationSection getSection(String path){
             return new ConfigurationSection(this, path);
         }
@@ -137,6 +145,11 @@ public class Configuration {
                 return section.get(initialPath);
             }
             return ((Map<String, Object>) map.get(initialPath));
+        }
+
+
+        public String getInitialPath() {
+            return initialPath;
         }
     }
 }

@@ -6,7 +6,9 @@ import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ConfigurationManager {
 
@@ -65,6 +67,10 @@ public class ConfigurationManager {
 
     public Configuration getTemplate(String templateName){
         return this.serverTemplateMap.get(templateName);
+    }
+
+    public Set<Configuration> getAllTemplates(){
+        return new HashSet<>(this.serverTemplateMap.values());
     }
 
     public Configuration getConfig() {

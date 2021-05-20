@@ -3,5 +3,28 @@
   "currentServerName": "automatically given",
   "startServerOnStart": {
   },
-  "serverPort": 4848
+  "serverPort": 4848,
+  "autoScaler": {
+    "enabled": true,
+    "template_0": {
+      "match": "WHEN_ALL_ON_STATUS",
+      "value": "ALLOCATED",
+      "startServers": 1
+    },
+    "template_1": {
+      "match": "WHEN_TOTAL_SIZE_IS_ABOVE",
+      "value": 50,
+      "startServers": 1
+    },
+    "template_2": {
+      "match": "WHEN_ANY_SIZE_IS_ABOVE",
+      "value": 50,
+      "startServers": 1
+    },
+    "template_3": {
+      "match": "WHEN_ALL_FULL",
+      "value": "",
+      "startServers": 1
+    }
+  }
 }

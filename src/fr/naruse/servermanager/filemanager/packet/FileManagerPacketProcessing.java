@@ -1,10 +1,11 @@
-package fr.naruse.servermanager.filemanager;
+package fr.naruse.servermanager.filemanager.packet;
 
 import fr.naruse.servermanager.core.connection.packet.PacketBungeeRequestConfigWrite;
 import fr.naruse.servermanager.core.connection.packet.PacketProcessing;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.filemanager.FileManager;
 import fr.naruse.servermanager.filemanager.task.EditBungeeConfigFile;
 
 public class FileManagerPacketProcessing extends PacketProcessing {

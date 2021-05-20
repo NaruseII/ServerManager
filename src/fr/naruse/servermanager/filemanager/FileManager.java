@@ -5,8 +5,9 @@ import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
-import fr.naruse.servermanager.core.connection.packet.PacketCreateServer;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.filemanager.event.FileManagerEventListener;
+import fr.naruse.servermanager.filemanager.packet.FileManagerPacketProcessing;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
 import fr.naruse.servermanager.filemanager.task.EditBungeeConfigFile;
 
@@ -15,6 +16,8 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class FileManager {
+
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
     private static FileManager instance;
     public static FileManager get() {
@@ -25,9 +28,9 @@ public class FileManager {
         new FileManager();
     }
 
-    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     private final ServerManager serverManager;
     private final Map<String, ServerProcess> serverProcesses = new HashMap<>();
+    private AutoScaler autoScaler;
 
     public FileManager() {
         instance = this;
@@ -60,6 +63,23 @@ public class FileManager {
             }
         };
         serverManager.registerPacketProcessing(new FileManagerPacketProcessing(this));
+        serverManager.registerEventListener(new FileManagerEventListener(this));
+
+        Configuration.ConfigurationSection autoScalerSection = serverManager.getConfigurationManager().getConfig().getSection("autoScaler");
+        if(autoScalerSection.get("enabled")){
+            Set<Configuration.ConfigurationSection> sectionSet = new HashSet<>();
+
+            serverManager.getConfigurationManager().getAllTemplates().forEach(configuration -> {
+
+                String baseName = configuration.get("baseName");
+
+                if(autoScalerSection.contains(baseName)){
+                    sectionSet.add(autoScalerSection.getSection(baseName));
+                }
+            });
+
+            this.autoScaler = new AutoScaler(this, sectionSet);
+        }
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
 
@@ -83,7 +103,7 @@ public class FileManager {
                 ServerManagerLogger.info("Available commands:");
                 ServerManagerLogger.info("stop (Stop server)");
                 ServerManagerLogger.info("shutdown <Server name>");
-                ServerManagerLogger.info("listServer");
+                ServerManagerLogger.info("status");
                 ServerManagerLogger.info("generateSecretKey");
                 ServerManagerLogger.info("createServer <Template Name>");
             }else if(line.startsWith("stop")){
@@ -95,11 +115,6 @@ public class FileManager {
                 }else{
                     this.shutdownServer(serverProcess);
                 }
-            }else if(line.startsWith("listServer")){
-                ServerManagerLogger.info("Server list:");
-                for (String s : this.serverProcesses.keySet()) {
-                    ServerManagerLogger.info(" -> "+s);
-                }
             }else if(line.startsWith("generateSecretKey")){
                 ServerManagerLogger.info("Generation...");
                 ServerManagerLogger.info("Key generated: "+this.serverManager.generateNewSecretKey());
@@ -109,6 +124,8 @@ public class FileManager {
                 }else{
                     this.createServer(args[1]);
                 }
+            }else if(line.startsWith("status")){
+                serverManager.printStatus();
             }
         }
     }
@@ -156,5 +173,9 @@ public class FileManager {
 
     public ServerManager getServerManager() {
         return serverManager;
+    }
+
+    public AutoScaler getAutoScaler() {
+        return autoScaler;
     }
 }

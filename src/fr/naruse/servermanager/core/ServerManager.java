@@ -7,6 +7,7 @@ import fr.naruse.servermanager.core.connection.KeepAliveServerThread;
 import fr.naruse.servermanager.core.connection.packet.*;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
+import fr.naruse.servermanager.core.server.ServerList;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -130,5 +131,19 @@ public class ServerManager {
 
     public IServerManagerPlugin getPlugin() {
         return plugin;
+    }
+
+    public void printStatus() {
+        ServerManagerLogger.info("Server list:");
+        for (Server server : ServerList.getAll()) {
+            ServerManagerLogger.info("");
+            ServerManagerLogger.info(" -> "+server.getName()+" ["+server.getCoreServerType()+"]");
+            ServerManagerLogger.info("    Port: "+server.getPort());
+            ServerManagerLogger.info("    ServerManagerPort: "+server.getServerManagerPort());
+            ServerManagerLogger.info("    Capacity: "+server.getData().getCapacity());
+            ServerManagerLogger.info("    PlayerSize: "+server.getData().getPlayerSize());
+            ServerManagerLogger.info("    Players: "+server.getData().getUUIDByNameMap().toString());
+            ServerManagerLogger.info("    Status: "+server.getData().getStatusSet().toString());
+        }
     }
 }
