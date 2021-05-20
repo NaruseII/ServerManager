@@ -102,20 +102,40 @@ public class Configuration {
     public class ConfigurationSection {
 
         private final String initialPath;
+        private ConfigurationSection section;
+
+        public ConfigurationSection(ConfigurationSection section, String initialPath) {
+            this(initialPath);
+            this.section = section;
+        }
 
         public ConfigurationSection(String initialPath) {
             this.initialPath = initialPath;
         }
 
         public <T> T get(String path){
+            if(this.section != null){
+                return (T) (((Map<String, Object>) section.get(initialPath)).get(path));
+            }
             return (T) (((Map<String, Object>) map.get(initialPath)).get(path));
         }
 
         public void set(String path, Object o){
-            ((Map<String, Object>) map.get(initialPath)).put(path, o);
+            if(this.section != null){
+                ((Map<String, Object>) section.get(initialPath)).put(path, o);
+            }else{
+                ((Map<String, Object>) map.get(initialPath)).put(path, o);
+            }
+        }
+
+        public ConfigurationSection getSection(String path){
+            return new ConfigurationSection(this, path);
         }
 
         public Map<String, Object> getAll(){
+            if(this.section != null){
+                return section.get(initialPath);
+            }
             return ((Map<String, Object>) map.get(initialPath));
         }
     }

@@ -8,10 +8,7 @@ import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -57,6 +54,28 @@ public class ServerList {
         return getAll().stream().filter(server -> server.getCoreServerType() == coreServerType).collect(Collectors.toSet());
     }
 
+    public static Optional<Server> findServer(CoreServerType coreServerType, SortType sortType){
+        return getAll().stream().filter(server -> server.getCoreServerType() == coreServerType).sorted((o1, o2) -> {
+            if(o1.getData().getPlayerSize() > o2.getData().getPlayerSize()){
+                return sortType == SortType.FIND_MOST_POPULATED ? 1 : -1;
+            }else if(o1.getData().getPlayerSize() < o2.getData().getPlayerSize()){
+                return sortType == SortType.FIND_MOST_POPULATED ? -1 : 1;
+            }
+            return 0;
+        }).findFirst();
+    }
+
+    public static Optional<Server> findServer(CoreServerType coreServerType, SortType sortType, String nameStartsWith){
+        return getAll().stream().filter(server -> server.getCoreServerType() == coreServerType && server.getName().startsWith(nameStartsWith)).sorted((o1, o2) -> {
+            if(o1.getData().getPlayerSize() > o2.getData().getPlayerSize()){
+                return sortType == SortType.FIND_MOST_POPULATED ? 1 : -1;
+            }else if(o1.getData().getPlayerSize() < o2.getData().getPlayerSize()){
+                return sortType == SortType.FIND_MOST_POPULATED ? -1 : 1;
+            }
+            return 0;
+        }).findFirst();
+    }
+
     public static Server getByName(String name){
         return map.get(name);
     }
@@ -67,5 +86,15 @@ public class ServerList {
 
     public static Set<Server> getAll(){
         return new HashSet<>(map.values());
+    }
+
+    public static Set<String> getAllNames(){
+        return map.keySet();
+    }
+
+    public enum SortType {
+
+        FIND_MOST_POPULATED,
+        FIND_LEAST_POPULATED,
     }
 }

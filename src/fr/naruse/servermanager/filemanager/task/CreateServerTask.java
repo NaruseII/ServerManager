@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 public class CreateServerTask {
 
-    private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("CreateServerTask");
+    private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("CreateServerTask");
 
     public CreateServerTask(FileManager fileManager, String templateName) {
         LOGGER.info("Launching new task...");
@@ -30,6 +30,7 @@ public class CreateServerTask {
             return;
         }
         String name = template.get("baseName")+ Utils.randomLetters()+"-"+Utils.randomLetters();
+        LOGGER.setTag("CreateServerTask - "+name);
         LOGGER.info("Starting creation of '"+name+"'...");
 
         String templateFolderUrl = template.get("pathTemplate");
@@ -74,10 +75,9 @@ public class CreateServerTask {
         boolean isJarFile = template.get("isJarFile");
 
         try {
-            File serverProperties = new File(serverFolder, "server.properties");
-            if(serverProperties.exists()){
-                this.editServerProperties(template, serverProperties, name);
-            }
+            this.editServerProperties(template, new File(serverFolder, "server.properties"), name);
+
+            this.editConfigYml(template, new File(serverFolder, "config.yml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,8 +92,36 @@ public class CreateServerTask {
         }else{
             processBuilder = new ProcessBuilder(startFileName);
         }
-        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, templateName, serverFolder));
+        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, template, serverFolder, template.get("keepLogs")));
         LOGGER.info("Server started!");
+    }
+
+    private void editConfigYml(Configuration template, File configFile) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Configuration.ConfigurationSection section = template.getSection("config.yml");
+        boolean editMaxPlayers = section.get("editMaxPlayers");
+
+        if(configFile.exists()){
+            BufferedReader reader = new BufferedReader(new FileReader(configFile));
+            reader.lines().forEach(line -> {
+                try{
+                    if(editMaxPlayers && line.contains("max_players=")){
+                        stringBuilder.append("  max_players=").append(Utils.getIntegerFromPacket(section.get("maxPlayers"))).append("\n");
+                    }
+                    else{
+                        stringBuilder.append(line).append("\n");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+            reader.close();
+
+            FileWriter fileWriter = new FileWriter(configFile);
+            fileWriter.write(stringBuilder.toString());
+            fileWriter.close();
+        }
     }
 
     private void editConfigJson(File serverFolder, String serverName) {
@@ -111,6 +139,7 @@ public class CreateServerTask {
         Map<String, Object> map = new HashMap<>();
         map.put("key", ServerManager.get().getConfigurationManager().getConfig().get("key"));
         map.put("currentServerName", serverName);
+        map.put("serverPort", ServerManager.get().getCoreData().getServerPort());
 
         try {
             FileWriter fileWriter = new FileWriter(configJson);
@@ -130,26 +159,36 @@ public class CreateServerTask {
         boolean editServerName = section.get("editServerName");
         boolean editMaxPlayers = section.get("editMaxPlayers");
 
-        propertiesFile.createNewFile();
-
-        if(editServerIP){
-            stringBuilder.append("server-ip="+ InetAddress.getLocalHost().getHostAddress()+"\n");
+        if(propertiesFile.exists()){
+            BufferedReader reader = new BufferedReader(new FileReader(propertiesFile));
+            reader.lines().forEach(line -> {
+                try{
+                    if(editServerIP && line.contains("server-ip=")){
+                        stringBuilder.append("server-ip="+ InetAddress.getLocalHost().getHostAddress()+"\n");
+                    }
+                    else if(editServerPort && line.contains("server-port=")){
+                        ServerSocket socket = new ServerSocket(0);
+                        stringBuilder.append("server-port="+ socket.getLocalPort()+"\n");
+                        socket.close();
+                    }
+                    else if(editServerName && line.contains("server-name=")){
+                        stringBuilder.append("server-name="+ serverName+"\n");
+                    }
+                    else if(editMaxPlayers && line.contains("max-players=")){
+                        stringBuilder.append("max-players="+Utils.getIntegerFromPacket(section.get("maxPlayers"))+"\n");
+                    }
+                    else{
+                        stringBuilder.append(line).append("\n");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+            reader.close();
+            FileWriter fileWriter = new FileWriter(propertiesFile);
+            fileWriter.write(stringBuilder.toString());
+            fileWriter.close();
         }
-        if(editServerPort){
-            ServerSocket socket = new ServerSocket(0);
-            stringBuilder.append("server-port="+ socket.getLocalPort()+"\n");
-            socket.close();
-        }
-        if(editServerName){
-            stringBuilder.append("server-name="+ serverName+"\n");
-        }
-        if(editMaxPlayers){
-            stringBuilder.append("max-players="+Utils.getIntegerFromPacket(section.get("maxPlayers"))+"\n");
-        }
-
-        FileWriter fileWriter = new FileWriter(propertiesFile);
-        fileWriter.write(stringBuilder.toString());
-        fileWriter.close();
     }
 
     private void copyDirectory(File source, File dest) {

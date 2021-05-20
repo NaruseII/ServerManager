@@ -24,7 +24,6 @@ public class FileManagerPacketProcessing extends PacketProcessing {
 
         Server targetServer = ServerList.getByName(packet.getServerTarget());
 
-
         EditBungeeConfigFile.EXECUTOR_SERVICE.submit(() -> {
             try {
                 if(targetServer == null){
@@ -36,5 +35,6 @@ public class FileManagerPacketProcessing extends PacketProcessing {
                 e.printStackTrace();
             }
         });
+
     }
 }

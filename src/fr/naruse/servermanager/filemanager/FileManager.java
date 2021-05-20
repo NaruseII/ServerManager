@@ -38,7 +38,18 @@ public class FileManager {
             public void shutdown() {
                 ServerManagerLogger.info("Stopping servers...");
                 for (ServerProcess serverProcess : serverProcesses.values()) {
-                    serverProcess.shutdown();
+                    EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
+                }
+                while (true){
+                    boolean breakLoop = true;
+                    for (ServerProcess value : serverProcesses.values()) {
+                        if(!value.isStopped()){
+                            breakLoop = false;
+                        }
+                    }
+                    if(breakLoop){
+                        break;
+                    }
                 }
                 ServerManagerLogger.info("Stopping server creator thread pool...");
                 EXECUTOR_SERVICE.shutdown();

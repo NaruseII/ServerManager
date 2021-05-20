@@ -12,5 +12,15 @@
     "editServerName": true,
     "editMaxPlayers": true,
     "maxPlayers": 50
-  }
+  },
+  "config.yml": {
+    "editMaxPlayers": true,
+    "maxPlayers": 500.0,
+    "priorities": {
+      "editPriorities": true,
+      "forceOnTemplate": "hub",
+      "sortType": "MOST_POPULATED"
+    }
+  },
+  "keepLogs": true
 }

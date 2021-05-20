@@ -1,4 +1,7 @@
 {
   "key": "empty_key",
-  "currentServerName": "automatically given"
+  "currentServerName": "automatically given",
+  "startServerOnStart": {
+  },
+  "serverPort": 4848
 }

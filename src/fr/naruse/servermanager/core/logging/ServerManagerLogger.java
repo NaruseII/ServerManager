@@ -56,7 +56,7 @@ public class ServerManagerLogger {
 
     public static class Logger {
 
-        private final String tag;
+        private String tag;
 
         public Logger(String tag) {
             this.tag = tag;
@@ -80,6 +80,10 @@ public class ServerManagerLogger {
 
         public String getTag() {
             return tag;
+        }
+
+        public void setTag(String tag) {
+            this.tag = tag;
         }
     }
 }

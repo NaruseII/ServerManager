@@ -9,15 +9,11 @@ import java.util.*;
 
 public class DeleteServerTask {
 
-    private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("DeleteServerTask");
+    private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("DeleteServerTask");
 
-    public DeleteServerTask(FileManager fileManager, String templateName, String serverName) {
+    public DeleteServerTask(Configuration template, String serverName) {
+        LOGGER.setTag("DeleteServerTask - "+serverName);
         LOGGER.info("Launching new task...");
-        Configuration template = fileManager.getServerManager().getConfigurationManager().getTemplate(templateName);
-        if(template == null){
-            LOGGER.error("Template '"+templateName+".json' not found!");
-            return;
-        }
         LOGGER.info("Starting deletion of '"+serverName+"'...");
 
         String templateFolderUrl = template.get("pathTemplate");

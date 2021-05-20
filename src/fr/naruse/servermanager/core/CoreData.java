@@ -6,7 +6,7 @@ public class CoreData {
 
     private final CoreServerType coreServerType;
     private final File dataFolder;
-    private final int serverPort;
+    private int serverPort;
     private String serverName;
     private int port;
 
@@ -24,6 +24,10 @@ public class CoreData {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
     }
 
     public String getServerName() {

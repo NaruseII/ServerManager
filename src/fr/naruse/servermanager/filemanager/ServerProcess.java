@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.filemanager;
 
+import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
@@ -10,24 +11,30 @@ import java.io.*;
 
 public class ServerProcess {
 
-    private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("ServerProcess");
+    private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("");
     private static final File LOG_FOLDER = new File("serverLogs");
 
     private final FileManager fileManager;
     private Process process;
     private final ProcessBuilder processBuilder;
     private final String name;
-    private final String templateName;
+    private final Configuration template;
     private final File logFile;
     private final File serverFolder;
+    private final boolean keepLogs;
 
-    public ServerProcess(FileManager fileManager, ProcessBuilder processBuilder, String name, String templateName, File serverFolder) {
+    private boolean isStopped = false;
+
+    public ServerProcess(FileManager fileManager, ProcessBuilder processBuilder, String name, Configuration template, File serverFolder, boolean keepLogs) {
+        LOGGER.setTag("ServerProcess - "+name);
         LOGGER.info("Starting following process for '"+name+"'...");
+
         this.fileManager = fileManager;
         this.name = name;
-        this.templateName = templateName;
+        this.template = template;
         this.processBuilder = processBuilder;
         this.serverFolder = serverFolder;
+        this.keepLogs = keepLogs;
 
         if(!LOG_FOLDER.exists()){
             LOGGER.info("Creating log folder...");
@@ -49,8 +56,10 @@ public class ServerProcess {
         try {
             this.logFile.createNewFile();
 
-            processBuilder.redirectError(logFile);
-            processBuilder.redirectOutput(logFile);
+            if(this.keepLogs){
+                this.processBuilder.redirectError(this.logFile);
+                this.processBuilder.redirectOutput(this.logFile);
+            }
             this.process = processBuilder.start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,9 +86,10 @@ public class ServerProcess {
             }else{
                 process.destroy();
             }
+            this.isStopped = true;
             LOGGER.info("Server '"+this.name+"' stopped");
         }
-        new DeleteServerTask(this.fileManager, this.templateName, this.name);
+        new DeleteServerTask(this.template, this.name);
     }
 
     public String getName() {
@@ -94,11 +104,15 @@ public class ServerProcess {
         return LOG_FOLDER;
     }
 
-    public String getTemplateName() {
-        return templateName;
-    }
-
     public File getServerFolder() {
         return serverFolder;
+    }
+
+    public Configuration getTemplate() {
+        return template;
+    }
+
+    public boolean isStopped() {
+        return isStopped;
     }
 }

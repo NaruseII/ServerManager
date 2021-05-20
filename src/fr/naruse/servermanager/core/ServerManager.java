@@ -1,7 +1,6 @@
 package fr.naruse.servermanager.core;
 
 import fr.naruse.servermanager.core.api.events.*;
-import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
 import fr.naruse.servermanager.core.config.ConfigurationManager;
 import fr.naruse.servermanager.core.connection.ConnectionManager;
 import fr.naruse.servermanager.core.connection.KeepAliveServerThread;
@@ -11,7 +10,6 @@ import fr.naruse.servermanager.core.server.Server;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 public class ServerManager {
 
@@ -48,9 +46,13 @@ public class ServerManager {
         this.plugin = plugin;
 
         this.configurationManager = new ConfigurationManager(this);
+
         if(coreData.getServerName() == null){
             coreData.setServerName(configurationManager.getConfig().get("currentServerName"));
         }
+        coreData.setServerPort(Utils.getIntegerFromPacket(configurationManager.getConfig().get("serverPort")));
+
+
         this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getCoreServerType());
         Packets.load();
         this.connectionManager = new ConnectionManager(this);
