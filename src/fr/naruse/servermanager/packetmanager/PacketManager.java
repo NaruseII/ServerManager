@@ -46,9 +46,9 @@ public class PacketManager {
                 if(loop){
                     try {
                         while (ServerList.getSize() > 1){
-                                Thread.sleep(1000);
+                            Thread.sleep(1000);
                         }
-                        Thread.sleep(3000);
+                        Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

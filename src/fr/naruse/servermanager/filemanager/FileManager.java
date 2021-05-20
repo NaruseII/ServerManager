@@ -31,6 +31,7 @@ public class FileManager {
     private final ServerManager serverManager;
     private final Map<String, ServerProcess> serverProcesses = new HashMap<>();
     private AutoScaler autoScaler;
+    private AutoKiller autoKiller;
 
     public FileManager() {
         instance = this;
@@ -40,13 +41,22 @@ public class FileManager {
         this.serverManager = new ServerManager(new CoreData(CoreServerType.FILE_MANAGER, new File("configs"), 4848, "file-manager", 0)){
             @Override
             public void shutdown() {
+                if(autoScaler != null){
+                    autoScaler.shutdown();
+                }
+
+                if(autoKiller != null){
+                    autoKiller.shutdown();
+                }
+
                 ServerManagerLogger.info("Stopping servers...");
-                for (ServerProcess serverProcess : serverProcesses.values()) {
+                Set<ServerProcess> set = new HashSet<>(serverProcesses.values());
+                for (ServerProcess serverProcess : set) {
                     EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
                 }
                 while (true){
                     boolean breakLoop = true;
-                    for (ServerProcess value : serverProcesses.values()) {
+                    for (ServerProcess value : set) {
                         if(!value.isStopped()){
                             breakLoop = false;
                         }
@@ -55,8 +65,10 @@ public class FileManager {
                         break;
                     }
                 }
+
                 ServerManagerLogger.info("Stopping server creator thread pool...");
                 EXECUTOR_SERVICE.shutdown();
+
                 ServerManagerLogger.info("Stopping task threads...");
                 EditBungeeConfigFile.EXECUTOR_SERVICE.shutdown();
                 super.shutdown();
@@ -79,6 +91,22 @@ public class FileManager {
             });
 
             this.autoScaler = new AutoScaler(this, sectionSet);
+        }
+
+        Configuration.ConfigurationSection autoKillerSection = serverManager.getConfigurationManager().getConfig().getSection("autoKiller");
+        if(autoKillerSection.get("enabled")){
+            Map<Configuration, Integer> timeOutMap = new HashMap<>();
+
+            serverManager.getConfigurationManager().getAllTemplates().forEach(configuration -> {
+
+                String baseName = configuration.get("baseName");
+
+                if(autoKillerSection.contains(baseName)){
+                    timeOutMap.put(configuration, Utils.getIntegerFromPacket(autoKillerSection.get(baseName)));
+                }
+            });
+
+            this.autoKiller = new AutoKiller(this, timeOutMap);
         }
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
@@ -106,9 +134,13 @@ public class FileManager {
                 ServerManagerLogger.info("status");
                 ServerManagerLogger.info("generateSecretKey");
                 ServerManagerLogger.info("createServer <Template Name>");
+                ServerManagerLogger.info("scale");
             }else if(line.startsWith("stop")){
                 System.exit(0);
             }else if(line.startsWith("shutdown")){
+                if(args.length == 1){
+                    ServerManagerLogger.error("shutdown <Server name>");
+                }
                 ServerProcess serverProcess = this.serverProcesses.get(args[1]);
                 if(serverProcess == null){
                     ServerManagerLogger.error("Server '"+args[1]+"' not found");
@@ -126,6 +158,10 @@ public class FileManager {
                 }
             }else if(line.startsWith("status")){
                 serverManager.printStatus();
+            }else if(line.startsWith("scale")){
+                if(this.autoScaler != null){
+                    this.autoScaler.scale();
+                }
             }
         }
     }
@@ -177,5 +213,9 @@ public class FileManager {
 
     public AutoScaler getAutoScaler() {
         return autoScaler;
+    }
+
+    public Set<ServerProcess> getAllServerProcess(){
+        return new HashSet<>(this.serverProcesses.values());
     }
 }

@@ -3,6 +3,8 @@ package fr.naruse.servermanager.core.server;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.api.events.server.ServerDeleteEvent;
+import fr.naruse.servermanager.core.api.events.server.ServerPostDeleteEvent;
+import fr.naruse.servermanager.core.api.events.server.ServerPostRegisterEvent;
 import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
@@ -30,6 +32,9 @@ public class ServerList {
         }
 
         map.put(name, server);
+
+        ServerManager.get().getPlugin().callEvent(new ServerPostRegisterEvent(server));
+
         return server;
     }
 
@@ -37,13 +42,14 @@ public class ServerList {
         Server server = map.get(name);
         if(server != null) {
 
-            ServerDeleteEvent event = new ServerDeleteEvent(server);
-            ServerManager.get().getPlugin().callEvent(event);
+            ServerManager.get().getPlugin().callEvent(new ServerDeleteEvent(server));
 
             map.remove(name);
             if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)) {
                 ServerManagerLogger.info("Deleting server '" + name + "' -> ["+server.getAddress().getHostAddress()+"] ServerPort: "+server.getPort()+" ServerManagerPort: "+server.getServerManagerPort());
             }
+
+            ServerManager.get().getPlugin().callEvent(new ServerPostDeleteEvent(server));
         }
     }
 

@@ -90,6 +90,10 @@ public class ServerProcess {
             LOGGER.info("Server '"+this.name+"' stopped");
         }
         new DeleteServerTask(this.template, this.name);
+
+        if(this.fileManager.getAutoScaler() != null){
+            this.fileManager.getAutoScaler().scale();
+        }
     }
 
     public String getName() {

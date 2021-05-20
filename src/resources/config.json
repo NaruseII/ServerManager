@@ -2,6 +2,8 @@
   "key": "empty_key",
   "currentServerName": "automatically given",
   "startServerOnStart": {
+    "template_1": 1,
+    "template_2": 3
   },
   "serverPort": 4848,
   "autoScaler": {
@@ -25,6 +27,15 @@
       "match": "WHEN_ALL_FULL",
       "value": "",
       "startServers": 1
+    },
+    "template_4": {
+      "match": "WHEN_ALL_STOPPED",
+      "value": "",
+      "startServers": 1
     }
+  },
+  "autoKiller": {
+    "enabled": true,
+    "template_0": 60
   }
 }

@@ -9,6 +9,7 @@ import fr.naruse.servermanager.core.server.ServerList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AutoScaler {
 
@@ -17,6 +18,8 @@ public class AutoScaler {
     private final FileManager fileManager;
     private final Set<Configuration.ConfigurationSection> sectionSet;
 
+    private boolean cancel = false;
+
     public AutoScaler(FileManager fileManager, Set<Configuration.ConfigurationSection> sectionSet) {
         this.fileManager = fileManager;
         this.sectionSet = sectionSet;
@@ -24,21 +27,36 @@ public class AutoScaler {
     }
 
     public void scale(){
-        Set<Server> set = ServerList.getAll();
+        if(this.cancel){
+            return;
+        }
 
-        for (Configuration.ConfigurationSection section : sectionSet) {
+        Set<Server> set = ServerList.getAll();
+        Set<ServerProcess> serverProcesses = FileManager.get().getAllServerProcess();
+
+        for (Configuration.ConfigurationSection section : this.sectionSet) {
             Matches matches = Matches.valueOf(section.get("match"));
             Object value = matches.transformValue(section.get("value"));
             if(value == null){
                 continue;
             }
 
-            if(matches.match(set, value)){
+            if(matches.match(set.stream().filter(server -> server.getName().startsWith(section.getInitialPath())).collect(Collectors.toSet()), value)){
+
+                long count = serverProcesses.stream().filter(process -> process.getName().startsWith(section.getInitialPath()) && ServerList.getByName(process.getName()) == null).count();
+                if(count != 0){
+                    continue;
+                }
+
                 for (int i = 0; i < Utils.getIntegerFromPacket(section.get("startServers")); i++) {
                     fileManager.createServer(section.getInitialPath());
                 }
             }
         }
+    }
+
+    public void shutdown() {
+        this.cancel = true;
     }
 
     public abstract static class Matches<T, E> {
@@ -49,7 +67,6 @@ public class AutoScaler {
             return matches;
         }
 
-
         public static Matches valueOf(String name){
             return map.get(name.toUpperCase());
         }
@@ -58,11 +75,11 @@ public class AutoScaler {
             @Override
             public boolean match(Set<Server> set, Server.Status status) {
                 for (Server server : set) {
-                    if(!server.getData().hasStatus(status)){
+                    if(server.getData().hasStatus(status)){
                         return false;
                     }
                 }
-                return true;
+                return set.stream().filter(server -> server.getData().hasStatus(status)).count() != 0;
             }
 
             @Override
@@ -110,12 +127,26 @@ public class AutoScaler {
 
             @Override
             public boolean match(Set<Server> set, String value) {
+
                 for (Server server : set) {
                     if(server.getData().getPlayerSize() < server.getData().getCapacity()){
                         return false;
                     }
                 }
-                return true;
+                return !set.isEmpty();
+            }
+
+            @Override
+            public String transformValue(String value) {
+                return value;
+            }
+        });
+
+        private static final Matches WHEN_ALL_STOPPED = registerMatches("WHEN_ALL_STOPPED", new Matches<String, String>() {
+
+            @Override
+            public boolean match(Set<Server> set, String value) {
+                return set.isEmpty();
             }
 
             @Override

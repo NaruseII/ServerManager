@@ -79,6 +79,7 @@ public class ServerManager {
         this.configurationManager.shutdown();
         this.connectionManager.shutdown();
         ServerManagerLogger.info("Server stopped. See you soon !");
+        ServerManagerLogger.saveLogs();
     }
 
     public String generateNewSecretKey(){

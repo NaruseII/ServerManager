@@ -1,10 +1,17 @@
 package fr.naruse.servermanager.core.logging;
 
+import fr.naruse.servermanager.core.ServerManager;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.logging.Level;
 
 public class ServerManagerLogger {
+
+    public static final StringBuilder LOGS_BUILDER = new StringBuilder();
 
     private static java.util.logging.Logger PLUGIN_LOGGER;
 
@@ -26,7 +33,9 @@ public class ServerManagerLogger {
 
     public static void log(Level level, String msg, Logger logger){
         if(PLUGIN_LOGGER != null){
-            PLUGIN_LOGGER.log(level, (logger != null ? "["+ logger.getTag()+"] " : "")+msg);
+            String s = (logger != null ? "["+ logger.getTag()+"] " : "")+msg;
+            PLUGIN_LOGGER.log(level, s);
+            LOGS_BUILDER.append(s).append("\n");
         }else{
             Date date = Date.from(Instant.now());
 
@@ -47,11 +56,30 @@ public class ServerManagerLogger {
             }else{
                 System.out.println(stringBuilder);
             }
+            LOGS_BUILDER.append(stringBuilder).append("\n");
         }
     }
 
     public static void load(java.util.logging.Logger logger) {
         PLUGIN_LOGGER = logger;
+    }
+
+    public static void saveLogs() {
+        File file = new File(ServerManager.get().getCoreData().getDataFolder(), "latest.log");
+        if(file.exists()){
+            file.delete();
+        }else{
+            file.getParentFile().mkdirs();
+        }
+        try {
+            file.createNewFile();
+
+            FileWriter writer = new FileWriter(file);
+            writer.write(LOGS_BUILDER.toString());
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static class Logger {

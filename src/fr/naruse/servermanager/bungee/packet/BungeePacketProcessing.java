@@ -3,6 +3,7 @@ package fr.naruse.servermanager.bungee.packet;
 import com.google.common.collect.Sets;
 import fr.naruse.servermanager.bungee.main.BungeeManagerPlugin;
 import fr.naruse.servermanager.bungee.utils.BungeeUtils;
+import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.connection.packet.PacketProcessing;
 import fr.naruse.servermanager.core.connection.packet.PacketReloadBungeeServers;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
@@ -51,7 +52,7 @@ public class BungeePacketProcessing extends PacketProcessing {
             BungeeCord.getInstance().getServers().remove(s);
         });
 
-        ServerList.getAll().stream().filter(s -> !set.contains(s.getName())).forEach(server -> {
+        ServerList.getAll().stream().filter(s -> !set.contains(s.getName()) && s.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER)).forEach(server -> {
             ServerInfo serverInfo = this.buildServerInfo(server, packet.transformToLocalhostIfPossible());
             BungeeCord.getInstance().getServers().put(server.getName(), serverInfo);
         });
