@@ -27,15 +27,27 @@ public class PacketManager {
             @Override
             public void shutdown() {
                 Optional<Server> optional = ServerList.findServer(CoreServerType.FILE_MANAGER).stream().findFirst();
+
+                boolean loop = false;
+                int size = ServerList.getSize();
                 if(optional.isPresent()){
                     optional.get().sendPacket(new PacketShutdown());
                     ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
-                    ServerManagerLogger.warn("You can't stop Packet-Manager before the others!");
-                    ServerManagerLogger.warn("You always need to stop Packet-Manager before the others!");
+                    ServerManagerLogger.warn("You shouldn't stop Packet-Manager before the others!");
                     ServerManagerLogger.warn("It may cause bugs, servers might not be deleted and server might also no stop and run in background!");
                     ServerManagerLogger.warn("Waiting for File-Manager to stop...");
                     ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
-
+                    loop = true;
+                }else if(size > 1){
+                    ServerList.getAll().forEach(server -> server.sendPacket(new PacketShutdown()));
+                    ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
+                    ServerManagerLogger.warn("Why can't I find File-Manager ? "+(size-1)+" servers are still alive! How is that possible ?");
+                    ServerManagerLogger.warn("You shouldn't start server without using File-Manager!");
+                    ServerManagerLogger.warn("Waiting for Servers to stop...");
+                    ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
+                    loop = true;
+                }
+                if(loop){
                     while (ServerList.getSize() > 1){
                         try {
                             Thread.sleep(1000);

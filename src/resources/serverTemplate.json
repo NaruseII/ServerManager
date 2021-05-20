@@ -1,8 +1,8 @@
 {
   "baseName": "example-",
-  "pathTemplate": "D:/Desktop/mon serveur TEST/SERVEUR/Serveur-1.12.2",
-  "pathTarget": "D:/Desktop/mon serveur TEST/SERVEUR/ServerManager",
-  "startFileName": "run (1.12).bat",
+  "pathTemplate": "/home/server-manager/template/Server-example-1.12.2",
+  "pathTarget": "/home/server-manager/servers/",
+  "startFileName": "spigot-1.12.2.jar",
   "isBatchFile": true,
   "isShellFile": false,
   "isJarFile": false,
