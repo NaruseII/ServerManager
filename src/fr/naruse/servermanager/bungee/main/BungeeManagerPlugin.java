@@ -11,11 +11,14 @@ import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin {
 
     private ServerManager serverManager;
+
+    private ListenerInfo listenerInfo;
 
     @Override
     public void onEnable() {
@@ -23,7 +26,8 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
         ServerManagerLogger.load(this.getLogger());
         ServerManagerLogger.info("Starting BungeeManager...");
 
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, 0), this);
+        this.setListenerInfo(BungeeCord.getInstance().getConfig().getListeners().stream().findFirst().get());
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, listenerInfo.getQueryPort()), this);
         this.serverManager.registerPacketProcessing(new BungeePacketProcessing(this));
 
         this.getProxy().getPluginManager().registerListener(this, new BungeeListeners(this));
@@ -44,5 +48,13 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
 
     public ServerManager getServerManager() {
         return serverManager;
+    }
+
+    public ListenerInfo getListenerInfo() {
+        return listenerInfo;
+    }
+
+    public void setListenerInfo(ListenerInfo listenerInfo) {
+        this.listenerInfo = listenerInfo;
     }
 }

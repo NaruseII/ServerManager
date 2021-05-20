@@ -16,6 +16,7 @@ public class PacketKeepAlive implements IPacket {
 
     private String name;
     private int port;
+    private int serverManagerPort;
     private CoreServerType coreServerType;
     private int capacity;
     private Map<String, String> uuidByNameMap;
@@ -24,6 +25,7 @@ public class PacketKeepAlive implements IPacket {
     public PacketKeepAlive(Server server) {
         this.name = server.getName();
         this.port = server.getPort();
+        this.serverManagerPort = server.getServerManagerPort();
         this.coreServerType = server.getCoreServerType();
         this.capacity = server.getData().getCapacity();
         this.uuidByNameMap = server.getData().getUUIDByNameMap();
@@ -33,6 +35,7 @@ public class PacketKeepAlive implements IPacket {
     @Override
     public void write(DataOutputStream stream) throws IOException {
         stream.writeInt(this.port);
+        stream.writeInt(this.serverManagerPort);
         stream.writeUTF(this.name);
         stream.writeUTF(this.coreServerType.name());
         stream.writeInt(this.capacity);
@@ -43,6 +46,7 @@ public class PacketKeepAlive implements IPacket {
     @Override
     public void read(DataInputStream stream) throws IOException {
         this.port = stream.readInt();
+        this.serverManagerPort = stream.readInt();
         this.name = stream.readUTF();
         this.coreServerType = CoreServerType.valueOf(stream.readUTF());
         this.capacity = stream.readInt();
@@ -77,5 +81,9 @@ public class PacketKeepAlive implements IPacket {
 
     public Map<String, Object> getDataMap() {
         return dataMap;
+    }
+
+    public int getServerManagerPort() {
+        return serverManagerPort;
     }
 }

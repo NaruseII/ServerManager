@@ -16,12 +16,14 @@ public class Server {
     private final ServerManager serverManager;
     private final String name;
     private final CoreServerType coreServerType;
+    private int serverManagerPort;
     private int port;
 
-    public Server(String name, int port, CoreServerType coreServerType) {
+    public Server(String name, int port, int serverManagerPort, CoreServerType coreServerType) {
         this.serverManager = ServerManager.get();
         this.name = name;
         this.port = port;
+        this.serverManagerPort = serverManagerPort;
         this.coreServerType = coreServerType;
     }
 
@@ -39,6 +41,14 @@ public class Server {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public void setServerManagerPort(int serverManagerPort) {
+        this.serverManagerPort = serverManagerPort;
+    }
+
+    public int getServerManagerPort() {
+        return serverManagerPort;
     }
 
     public Data getData() {

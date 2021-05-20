@@ -16,6 +16,7 @@
   "config.yml": {
     "editMaxPlayers": true,
     "maxPlayers": 500.0,
+    "transformToLocalhostIfPossible": true,
     "priorities": {
       "editPriorities": true,
       "forceOnTemplate": "hub",

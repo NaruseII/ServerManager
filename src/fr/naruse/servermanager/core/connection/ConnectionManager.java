@@ -17,8 +17,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ConnectionManager {
 
@@ -53,14 +55,14 @@ public class ConnectionManager {
             try {
                 boolean flag = this.serverManager.getCoreData().getCoreServerType() == CoreServerType.PACKET_MANAGER;
 
-                ServerSocket serverSocket = new ServerSocket(flag ? this.serverManager.getCoreData().getServerPort() : this.serverManager.getCoreData().getPort());
+                ServerSocket serverSocket = new ServerSocket(flag ? this.serverManager.getCoreData().getServerPort() : this.serverManager.getCoreData().getServerManagerPort());
                 LOGGER.info((flag ? "Server":"Client")+" thread started");
                 LOGGER.info("Listening on port "+(this.localPort = serverSocket.getLocalPort()));
-                if(this.serverManager.getCoreData().getPort() == 0){
-                    this.serverManager.getCoreData().setPort(this.localPort);
+                if(this.serverManager.getCoreData().getServerPort() == 0){
+                    this.serverManager.getCoreData().setServerPort(this.localPort);
                 }
 
-                this.serverManager.getCurrentServer().setPort(this.localPort);
+                this.serverManager.getCurrentServer().setServerManagerPort(this.localPort);
                 if(!flag){
                     this.serverManager.getConnectionManager().sendPacket(new PacketConnection(this.serverManager.getCurrentServer()));
                 }
@@ -68,7 +70,7 @@ public class ConnectionManager {
                 while (true){
                     Socket socket = serverSocket.accept();
 
-                    EXECUTOR_SERVICE.submit(() -> {
+                    Future future = EXECUTOR_SERVICE.submit(() -> {
                         try {
                             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                             String packetName = dataInputStream.readUTF();
@@ -92,6 +94,15 @@ public class ConnectionManager {
                             e.printStackTrace();
                         }
                     });
+                    EXECUTOR_SERVICE.submit(() -> {
+                        try {
+                            future.get();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -104,11 +115,11 @@ public class ConnectionManager {
     }
 
     public void sendPacket(Server server, IPacket packet){
-        this.sendPacket(packet, this.inetAddress, server.getPort());
+        this.sendPacket(packet, this.inetAddress, server.getServerManagerPort());
     }
 
     public void sendPacket(Set<Server> servers, IPacket packet){
-        servers.forEach(server -> this.sendPacket(packet, this.inetAddress, server.getPort()));
+        servers.forEach(server -> this.sendPacket(packet, this.inetAddress, server.getServerManagerPort()));
     }
 
     // to Packet-Manager

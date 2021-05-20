@@ -13,28 +13,24 @@ public class PacketDisconnection implements IPacket {
     public PacketDisconnection() {
     }
 
-    private int port;
     private String name;
     public PacketDisconnection(Server server) {
-        this.port = server.getPort();
         this.name = server.getName();
     }
 
     @Override
     public void write(DataOutputStream stream) throws IOException {
-        stream.writeInt(this.port);
         stream.writeUTF(this.name);
     }
 
     @Override
     public void read(DataInputStream stream) throws IOException {
-        this.port = stream.readInt();
         this.name = stream.readUTF();
     }
 
     @Override
     public void process(ServerManager serverManager) {
-        ServerList.deleteServer(this.name, this.port);
+        ServerList.deleteServer(this.name);
     }
 
 }

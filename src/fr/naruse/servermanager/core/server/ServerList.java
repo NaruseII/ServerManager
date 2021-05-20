@@ -6,22 +6,19 @@ import fr.naruse.servermanager.core.api.events.server.ServerDeleteEvent;
 import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ServerList {
 
     private static final Map<String, Server> map = new HashMap<>();
 
-    public static Server createNewServer(String name, int port, CoreServerType coreServerType){
+    public static Server createNewServer(String name, int port, int serverManagerPort, CoreServerType coreServerType){
         if(map.containsKey(name)){
             return null;
         }
 
-        Server server = new Server(name, port, coreServerType);
+        Server server = new Server(name, port, serverManagerPort, coreServerType);
         ServerRegisterEvent event = new ServerRegisterEvent(server);
         ServerManager.get().getPlugin().callEvent(event);
         if(event.isCancelled()){
@@ -29,14 +26,14 @@ public class ServerList {
         }
 
         if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)){
-            ServerManagerLogger.info("Registering server '"+name+"' -> ["+ server.getAddress().getHostAddress()+":"+port+"]");
+            ServerManagerLogger.info("Registering server '"+name+"' -> ["+server.getAddress().getHostAddress()+"] ServerPort: "+port+" ServerManagerPort: "+serverManagerPort);
         }
 
         map.put(name, server);
         return server;
     }
 
-    public static void deleteServer(String name, int port) {
+    public static void deleteServer(String name) {
         Server server = map.get(name);
         if(server != null) {
 
@@ -45,7 +42,7 @@ public class ServerList {
 
             map.remove(name);
             if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)) {
-                ServerManagerLogger.info("Deleting server '" + name + "' -> [" + server.getAddress().getHostAddress() + ":" + port + "]");
+                ServerManagerLogger.info("Deleting server '" + name + "' -> ["+server.getAddress().getHostAddress()+"] ServerPort: "+server.getPort()+" ServerManagerPort: "+server.getServerManagerPort());
             }
         }
     }

@@ -12,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,7 +44,8 @@ public class EditBungeeConfigFile {
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader reader = new BufferedReader(new FileReader(configFile));
 
-        Configuration.ConfigurationSection prioritiesSection = process.getTemplate().getSection("config.yml").getSection("priorities");
+        Configuration.ConfigurationSection configSection = process.getTemplate().getSection("config.yml");
+        Configuration.ConfigurationSection prioritiesSection = configSection.getSection("priorities");
         Optional<Server> optionalServer = ServerList.findServer(CoreServerType.BUKKIT_MANAGER, ServerList.SortType.valueOf(prioritiesSection.get("sortType")), prioritiesSection.get("forceOnTemplate"));
 
         reader.lines().forEach(line -> {
@@ -92,7 +95,7 @@ public class EditBungeeConfigFile {
             if(line.contains("servers")){
                 this.foundClient = true;
                 if(!needToDelete){
-                    this.append(stringBuilder, serverName, hostAddress, port);
+                    this.append(stringBuilder, serverName, hostAddress, port, configSection.get("transformToLocalhostIfPossible"));
                 }
                 this.isOnServers = true;
             }
@@ -104,22 +107,28 @@ public class EditBungeeConfigFile {
         reader.close();
 
         if(!this.foundClient && !needToDelete){
-            this.append(stringBuilder, serverName, hostAddress, port);
+            this.append(stringBuilder, serverName, hostAddress, port, configSection.get("transformToLocalhostIfPossible"));
         }
 
         FileWriter fileWriter = new FileWriter(configFile);
         fileWriter.write(stringBuilder.toString());
         fileWriter.close();
 
-        ServerList.getByName(process.getName()).sendPacket(new PacketReloadBungeeServers());
+        ServerList.getByName(process.getName()).sendPacket(new PacketReloadBungeeServers(optionalServer.isPresent() ? optionalServer.get().getName() : "null", configSection.get("transformToLocalhostIfPossible")));
 
         LOGGER.info("Task complete");
     }
 
-    private void append(StringBuilder stringBuilder, String serverName, String hostAddress, int port) {
+    private void append(StringBuilder stringBuilder, String serverName, String hostAddress, int port, boolean transformToLocalhostIfPossible) {
         stringBuilder.append("  ").append(serverName).append(":").append("\n");
         stringBuilder.append("    ").append("motd: ").append(serverName).append("\n");
-        stringBuilder.append("    ").append("address: ").append(hostAddress).append(":").append(port).append("\n");
+        try {
+            stringBuilder.append("    ").append("address: ")
+                    .append(transformToLocalhostIfPossible ? hostAddress.equals(InetAddress.getLocalHost().getHostAddress()) ? "localhost" : hostAddress : hostAddress)
+                    .append(":").append(port).append("\n");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         stringBuilder.append("    ").append("restricted: ").append(false).append("\n");
     }
 }

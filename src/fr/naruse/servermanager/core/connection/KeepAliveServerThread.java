@@ -27,7 +27,7 @@ public class KeepAliveServerThread {
                         server.getData().set("countBeforeDelete", 3);
                     }else{
                         if(integer == 0){
-                            ServerList.deleteServer(server.getName(), server.getPort());
+                            ServerList.deleteServer(server.getName());
                             ServerManagerLogger.warn("Server '"+server.getName()+"' didn't respond for 9 seconds! Did it crash ?");
                             continue;
                         }

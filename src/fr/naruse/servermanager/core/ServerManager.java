@@ -53,7 +53,7 @@ public class ServerManager {
         coreData.setServerPort(Utils.getIntegerFromPacket(configurationManager.getConfig().get("serverPort")));
 
 
-        this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getCoreServerType());
+        this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getServerManagerPort(), coreData.getCoreServerType());
         Packets.load();
         this.connectionManager = new ConnectionManager(this);
 
@@ -102,7 +102,7 @@ public class ServerManager {
 
     public void processPacket(IPacket packet){
         if(packet instanceof PacketReloadBungeeServers){
-            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processReloadBungeeServers());
+            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processReloadBungeeServers((PacketReloadBungeeServers) packet));
         }else if(packet instanceof PacketBungeeRequestConfigWrite){
             this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processBungeeRequestConfigWrite((PacketBungeeRequestConfigWrite) packet));
         }

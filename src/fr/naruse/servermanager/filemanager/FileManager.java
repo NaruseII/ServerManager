@@ -5,6 +5,7 @@ import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
+import fr.naruse.servermanager.core.connection.packet.PacketCreateServer;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
 import fr.naruse.servermanager.filemanager.task.EditBungeeConfigFile;
@@ -84,6 +85,7 @@ public class FileManager {
                 ServerManagerLogger.info("shutdown <Server name>");
                 ServerManagerLogger.info("listServer");
                 ServerManagerLogger.info("generateSecretKey");
+                ServerManagerLogger.info("createServer <Template Name>");
             }else if(line.startsWith("stop")){
                 System.exit(0);
             }else if(line.startsWith("shutdown")){
@@ -101,6 +103,12 @@ public class FileManager {
             }else if(line.startsWith("generateSecretKey")){
                 ServerManagerLogger.info("Generation...");
                 ServerManagerLogger.info("Key generated: "+this.serverManager.generateNewSecretKey());
+            }else if(line.startsWith("createServer")){
+                if(args.length == 1){
+                    ServerManagerLogger.error("createServer <Template Name>");
+                }else{
+                    this.createServer(args[1]);
+                }
             }
         }
     }

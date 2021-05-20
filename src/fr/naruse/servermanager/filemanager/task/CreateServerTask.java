@@ -106,8 +106,8 @@ public class CreateServerTask {
             BufferedReader reader = new BufferedReader(new FileReader(configFile));
             reader.lines().forEach(line -> {
                 try{
-                    if(editMaxPlayers && line.contains("max_players=")){
-                        stringBuilder.append("  max_players=").append(Utils.getIntegerFromPacket(section.get("maxPlayers"))).append("\n");
+                    if(editMaxPlayers && line.contains("max_players:")){
+                        stringBuilder.append("  max_players: ").append(Utils.getIntegerFromPacket(section.get("maxPlayers"))).append("\n");
                     }
                     else{
                         stringBuilder.append(line).append("\n");

@@ -2,11 +2,13 @@ package fr.naruse.servermanager.packetmanager;
 
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.connection.packet.PacketCreateServer;
+import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class PacketManager {
@@ -21,7 +23,30 @@ public class PacketManager {
         long millis  = System.currentTimeMillis();
         ServerManagerLogger.info("Starting PacketManager...");
 
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.PACKET_MANAGER, new File("configs"), 4848, "packet-manager", 4848));
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.PACKET_MANAGER, new File("configs"), 4848, "packet-manager", 4848)){
+            @Override
+            public void shutdown() {
+                Optional<Server> optional = ServerList.findServer(CoreServerType.FILE_MANAGER).stream().findFirst();
+                if(optional.isPresent()){
+                    optional.get().sendPacket(new PacketShutdown());
+                    ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
+                    ServerManagerLogger.warn("You can't stop Packet-Manager before the others!");
+                    ServerManagerLogger.warn("You always need to stop Packet-Manager before the others!");
+                    ServerManagerLogger.warn("It may cause bugs, servers might not be deleted and server might also no stop and run in background!");
+                    ServerManagerLogger.warn("Waiting for File-Manager to stop...");
+                    ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
+
+                    while (ServerList.getSize() > 1){
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                super.shutdown();
+            }
+        };
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
 
@@ -53,8 +78,9 @@ public class PacketManager {
             }else if(line.startsWith("status")){
                 ServerManagerLogger.info("Server list:");
                 for (Server server : ServerList.getAll()) {
-                    ServerManagerLogger.info(" -> "+server.getName()+" ["+server.getCoreServerType()+"]");
+                    ServerManagerLogger.info("\n -> "+server.getName()+" ["+server.getCoreServerType()+"]");
                     ServerManagerLogger.info("    Port: "+server.getPort());
+                    ServerManagerLogger.info("    ServerManagerPort: "+server.getServerManagerPort());
                     ServerManagerLogger.info("    Capacity: "+server.getData().getCapacity());
                     ServerManagerLogger.info("    PlayerSize: "+server.getData().getPlayerSize());
                     ServerManagerLogger.info("    Players: "+server.getData().getUUIDByNameMap().toString());
