@@ -42,7 +42,7 @@ public class EditBungeeConfigFile {
         File configFile = new File(process.getServerFolder(), "config.yml");
         if(!configFile.exists()){
             configFile.createNewFile();
-            LOGGER.info("'config.yml' created");
+            LOGGER.debug("'config.yml' created");
         }
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -55,6 +55,7 @@ public class EditBungeeConfigFile {
         reader.lines().forEach(line -> {
 
             int spaceCount = 0;
+
             for (char c : line.toCharArray()) {
                 if(c == ' '){
                     spaceCount++;

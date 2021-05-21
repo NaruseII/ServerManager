@@ -41,7 +41,7 @@ public class PacketServerList implements IPacket {
                 server = ServerList.createNewServer(packetKeepAlive.getName(), packetKeepAlive.getPort(), packetKeepAlive.getServerManagerPort(), packetKeepAlive.getCoreServerType());
             }
 
-            if(server == null || server.equals(ServerManager.get().getCurrentServer())){
+            if(server == null){
                 continue;
             }
 

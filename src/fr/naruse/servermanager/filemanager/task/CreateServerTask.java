@@ -34,7 +34,7 @@ public class CreateServerTask {
         LOGGER.info("Starting creation of '"+name+"'...");
 
         String templateFolderUrl = template.get("pathTemplate");
-        LOGGER.info("Template folder URL is '"+templateFolderUrl+"'");
+        LOGGER.debug("Template folder URL is '"+templateFolderUrl+"'");
         File templateFolder = new File(templateFolderUrl);
         if(!templateFolder.exists()){
             LOGGER.error("Template folder '"+templateFolder.getAbsolutePath()+"' not found!");
@@ -42,14 +42,14 @@ public class CreateServerTask {
         }
 
         String targetFolderUrl = template.get("pathTarget");
-        LOGGER.info("Target folder URL is '"+targetFolderUrl+"'");
+        LOGGER.debug("Target folder URL is '"+targetFolderUrl+"'");
         File targetFolder = new File(targetFolderUrl);
         if(!templateFolder.exists()){
             templateFolder.mkdirs();
         }
 
         File serverFolder = new File(targetFolder, name);
-        LOGGER.info("Server folder URL is '"+serverFolder.getAbsolutePath()+"'");
+        LOGGER.debug("Server folder URL is '"+serverFolder.getAbsolutePath()+"'");
         serverFolder.mkdirs();
 
         if(templateFolder.listFiles() == null){
@@ -57,18 +57,18 @@ public class CreateServerTask {
             return;
         }
 
-        LOGGER.info("Starting copy...");
+        LOGGER.debug("Starting copy...");
         this.copyDirectory(templateFolder, serverFolder);
-        LOGGER.info("Copy done !");
+        LOGGER.debug("Copy done !");
 
-        LOGGER.info("Editing 'ServerManager/config.json'...");
+        LOGGER.debug("Editing 'ServerManager/config.json'...");
         this.editConfigJson(serverFolder, name);
-        LOGGER.info("'ServerManager/config.json' edited");
+        LOGGER.debug("'ServerManager/config.json' edited");
 
-        LOGGER.info("Getting ready to start the server...");
+        LOGGER.debug("Getting ready to start the server...");
 
         String startFileName = template.get("startFileName");
-        LOGGER.info("Server start file name is '"+startFileName+"'");
+        LOGGER.debug("Server start file name is '"+startFileName+"'");
 
         boolean isBatchFile = template.get("isBatchFile");
         boolean isShellFile = template.get("isShellFile");
@@ -82,7 +82,7 @@ public class CreateServerTask {
             e.printStackTrace();
         }
 
-        LOGGER.info("Starting server...");
+        LOGGER.info("Task complete");
         ProcessBuilder processBuilder;
         if(isBatchFile){
             processBuilder = new ProcessBuilder(new File(serverFolder, startFileName).getAbsolutePath());
@@ -93,7 +93,6 @@ public class CreateServerTask {
             processBuilder = new ProcessBuilder(startFileName);
         }
         fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, template, serverFolder, template.get("keepLogs")));
-        LOGGER.info("Server started!");
     }
 
     private void editConfigYml(Configuration template, File configFile) throws IOException {

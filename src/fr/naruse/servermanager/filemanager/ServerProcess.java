@@ -54,6 +54,7 @@ public class ServerProcess {
 
     public void start() {
         try {
+            LOGGER.info("Starting server...");
             this.logFile.createNewFile();
 
             if(this.keepLogs){
@@ -61,6 +62,7 @@ public class ServerProcess {
                 this.processBuilder.redirectOutput(this.logFile);
             }
             this.process = processBuilder.start();
+            LOGGER.info("Server started");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -12,6 +12,11 @@ import java.util.logging.Level;
 public class ServerManagerLogger {
 
     public static final StringBuilder LOGS_BUILDER = new StringBuilder();
+    private static boolean debug = true;
+
+    public static void setDebug(boolean debug) {
+        ServerManagerLogger.debug = debug;
+    }
 
     private static java.util.logging.Logger PLUGIN_LOGGER;
 
@@ -27,11 +32,22 @@ public class ServerManagerLogger {
         log(Level.SEVERE, msg);
     }
 
+    public static void debug(String msg){
+        log(Level.OFF, msg);
+    }
+
     public static void log(Level level, String msg){
         log(level, msg, null);
     }
 
     public static void log(Level level, String msg, Logger logger){
+        if(level == Level.OFF){
+            if(debug){
+                level = Level.INFO;
+            }else{
+                return;
+            }
+        }
         if(PLUGIN_LOGGER != null){
             String s = (logger != null ? "["+ logger.getTag()+"] " : "")+msg;
             PLUGIN_LOGGER.log(level, s);
@@ -100,6 +116,10 @@ public class ServerManagerLogger {
 
         public void error(String msg){
             this.log(Level.SEVERE, msg);
+        }
+
+        public void debug(String msg){
+            this.log(Level.OFF, msg);
         }
 
         public void log(Level level, String msg){

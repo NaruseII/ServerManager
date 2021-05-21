@@ -17,7 +17,7 @@ public class DeleteServerTask {
         LOGGER.info("Starting deletion of '"+serverName+"'...");
 
         String templateFolderUrl = template.get("pathTemplate");
-        LOGGER.info("Template folder URL is '"+templateFolderUrl+"'");
+        LOGGER.debug("Template folder URL is '"+templateFolderUrl+"'");
         File templateFolder = new File(templateFolderUrl);
         if(!templateFolder.exists()){
             LOGGER.error("Template folder '"+templateFolder.getAbsolutePath()+"' not found!");
@@ -25,14 +25,14 @@ public class DeleteServerTask {
         }
 
         String targetFolderUrl = template.get("pathTarget");
-        LOGGER.info("Target folder URL is '"+targetFolderUrl+"'");
+        LOGGER.debug("Target folder URL is '"+targetFolderUrl+"'");
         File targetFolder = new File(targetFolderUrl);
         if(!templateFolder.exists()){
             templateFolder.mkdirs();
         }
 
         File serverFolder = new File(targetFolder, serverName);
-        LOGGER.info("Server folder URL is '"+serverFolder.getAbsolutePath()+"'");
+        LOGGER.debug("Server folder URL is '"+serverFolder.getAbsolutePath()+"'");
         serverFolder.mkdirs();
 
         LOGGER.info("Deleting...");

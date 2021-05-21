@@ -19,7 +19,7 @@
     "transformToLocalhostIfPossible": true,
     "priorities": {
       "editPriorities": true,
-      "forceOnTemplate": "hub",
+      "forceOnTemplate": "example",
       "sortType": "MOST_POPULATED"
     }
   },
