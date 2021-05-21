@@ -88,23 +88,6 @@ public class AutoScaler {
             }
         });
 
-        private static final Matches WHEN_TOTAL_SIZE_IS_ABOVE = registerMatches("WHEN_TOTAL_SIZE_IS_ABOVE", new Matches<Number, Integer>() {
-
-            @Override
-            public boolean match(Set<Server> set, Integer value) {
-                int totalSize = 0;
-                for (Server server : set) {
-                    totalSize += server.getData().getPlayerSize();
-                }
-                return totalSize > value;
-            }
-
-            @Override
-            public Integer transformValue(Number value) {
-                return Utils.getIntegerFromPacket(value);
-            }
-        });
-
         private static final Matches WHEN_ALL_FULL = registerMatches("WHEN_ALL_FULL", new Matches<String, String>() {
 
             @Override

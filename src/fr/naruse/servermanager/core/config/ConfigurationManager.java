@@ -22,7 +22,7 @@ public class ConfigurationManager {
 
     public ConfigurationManager(ServerManager serverManager) {
         this.serverManager = serverManager;
-        this.serverTemplateFolder = new File(serverManager.getCoreData().getDataFolder(), "serverTemplate");
+        this.serverTemplateFolder = new File(serverManager.getCoreData().getDataFolder(), "serverTemplates");
         this.serverTemplateFolder.mkdirs();
 
         this.load();

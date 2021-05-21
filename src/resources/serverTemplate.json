@@ -3,9 +3,9 @@
   "pathTemplate": "/home/server-manager/template/Server-example-1.12.2",
   "pathTarget": "/home/server-manager/servers/",
   "startFileName": "spigot-1.12.2.jar",
-  "isBatchFile": true,
+  "isBatchFile": false,
   "isShellFile": false,
-  "isJarFile": false,
+  "isJarFile": true,
   "server.properties": {
     "editServerIP": false,
     "editServerPort": true,
@@ -20,7 +20,7 @@
     "priorities": {
       "editPriorities": true,
       "forceOnTemplate": "example",
-      "sortType": "MOST_POPULATED"
+      "sortType": "FIND_MOST_POPULATED"
     }
   },
   "keepLogs": true
