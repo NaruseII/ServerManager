@@ -141,11 +141,10 @@ public class FileManager {
                         this.shutdownServer(s);
                     }
                 }else{
-                    ServerProcess serverProcess = this.serverProcesses.get(args[1]);
-                    if(serverProcess == null){
-                        ServerManagerLogger.error("Server '"+args[1]+"' not found");
-                    }else{
-                        this.shutdownServer(serverProcess);
+                    for (String s : new HashSet<>(this.serverProcesses.keySet())) {
+                        if(s.startsWith(args[1])){
+                            this.shutdownServer(s);
+                        }
                     }
                 }
             }else if(line.startsWith("generateSecretKey")){

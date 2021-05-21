@@ -53,8 +53,8 @@ public class ServerList {
         }
     }
 
-    public static Set<Server> findServer(CoreServerType coreServerType){
-        return getAll().stream().filter(server -> server.getCoreServerType() == coreServerType).collect(Collectors.toSet());
+    public static Set<Server> findServer(CoreServerType... coreServerTypes){
+        return getAll().stream().filter(server -> server.getCoreServerType().is(coreServerTypes)).collect(Collectors.toSet());
     }
 
     public static Optional<Server> findServer(CoreServerType coreServerType, SortType sortType){

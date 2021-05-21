@@ -1,6 +1,7 @@
 package fr.naruse.servermanager.bukkit.main;
 
 import fr.naruse.servermanager.bukkit.api.ServerManagerBukkitEvent;
+import fr.naruse.servermanager.bukkit.cmd.BukkitServerManagerCommand;
 import fr.naruse.servermanager.bukkit.event.BukkitListeners;
 import fr.naruse.servermanager.bukkit.packet.BukkitPacketProcessing;
 import fr.naruse.servermanager.core.*;
@@ -30,6 +31,7 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
         }
 
         this.getServer().getPluginManager().registerEvents(new BukkitListeners(this), this);
+        this.getCommand("servermanager").setExecutor(new BukkitServerManagerCommand(this));
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
     }

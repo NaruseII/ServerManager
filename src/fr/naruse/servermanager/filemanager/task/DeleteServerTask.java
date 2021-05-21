@@ -42,6 +42,8 @@ public class DeleteServerTask {
             e.printStackTrace();
         }
         this.delete(serverFolder);
+        serverFolder.delete();
+
         LOGGER.info("Server deleted");
     }
 
