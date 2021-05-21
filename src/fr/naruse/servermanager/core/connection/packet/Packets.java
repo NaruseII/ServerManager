@@ -17,21 +17,22 @@ public class Packets {
     public static void load(){
         LOGGER.info("Loading packets...");
 
-        addPacket("CONNECTION", PacketConnection.class);
-        addPacket("DISCONNECTION", PacketDisconnection.class);
-        addPacket("KEEP_ALIVE", PacketKeepAlive.class);
-        addPacket("CREATE_SERVER", PacketCreateServer.class);
-        addPacket("SHUTDOWN", PacketShutdown.class);
-        addPacket("SERVER_LIST", PacketServerList.class);
-        addPacket("RELOAD_BUNGEE_SERVERS", PacketReloadBungeeServers.class);
-        addPacket("BUNGEE_REQUEST_CONFIG_WRITE", PacketBungeeRequestConfigWrite.class);
+        registerPacket("CONNECTION", PacketConnection.class);
+        registerPacket("DISCONNECTION", PacketDisconnection.class);
+        registerPacket("KEEP_ALIVE", PacketKeepAlive.class);
+        registerPacket("CREATE_SERVER", PacketCreateServer.class);
+        registerPacket("SHUTDOWN", PacketShutdown.class);
+        registerPacket("SERVER_LIST", PacketServerList.class);
+        registerPacket("RELOAD_BUNGEE_SERVERS", PacketReloadBungeeServers.class);
+        registerPacket("BUNGEE_REQUEST_CONFIG_WRITE", PacketBungeeRequestConfigWrite.class);
+        registerPacket("EXECUTE_CONSOLE_COMMAND", PacketExecuteConsoleCommand.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 
         LOGGER.info(packetByName.size()+" Packets loaded");
     }
 
-    public static void addPacket(String name, Class<? extends IPacket> clazz){
+    public static void registerPacket(String name, Class<? extends IPacket> clazz){
         packetByName.put(name, clazz);
         nameByPacket.put(clazz, name);
     }

@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import fr.naruse.servermanager.bungee.main.BungeeManagerPlugin;
 import fr.naruse.servermanager.bungee.utils.BungeeUtils;
 import fr.naruse.servermanager.core.CoreServerType;
+import fr.naruse.servermanager.core.connection.packet.PacketExecuteConsoleCommand;
 import fr.naruse.servermanager.core.connection.packet.PacketProcessing;
 import fr.naruse.servermanager.core.connection.packet.PacketReloadBungeeServers;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
@@ -66,6 +67,11 @@ public class BungeePacketProcessing extends PacketProcessing {
         }
 
         ServerManagerLogger.info("'config.yml' reloaded");
+    }
+
+    @Override
+    public void processExecuteConsoleCommand(PacketExecuteConsoleCommand packet) {
+        BungeeCord.getInstance().getPluginManager().dispatchCommand(BungeeCord.getInstance().getConsole(), packet.getCommand());
     }
 
     private ServerInfo buildServerInfo(Server server, boolean transformToLocalhostIfPossible){

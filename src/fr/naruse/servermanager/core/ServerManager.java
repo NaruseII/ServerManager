@@ -107,6 +107,8 @@ public class ServerManager {
             this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processReloadBungeeServers((PacketReloadBungeeServers) packet));
         }else if(packet instanceof PacketBungeeRequestConfigWrite){
             this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processBungeeRequestConfigWrite((PacketBungeeRequestConfigWrite) packet));
+        }else if(packet instanceof PacketExecuteConsoleCommand){
+            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processExecuteConsoleCommand((PacketExecuteConsoleCommand) packet));
         }
     }
 

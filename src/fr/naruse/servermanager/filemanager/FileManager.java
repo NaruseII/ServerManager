@@ -5,7 +5,10 @@ import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
+import fr.naruse.servermanager.core.connection.packet.PacketExecuteConsoleCommand;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.core.server.Server;
+import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.filemanager.event.FileManagerEventListener;
 import fr.naruse.servermanager.filemanager.packet.FileManagerPacketProcessing;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
@@ -127,33 +130,40 @@ public class FileManager {
         while (true){
             String line = scanner.nextLine();
             String[] args = line.split(" ");
-            if(line.startsWith("help")){
-                ServerManagerLogger.info("Available commands:");
-                ServerManagerLogger.info("stop (Stop server)");
-                ServerManagerLogger.info("shutdown <Server name>");
-                ServerManagerLogger.info("status");
-                ServerManagerLogger.info("generateSecretKey");
-                ServerManagerLogger.info("createServer <Template Name>");
-                ServerManagerLogger.info("scale");
-            }else if(line.startsWith("stop")){
+            if(line.startsWith("stop")){
                 System.exit(0);
             }else if(line.startsWith("shutdown")){
                 if(args.length == 1){
                     ServerManagerLogger.error("shutdown <Server name>");
                 }
-                ServerProcess serverProcess = this.serverProcesses.get(args[1]);
-                if(serverProcess == null){
-                    ServerManagerLogger.error("Server '"+args[1]+"' not found");
+                if(args[1].equalsIgnoreCase("all")){
+                    for (String s : new HashSet<>(this.serverProcesses.keySet())) {
+                        this.shutdownServer(s);
+                    }
                 }else{
-                    this.shutdownServer(serverProcess);
+                    ServerProcess serverProcess = this.serverProcesses.get(args[1]);
+                    if(serverProcess == null){
+                        ServerManagerLogger.error("Server '"+args[1]+"' not found");
+                    }else{
+                        this.shutdownServer(serverProcess);
+                    }
                 }
             }else if(line.startsWith("generateSecretKey")){
                 ServerManagerLogger.info("Generation...");
                 ServerManagerLogger.info("Key generated: "+this.serverManager.generateNewSecretKey());
-            }else if(line.startsWith("createServer")){
+            }else if(line.startsWith("create")){
                 if(args.length == 1){
-                    ServerManagerLogger.error("createServer <Template Name>");
+                    ServerManagerLogger.error("create <Template Name>");
                 }else{
+                    int count = 1;
+                    if(args.length == 3){
+                        try{
+                            count = Integer.valueOf(args[2]);
+                        }catch (Exception e){
+                            ServerManagerLogger.error("create <Template Name> <[count]>");
+                            continue;
+                        }
+                    }
                     this.createServer(args[1]);
                 }
             }else if(line.startsWith("status")){
@@ -161,7 +171,40 @@ public class FileManager {
             }else if(line.startsWith("scale")){
                 if(this.autoScaler != null){
                     this.autoScaler.scale();
+                    ServerManagerLogger.info("Scaled");
                 }
+            }else if(line.startsWith("insertCommand")){
+                if(args.length <= 2){
+                    ServerManagerLogger.error("insertCommand <Server name> <Cmd>");
+                }else{
+                    ServerProcess serverProcess = this.serverProcesses.get(args[1]);
+                    if(serverProcess == null){
+                        ServerManagerLogger.error("Server '"+args[1]+"' not found");
+                    }else{
+                        StringBuilder stringBuilder = new StringBuilder(" ");
+                        for (int i = 2; i < args.length; i++) {
+                            stringBuilder.append(" ").append(args[i]);
+                        }
+                        String command = stringBuilder.toString().replace("  ", "");
+                        Server server = ServerList.getByName(serverProcess.getName());
+                        if(server == null){
+                            ServerManagerLogger.error("Server '"+args[1]+"' is starting...");
+                        }else{
+                            server.sendPacket(new PacketExecuteConsoleCommand(command));
+                            ServerManagerLogger.info("Command sent");
+                        }
+                    }
+                }
+            }else{
+                ServerManagerLogger.info("Available commands:");
+                ServerManagerLogger.info("");
+                ServerManagerLogger.info("-> stop (Stop server)");
+                ServerManagerLogger.info("-> shutdown <Server name, All>");
+                ServerManagerLogger.info("-> status");
+                ServerManagerLogger.info("-> generateSecretKey");
+                ServerManagerLogger.info("-> create <Template Name> <[count]>");
+                ServerManagerLogger.info("-> scale");
+                ServerManagerLogger.info("-> insertCommand <Server name> <Cmd>");
             }
         }
     }

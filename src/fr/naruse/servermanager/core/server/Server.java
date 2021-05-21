@@ -75,6 +75,18 @@ public class Server {
         return this.name.equals(((Server) o).getName());
     }
 
+    @Override
+    public String toString() {
+        return "Server{" +
+                "data=" + data +
+                ", serverManager=" + serverManager +
+                ", name='" + name + '\'' +
+                ", coreServerType=" + coreServerType +
+                ", serverManagerPort=" + serverManagerPort +
+                ", port=" + port +
+                '}';
+    }
+
     public static class Data {
 
         private Map<String, Object> dataMap = new HashMap<>();
@@ -156,6 +168,16 @@ public class Server {
 
         public void removeStatus(Status status){
             this.statusSet.remove(status);
+        }
+
+        @Override
+        public String toString() {
+            return "Data{" +
+                    "dataMap=" + dataMap +
+                    ", uuidByNameMap=" + uuidByNameMap +
+                    ", capacity=" + capacity +
+                    ", statusSet=" + statusSet +
+                    '}';
         }
     }
 

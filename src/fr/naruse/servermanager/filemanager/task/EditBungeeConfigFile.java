@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 public class EditBungeeConfigFile {
 
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
-    private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("");
+    private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("");
 
     private boolean isOnServers = false;
     private boolean foundClient = false;
@@ -32,6 +32,10 @@ public class EditBungeeConfigFile {
     private boolean priorityAppended = false;
 
     public EditBungeeConfigFile(String serverName, String hostAddress, int port, ServerProcess process, boolean needToDelete) throws Exception {
+        if(process == null){
+            return;
+        }
+
         LOGGER.setTag("EditBungeeConfigTask - "+process.getName());
         LOGGER.info("Launching new task...");
 

@@ -19,8 +19,8 @@
       "startServers": 1
     },
     "template_2": {
-      "match": "WHEN_ANY_SIZE_IS_ABOVE",
-      "value": 50,
+      "match": "WHEN_SERVER_COUNT_IS_UNDER",
+      "value": 2,
       "startServers": 1
     },
     "template_3": {

@@ -1,7 +1,6 @@
 package fr.naruse.servermanager.packetmanager;
 
 import fr.naruse.servermanager.core.*;
-import fr.naruse.servermanager.core.connection.packet.PacketCreateServer;
 import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
@@ -66,26 +65,19 @@ public class PacketManager {
         while (true){
             String line = scanner.nextLine();
             String[] args = line.split(" ");
-            if(line.startsWith("help")){
-                ServerManagerLogger.info("Available commands:");
-                ServerManagerLogger.info("stop (Stop server)");
-                ServerManagerLogger.info("createServer <Template Name>");
-                ServerManagerLogger.info("generateSecretKey");
-                ServerManagerLogger.info("status");
-            }else if(line.startsWith("stop")){
+            if(line.startsWith("stop")){
                 System.exit(0);
-            }else if(line.startsWith("createServer")){
-                if(args.length == 1){
-                    ServerManagerLogger.error("createServer <Template Name>");
-                }else{
-                    new PacketCreateServer(args[1]).process(this.serverManager);
-                    ServerManagerLogger.info("Packet sent");
-                }
             }else if(line.startsWith("generateSecretKey")){
                 ServerManagerLogger.info("Generation...");
                 ServerManagerLogger.info("Key generated: "+this.serverManager.generateNewSecretKey());
             }else if(line.startsWith("status")){
                 serverManager.printStatus();
+            }else{
+                ServerManagerLogger.info("Available commands:");
+                ServerManagerLogger.info("");
+                ServerManagerLogger.info("-> stop (Stop server)");
+                ServerManagerLogger.info("-> generateSecretKey");
+                ServerManagerLogger.info("-> status");
             }
         }
     }

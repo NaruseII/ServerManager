@@ -2,6 +2,7 @@ package fr.naruse.servermanager.bukkit.main;
 
 import fr.naruse.servermanager.bukkit.api.ServerManagerBukkitEvent;
 import fr.naruse.servermanager.bukkit.event.BukkitListeners;
+import fr.naruse.servermanager.bukkit.packet.BukkitPacketProcessing;
 import fr.naruse.servermanager.core.CoreData;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.IServerManagerPlugin;
@@ -23,6 +24,7 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
         ServerManagerLogger.info("Starting BukkitManager...");
 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUKKIT_MANAGER, this.getDataFolder(), 4848, Bukkit.getServerName(), Bukkit.getPort()), this);
+        this.serverManager.registerPacketProcessing(new BukkitPacketProcessing(this));
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.serverManager.getCurrentServer().getData().getUUIDByNameMap().put(player.getName(), player.getUniqueId().toString());

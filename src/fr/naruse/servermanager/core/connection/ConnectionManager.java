@@ -128,7 +128,7 @@ public class ConnectionManager {
     }
 
     private void sendPacket(IPacket packet, InetAddress inetAddress, int port){
-        EXECUTOR_SERVICE.submit(() -> {
+        Future future = EXECUTOR_SERVICE.submit(() -> {
             try {
                 String packetName = Packets.getNameByPacket(packet.getClass());
 
@@ -150,6 +150,17 @@ public class ConnectionManager {
                 socket.close();
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        });
+        EXECUTOR_SERVICE.submit(() -> {
+            try {
+                future.get();
+            } catch (Exception e) {
+                if(e.getCause() instanceof ConnectException){
+                    LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
+                }else{
+                    e.printStackTrace();
+                }
             }
         });
     }

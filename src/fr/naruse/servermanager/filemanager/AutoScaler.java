@@ -88,7 +88,7 @@ public class AutoScaler {
             }
         });
 
-        private static final Matches WHEN_TOTAL_SIZE_IS_ABOVE = registerMatches("WHEN_TOTAL_SIZE_IS_ABOVE", new Matches<Integer, Integer>() {
+        private static final Matches WHEN_TOTAL_SIZE_IS_ABOVE = registerMatches("WHEN_TOTAL_SIZE_IS_ABOVE", new Matches<Number, Integer>() {
 
             @Override
             public boolean match(Set<Server> set, Integer value) {
@@ -100,26 +100,8 @@ public class AutoScaler {
             }
 
             @Override
-            public Integer transformValue(Integer value) {
-                return value;
-            }
-        });
-
-        private static final Matches WHEN_ANY_SIZE_IS_ABOVE = registerMatches("WHEN_ANY_SIZE_IS_ABOVE", new Matches<Integer, Integer>() {
-
-            @Override
-            public boolean match(Set<Server> set, Integer value) {
-                for (Server server : set) {
-                    if(server.getData().getPlayerSize() > value){
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            @Override
-            public Integer transformValue(Integer value) {
-                return value;
+            public Integer transformValue(Number value) {
+                return Utils.getIntegerFromPacket(value);
             }
         });
 
@@ -152,6 +134,19 @@ public class AutoScaler {
             @Override
             public String transformValue(String value) {
                 return value;
+            }
+        });
+
+        private static final Matches WHEN_SERVER_COUNT_IS_UNDER = registerMatches("WHEN_SERVER_COUNT_IS_UNDER", new Matches<Number, Integer>() {
+
+            @Override
+            public boolean match(Set<Server> set, Integer value) {
+                return set.size() < value;
+            }
+
+            @Override
+            public Integer transformValue(Number value) {
+                return Utils.getIntegerFromPacket(value);
             }
         });
 
