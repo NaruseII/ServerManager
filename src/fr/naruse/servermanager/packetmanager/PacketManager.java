@@ -13,14 +13,17 @@ import java.util.Scanner;
 public class PacketManager {
 
     public static void main(String[] args) {
-        new PacketManager();
+        long millis  = System.currentTimeMillis();
+        ServerManagerLogger.info("Starting PacketManager...");
+        if(Updater.needToUpdate()){
+            return;
+        }
+        new PacketManager(millis);
     }
 
     private final ServerManager serverManager;
 
-    public PacketManager() {
-        long millis  = System.currentTimeMillis();
-        ServerManagerLogger.info("Starting PacketManager...");
+    public PacketManager(long millis) {
 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.PACKET_MANAGER, new File("configs"), 4848, "packet-manager", 4848)){
             @Override

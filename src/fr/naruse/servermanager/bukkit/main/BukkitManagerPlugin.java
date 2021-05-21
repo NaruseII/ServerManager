@@ -3,10 +3,7 @@ package fr.naruse.servermanager.bukkit.main;
 import fr.naruse.servermanager.bukkit.api.ServerManagerBukkitEvent;
 import fr.naruse.servermanager.bukkit.event.BukkitListeners;
 import fr.naruse.servermanager.bukkit.packet.BukkitPacketProcessing;
-import fr.naruse.servermanager.core.CoreData;
-import fr.naruse.servermanager.core.CoreServerType;
-import fr.naruse.servermanager.core.IServerManagerPlugin;
-import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import org.bukkit.Bukkit;
@@ -22,6 +19,8 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
         long millis  = System.currentTimeMillis();
         ServerManagerLogger.load(this.getLogger());
         ServerManagerLogger.info("Starting BukkitManager...");
+
+        Updater.needToUpdate();
 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUKKIT_MANAGER, this.getDataFolder(), 4848, Bukkit.getServerName(), Bukkit.getPort()), this);
         this.serverManager.registerPacketProcessing(new BukkitPacketProcessing(this));

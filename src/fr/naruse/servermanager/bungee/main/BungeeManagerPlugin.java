@@ -4,10 +4,7 @@ import fr.naruse.servermanager.bungee.api.ServerManagerBungeeEvent;
 import fr.naruse.servermanager.bungee.event.BungeeListeners;
 import fr.naruse.servermanager.bungee.event.BungeeServerManagerListeners;
 import fr.naruse.servermanager.bungee.packet.BungeePacketProcessing;
-import fr.naruse.servermanager.core.CoreData;
-import fr.naruse.servermanager.core.CoreServerType;
-import fr.naruse.servermanager.core.IServerManagerPlugin;
-import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import net.md_5.bungee.BungeeCord;
@@ -25,6 +22,8 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
         long millis  = System.currentTimeMillis();
         ServerManagerLogger.load(this.getLogger());
         ServerManagerLogger.info("Starting BungeeManager...");
+
+        Updater.needToUpdate();
 
         this.setListenerInfo(BungeeCord.getInstance().getConfig().getListeners().stream().findFirst().get());
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, listenerInfo.getQueryPort()), this);

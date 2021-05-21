@@ -14,6 +14,8 @@ import java.util.Set;
 
 public class ServerManager {
 
+    public static final String VERSION = "1.0.0";
+
     private static ServerManager instance;
     public static ServerManager get() {
         return instance;
@@ -39,6 +41,7 @@ public class ServerManager {
         if(plugin == null){
             plugin = new BasicServerManagerPlugin(this.eventListenerSet);
         }
+
         plugin.callEvent(new InitializationStartEvent());
 
         instance = this;

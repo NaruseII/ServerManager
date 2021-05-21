@@ -1,9 +1,6 @@
 package fr.naruse.servermanager.filemanager;
 
-import fr.naruse.servermanager.core.CoreData;
-import fr.naruse.servermanager.core.CoreServerType;
-import fr.naruse.servermanager.core.ServerManager;
-import fr.naruse.servermanager.core.Utils;
+import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.connection.packet.PacketExecuteConsoleCommand;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
@@ -28,7 +25,12 @@ public class FileManager {
     }
 
     public static void main(String[] args) {
-        new FileManager();
+        long millis  = System.currentTimeMillis();
+        ServerManagerLogger.info("Starting FileManager...");
+        if(Updater.needToUpdate()){
+            return;
+        }
+        new FileManager(millis);
     }
 
     private final ServerManager serverManager;
@@ -36,10 +38,8 @@ public class FileManager {
     private AutoScaler autoScaler;
     private AutoKiller autoKiller;
 
-    public FileManager() {
+    public FileManager(long millis) {
         instance = this;
-        long millis  = System.currentTimeMillis();
-        ServerManagerLogger.info("Starting FileManager...");
 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.FILE_MANAGER, new File("configs"), 4848, "file-manager", 0)){
             @Override
