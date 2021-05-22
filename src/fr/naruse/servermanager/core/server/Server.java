@@ -192,8 +192,7 @@ public class Server {
         public static Status registerNewStatus(String name){
             name = name.toUpperCase();
             if(statusMap.containsKey(name)){
-                LOGGER.error("Status '"+name+"' already exists!");
-                return null;
+                return valueOf(name);
             }
             Status status = new Status(name);
             statusMap.put(name, status);
@@ -202,6 +201,10 @@ public class Server {
 
         public static Status valueOf(String name){
             return statusMap.get(name.toUpperCase());
+        }
+
+        public static Set<Status> getAll(){
+            return new HashSet<>(statusMap.values());
         }
 
 
