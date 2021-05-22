@@ -83,7 +83,8 @@ public class CreateServerTask {
         LOGGER.info("Task complete");
         ProcessBuilder processBuilder;
         if(isBatchFile){
-            processBuilder = new ProcessBuilder(new File(serverFolder, startFileName).getAbsolutePath());
+            processBuilder = new ProcessBuilder(startFileName);
+            processBuilder.directory(serverFolder);
         }else if(isJarFile){
             List<String> args = new ArrayList<>();
             args.add("java");
@@ -97,6 +98,7 @@ public class CreateServerTask {
             processBuilder.directory(serverFolder);
         }else{
             processBuilder = new ProcessBuilder(startFileName);
+            processBuilder.directory(serverFolder);
         }
         fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, template, serverFolder, template.get("keepLogs")));
     }
@@ -193,6 +195,14 @@ public class CreateServerTask {
             FileWriter fileWriter = new FileWriter(propertiesFile);
             fileWriter.write(stringBuilder.toString());
             fileWriter.close();
+
+            File eulaFile = new File(propertiesFile.getParentFile(), "eula.txt");
+            if(!eulaFile.exists()){
+                eulaFile.createNewFile();
+                FileWriter fileWriter1 = new FileWriter(eulaFile);
+                fileWriter1.write("eula=true");
+                fileWriter1.close();
+            }
         }
     }
 }

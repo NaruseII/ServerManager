@@ -262,15 +262,7 @@ public class FileManager {
     private void shutdownAllServers() {
         Set<ServerProcess> set = new HashSet<>(serverProcesses.values());
         for (ServerProcess serverProcess : set) {
-            Future future = EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
-            EXECUTOR_SERVICE.submit(() -> {
-                try {
-                    future.get();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    shutdownAllServers();
-                }
-            });
+            EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
         }
     }
 
