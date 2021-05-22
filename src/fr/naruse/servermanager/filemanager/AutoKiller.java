@@ -49,6 +49,23 @@ public class AutoKiller {
                     return;
                 }else if (server.getData().hasStatus(Server.Status.READY)) {
                     if(integer <= 0){
+
+                        if(this.fileManager.getAutoScaler() != null){
+                            for (Configuration.ConfigurationSection section : this.fileManager.getAutoScaler().getSectionSet()) {
+                                if(server.getName().startsWith(section.getInitialPath()) && AutoScaler.Matches.valueOf(section.get("match")) == AutoScaler.Matches.WHEN_SERVER_COUNT_IS_UNDER){
+
+                                    int count = (int) AutoScaler.Matches.WHEN_SERVER_COUNT_IS_UNDER.transformValue(section.get("value"));
+                                    long serverCount = set.stream().filter(s -> s.getName().startsWith(section.getInitialPath())).count();
+
+                                    if(serverCount <= count){
+                                        this.serverIntegerMap.put(server, timeOut);
+                                        return;
+                                    }
+
+                                }
+                            }
+                        }
+
                         this.serverIntegerMap.put(server, -1);
                         this.fileManager.shutdownServer(server.getName());
                     }else{

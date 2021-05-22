@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.filemanager.task;
 
+import fr.naruse.servermanager.core.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.filemanager.FileManager;
@@ -34,6 +35,15 @@ public class DeleteServerTask {
         File serverFolder = new File(targetFolder, serverName);
         LOGGER.debug("Server folder URL is '"+serverFolder.getAbsolutePath()+"'");
         serverFolder.mkdirs();
+
+        if(template.get("isPersistent")){
+            LOGGER.info("Keeping files...");
+            if(!Utils.copyDirectory(serverFolder, templateFolder)){
+                LOGGER.error("Something went wrong when keeping files! I didn't delete '"+serverName+"' to not loose its content.");
+                return;
+            }
+            LOGGER.info("Files kept!");
+        }
 
         LOGGER.info("Deleting...");
         try {

@@ -12,7 +12,7 @@ import java.util.logging.Level;
 public class ServerManagerLogger {
 
     public static final StringBuilder LOGS_BUILDER = new StringBuilder();
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     public static void setDebug(boolean debug) {
         ServerManagerLogger.debug = debug;

@@ -23,5 +23,6 @@
       "sortType": "FIND_MOST_POPULATED"
     }
   },
-  "keepLogs": true
+  "keepLogs": true,
+  "isPersistent": false
 }

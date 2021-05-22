@@ -8,6 +8,7 @@ import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -38,6 +39,11 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
 
     @Override
     public void onDisable() {
+        Bukkit.savePlayers();
+        for (World world : Bukkit.getWorlds()) {
+            world.save();
+        }
+
         if(this.serverManager != null){
             this.serverManager.shutdown();
         }

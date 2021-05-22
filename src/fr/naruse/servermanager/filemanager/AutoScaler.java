@@ -55,6 +55,10 @@ public class AutoScaler {
         }
     }
 
+    public Set<Configuration.ConfigurationSection> getSectionSet() {
+        return sectionSet;
+    }
+
     public void shutdown() {
         this.cancel = true;
     }
@@ -71,7 +75,7 @@ public class AutoScaler {
             return map.get(name.toUpperCase());
         }
 
-        private static final Matches WHEN_ALL_ON_STATUS = registerMatches("WHEN_ALL_ON_STATUS", new Matches<String, Server.Status>() {
+        public static final Matches WHEN_ALL_ON_STATUS = registerMatches("WHEN_ALL_ON_STATUS", new Matches<String, Server.Status>() {
             @Override
             public boolean match(Set<Server> set, Server.Status status) {
                 for (Server server : set) {
@@ -88,7 +92,7 @@ public class AutoScaler {
             }
         });
 
-        private static final Matches WHEN_ALL_FULL = registerMatches("WHEN_ALL_FULL", new Matches<String, String>() {
+        public static final Matches WHEN_ALL_FULL = registerMatches("WHEN_ALL_FULL", new Matches<String, String>() {
 
             @Override
             public boolean match(Set<Server> set, String value) {
@@ -107,7 +111,7 @@ public class AutoScaler {
             }
         });
 
-        private static final Matches WHEN_ALL_STOPPED = registerMatches("WHEN_ALL_STOPPED", new Matches<String, String>() {
+        public static final Matches WHEN_ALL_STOPPED = registerMatches("WHEN_ALL_STOPPED", new Matches<String, String>() {
 
             @Override
             public boolean match(Set<Server> set, String value) {
@@ -120,7 +124,7 @@ public class AutoScaler {
             }
         });
 
-        private static final Matches WHEN_SERVER_COUNT_IS_UNDER = registerMatches("WHEN_SERVER_COUNT_IS_UNDER", new Matches<Number, Integer>() {
+        public static final Matches WHEN_SERVER_COUNT_IS_UNDER = registerMatches("WHEN_SERVER_COUNT_IS_UNDER", new Matches<Number, Integer>() {
 
             @Override
             public boolean match(Set<Server> set, Integer value) {

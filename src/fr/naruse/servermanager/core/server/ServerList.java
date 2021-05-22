@@ -28,7 +28,7 @@ public class ServerList {
         }
 
         if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)){
-            ServerManagerLogger.info("Registering server '"+name+"' -> ["+server.getAddress().getHostAddress()+"] ServerPort: "+port+" ServerManagerPort: "+serverManagerPort);
+            ServerManagerLogger.info("Registering server '"+name+"' -> ["+server.getAddress().getHostAddress()+"] Port: "+port+" SMPort: "+serverManagerPort);
         }
 
         map.put(name, server);
@@ -46,7 +46,7 @@ public class ServerList {
 
             map.remove(name);
             if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)) {
-                ServerManagerLogger.info("Deleting server '" + name + "' -> ["+server.getAddress().getHostAddress()+"] ServerPort: "+server.getPort()+" ServerManagerPort: "+server.getServerManagerPort());
+                ServerManagerLogger.info("Deleting server '" + name + "' -> ["+server.getAddress().getHostAddress()+"] Port: "+server.getPort()+" SMPort: "+server.getServerManagerPort());
             }
 
             ServerManager.get().getPlugin().callEvent(new ServerPostDeleteEvent(server));

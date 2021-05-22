@@ -58,7 +58,7 @@ public class CreateServerTask {
         }
 
         LOGGER.debug("Starting copy...");
-        this.copyDirectory(templateFolder, serverFolder);
+        Utils.copyDirectory(templateFolder, serverFolder);
         LOGGER.debug("Copy done !");
 
         LOGGER.debug("Editing 'ServerManager/config.json'...");
@@ -187,45 +187,6 @@ public class CreateServerTask {
             FileWriter fileWriter = new FileWriter(propertiesFile);
             fileWriter.write(stringBuilder.toString());
             fileWriter.close();
-        }
-    }
-
-    private void copyDirectory(File source, File dest) {
-        for (File file : source.listFiles()) {
-            if(file.isDirectory()){
-                this.copyDirectory(file, new File(dest, file.getName()));
-            }else{
-                this.copyFile(file, new File(dest, file.getName()));
-            }
-        }
-    }
-
-    private void copyFile(File sourceFile, File destFile) {
-        try{
-            if (!sourceFile.exists()) {
-                return;
-            }
-            if(!destFile.getParentFile().exists()){
-                destFile.getParentFile().mkdirs();
-            }
-            if (!destFile.exists()) {
-                destFile.createNewFile();
-            }
-            FileChannel source = null;
-            FileChannel destination = null;
-            source = new FileInputStream(sourceFile).getChannel();
-            destination = new FileOutputStream(destFile).getChannel();
-            if (destination != null && source != null) {
-                destination.transferFrom(source, 0, source.size());
-            }
-            if (source != null) {
-                source.close();
-            }
-            if (destination != null) {
-                destination.close();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 }
