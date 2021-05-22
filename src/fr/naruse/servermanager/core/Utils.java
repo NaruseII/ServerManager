@@ -9,9 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Type;
 import java.nio.channels.FileChannel;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class Utils {
 
@@ -97,6 +95,28 @@ public class Utils {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static void delete(File file) {
+        List<File> list = new ArrayList<>();
+
+        if(file.isDirectory()){
+            if(file.listFiles() == null){
+                file.delete();
+            }else{
+                for (File listFile : file.listFiles()) {
+                    delete(listFile);
+                }
+                list.add(file);
+            }
+        }else{
+            file.delete();
+        }
+
+        Collections.reverse(list);
+        for (File file1 : list) {
+            file1.delete();
+        }
     }
 
 }

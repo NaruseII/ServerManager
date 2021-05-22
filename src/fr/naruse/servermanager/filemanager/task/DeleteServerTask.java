@@ -3,10 +3,8 @@ package fr.naruse.servermanager.filemanager.task;
 import fr.naruse.servermanager.core.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
-import fr.naruse.servermanager.filemanager.FileManager;
 
 import java.io.File;
-import java.util.*;
 
 public class DeleteServerTask {
 
@@ -51,31 +49,10 @@ public class DeleteServerTask {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        this.delete(serverFolder);
+        Utils.delete(serverFolder);
         serverFolder.delete();
+        serverFolder.deleteOnExit();
 
         LOGGER.info("Server deleted");
-    }
-
-    private void delete(File file) {
-        List<File> list = new ArrayList<>();
-
-        if(file.isDirectory()){
-            if(file.listFiles() == null){
-                file.delete();
-            }else{
-                for (File listFile : file.listFiles()) {
-                    this.delete(listFile);
-                }
-                list.add(file);
-            }
-        }else{
-            file.delete();
-        }
-
-        Collections.reverse(list);
-        for (File file1 : list) {
-            file1.delete();
-        }
     }
 }

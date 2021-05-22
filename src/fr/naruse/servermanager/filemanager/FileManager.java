@@ -9,6 +9,7 @@ import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.filemanager.event.FileManagerEventListener;
 import fr.naruse.servermanager.filemanager.packet.FileManagerPacketProcessing;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
+import fr.naruse.servermanager.filemanager.task.DeleteServerTask;
 import fr.naruse.servermanager.filemanager.task.EditBungeeConfigFile;
 
 import java.io.File;
@@ -75,6 +76,7 @@ public class FileManager {
 
                 ServerManagerLogger.info("Stopping task threads...");
                 EditBungeeConfigFile.EXECUTOR_SERVICE.shutdown();
+
                 super.shutdown();
             }
         };
