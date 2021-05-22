@@ -17,6 +17,7 @@ import java.net.UnknownHostException;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 
 public class EditBungeeConfigFile {
 
@@ -50,7 +51,13 @@ public class EditBungeeConfigFile {
 
         Configuration.ConfigurationSection configSection = process.getTemplate().getSection("config.yml");
         Configuration.ConfigurationSection prioritiesSection = configSection.getSection("priorities");
-        Optional<Server> optionalServer = ServerList.findServer(CoreServerType.BUKKIT_MANAGER, ServerList.SortType.valueOf(prioritiesSection.get("sortType")), prioritiesSection.get("forceOnTemplate"));
+
+        Optional<Server> optionalServer = ServerList.findServer(CoreServerType.BUKKIT_MANAGER, ServerList.SortType.valueOf(prioritiesSection.get("sortType")), prioritiesSection.get("forceOnTemplate"), new Predicate<Server>() {
+            @Override
+            public boolean test(Server server) {
+                return !(needToDelete && server.getName().equals(serverName));
+            }
+        });
 
         reader.lines().forEach(line -> {
 

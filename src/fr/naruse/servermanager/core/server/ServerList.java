@@ -9,6 +9,7 @@ import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ServerList {
@@ -69,6 +70,10 @@ public class ServerList {
     }
 
     public static Optional<Server> findServer(CoreServerType coreServerType, SortType sortType, String nameStartsWith){
+        return findServer(coreServerType, sortType, nameStartsWith, server -> true);
+    }
+
+    public static Optional<Server> findServer(CoreServerType coreServerType, SortType sortType, String nameStartsWith, Predicate<Server> predicate){
         return getAll().stream().filter(server -> server.getCoreServerType() == coreServerType && server.getName().startsWith(nameStartsWith)).sorted((o1, o2) -> {
             if(o1.getData().getPlayerSize() > o2.getData().getPlayerSize()){
                 return sortType == SortType.FIND_MOST_POPULATED ? 1 : -1;
@@ -76,7 +81,7 @@ public class ServerList {
                 return sortType == SortType.FIND_MOST_POPULATED ? -1 : 1;
             }
             return 0;
-        }).findFirst();
+        }).filter(predicate).findFirst();
     }
 
     public static Server getByName(String name){
