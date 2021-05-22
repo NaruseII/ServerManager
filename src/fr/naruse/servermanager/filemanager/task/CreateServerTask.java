@@ -13,9 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class CreateServerTask {
@@ -87,7 +85,15 @@ public class CreateServerTask {
         if(isBatchFile){
             processBuilder = new ProcessBuilder(new File(serverFolder, startFileName).getAbsolutePath());
         }else if(isJarFile){
-            processBuilder = new ProcessBuilder("java", "-jar", startFileName);
+            List<String> args = new ArrayList<>();
+            args.add("java");
+            args.add("-jar");
+            if(template.contains("additionalStartArgs") && !template.get("additionalStartArgs").toString().isEmpty()){
+                args.addAll(Arrays.asList(template.get("additionalStartArgs").toString().split(" ")));
+            }
+            args.add(startFileName);
+
+            processBuilder = new ProcessBuilder(args);
             processBuilder.directory(serverFolder);
         }else{
             processBuilder = new ProcessBuilder(startFileName);

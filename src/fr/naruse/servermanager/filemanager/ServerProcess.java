@@ -88,9 +88,9 @@ public class ServerProcess {
             }else{
                 process.destroy();
             }
-            this.isStopped = true;
             LOGGER.info("Server '"+this.name+"' stopped");
         }
+        this.isStopped = true;
         new DeleteServerTask(this.template, this.name);
 
         if(this.fileManager.getAutoScaler() != null){

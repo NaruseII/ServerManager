@@ -53,10 +53,11 @@ public class FileManager {
                 }
 
                 ServerManagerLogger.info("Stopping servers...");
+
                 Set<ServerProcess> set = new HashSet<>(serverProcesses.values());
-                for (ServerProcess serverProcess : set) {
-                    EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
-                }
+
+                shutdownAllServers();
+
                 while (true){
                     boolean breakLoop = true;
                     for (ServerProcess value : set) {
@@ -243,9 +244,31 @@ public class FileManager {
         }
         this.serverProcesses.remove(process.getName());
         if(this.serverManager.isPrimaryThread()){
-            EXECUTOR_SERVICE.submit(() -> process.shutdown());
+            Future future = EXECUTOR_SERVICE.submit(() -> process.shutdown());
+            EXECUTOR_SERVICE.submit(() -> {
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }else{
             process.shutdown();
+        }
+    }
+
+    private void shutdownAllServers() {
+        Set<ServerProcess> set = new HashSet<>(serverProcesses.values());
+        for (ServerProcess serverProcess : set) {
+            Future future = EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
+            EXECUTOR_SERVICE.submit(() -> {
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    shutdownAllServers();
+                }
+            });
         }
     }
 

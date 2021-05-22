@@ -17,10 +17,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class ConnectionManager {
 
@@ -53,7 +51,7 @@ public class ConnectionManager {
     private void startServerThread() {
         EXECUTOR_SERVICE.submit(() -> {
             try {
-                boolean flag = this.serverManager.getCoreData().getCoreServerType() == CoreServerType.PACKET_MANAGER;
+                boolean flag = this.serverManager.getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER);
 
                 ServerSocket serverSocket = new ServerSocket(flag ? this.serverManager.getCoreData().getServerPort() : this.serverManager.getCoreData().getServerManagerPort());
                 LOGGER.info((flag ? "Server":"Client")+" thread started");
@@ -70,7 +68,7 @@ public class ConnectionManager {
                 while (true){
                     Socket socket = serverSocket.accept();
 
-                    Future future = EXECUTOR_SERVICE.submit(() -> {
+                    EXECUTOR_SERVICE.submit(() -> {
                         try {
                             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                             String packetName = dataInputStream.readUTF();
@@ -91,15 +89,6 @@ public class ConnectionManager {
 
                             packet.process(this.serverManager);
                         } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
-                    EXECUTOR_SERVICE.submit(() -> {
-                        try {
-                            future.get();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
                             e.printStackTrace();
                         }
                     });
@@ -128,7 +117,7 @@ public class ConnectionManager {
     }
 
     private void sendPacket(IPacket packet, InetAddress inetAddress, int port){
-        Future future = EXECUTOR_SERVICE.submit(() -> {
+        EXECUTOR_SERVICE.submit(() -> {
             try {
                 String packetName = Packets.getNameByPacket(packet.getClass());
 
@@ -149,15 +138,15 @@ public class ConnectionManager {
 
                 socket.close();
             } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        EXECUTOR_SERVICE.submit(() -> {
-            try {
-                future.get();
-            } catch (Exception e) {
-                if(e.getCause() instanceof ConnectException){
+                if(e.getClass().isAssignableFrom(ConnectException.class)){
                     LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
+                    if(port == this.serverManager.getCoreData().getServerPort()){
+                        LOGGER.error("");
+                        LOGGER.error("Can't connect to Packet-Manager!");
+                        LOGGER.error("");
+                        LOGGER.warn("Shutting down...");
+                        System.exit(0);
+                    }
                 }else{
                     e.printStackTrace();
                 }
