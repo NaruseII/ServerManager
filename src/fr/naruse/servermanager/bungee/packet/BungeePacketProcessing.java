@@ -7,6 +7,7 @@ import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.connection.packet.PacketExecuteConsoleCommand;
 import fr.naruse.servermanager.core.connection.packet.PacketProcessing;
 import fr.naruse.servermanager.core.connection.packet.PacketReloadBungeeServers;
+import fr.naruse.servermanager.core.connection.packet.PacketSwitchServer;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
@@ -18,6 +19,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
+import java.util.UUID;
 
 public class BungeePacketProcessing extends PacketProcessing {
 
@@ -90,4 +92,32 @@ public class BungeePacketProcessing extends PacketProcessing {
         return ProxyServer.getInstance().constructServerInfo(server.getName(), BungeeUtils.getAddr(address), server.getName(), false);
     }
 
+
+    @Override
+    public void processSwitchServer(PacketSwitchServer packet) {
+        if(packet.getServer() == null){
+            return;
+        }
+
+        ServerInfo serverInfo = BungeeCord.getInstance().getServerInfo(packet.getServer().getName());
+        if(serverInfo == null){
+            for (ServerInfo value : BungeeCord.getInstance().getServers().values()) {
+                if (value.getAddress().getPort() == packet.getServer().getPort()) {
+                    serverInfo = value;
+                    break;
+                }
+            }
+        }
+
+        if(serverInfo == null){
+            return;
+        }
+
+        for (UUID uuid : packet.getUUIDs()) {
+            ProxiedPlayer player = BungeeCord.getInstance().getPlayer(uuid);
+            if(player != null && !player.getServer().getInfo().equals(serverInfo)){
+                player.connect(serverInfo);
+            }
+        }
+    }
 }

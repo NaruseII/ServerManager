@@ -9,4 +9,6 @@ public class PacketProcessing {
     public void processBungeeRequestConfigWrite(PacketBungeeRequestConfigWrite packet){ }
 
     public void processExecuteConsoleCommand(PacketExecuteConsoleCommand packet) { }
+
+    public void processSwitchServer(PacketSwitchServer packet) { }
 }

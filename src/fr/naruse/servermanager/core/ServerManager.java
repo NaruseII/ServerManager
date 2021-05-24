@@ -106,12 +106,15 @@ public class ServerManager {
     }
 
     public void processPacket(IPacket packet){
+        this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processAllPackets(packet));
         if(packet instanceof PacketReloadBungeeServers){
             this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processReloadBungeeServers((PacketReloadBungeeServers) packet));
         }else if(packet instanceof PacketBungeeRequestConfigWrite){
             this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processBungeeRequestConfigWrite((PacketBungeeRequestConfigWrite) packet));
         }else if(packet instanceof PacketExecuteConsoleCommand){
             this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processExecuteConsoleCommand((PacketExecuteConsoleCommand) packet));
+        }else if(packet instanceof PacketSwitchServer){
+            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processSwitchServer((PacketSwitchServer) packet));
         }
     }
 
