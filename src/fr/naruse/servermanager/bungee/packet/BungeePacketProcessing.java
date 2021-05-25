@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.bungee.packet;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import fr.naruse.servermanager.bungee.main.BungeeManagerPlugin;
 import fr.naruse.servermanager.bungee.utils.BungeeUtils;
@@ -113,8 +114,8 @@ public class BungeePacketProcessing extends PacketProcessing {
             return;
         }
 
-        for (UUID uuid : packet.getUUIDs()) {
-            ProxiedPlayer player = BungeeCord.getInstance().getPlayer(uuid);
+        for (String name : packet.getNames()) {
+            ProxiedPlayer player = BungeeCord.getInstance().getPlayer(name);
             if(player != null && !player.getServer().getInfo().equals(serverInfo)){
                 player.connect(serverInfo);
             }

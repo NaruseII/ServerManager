@@ -26,7 +26,8 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
         Updater.needToUpdate();
 
         this.setListenerInfo(BungeeCord.getInstance().getConfig().getListeners().stream().findFirst().get());
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, listenerInfo.getQueryPort()), this);
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, this.listenerInfo.getQueryPort()), this);
+        this.serverManager.getCurrentServer().getData().setCapacity(this.listenerInfo.getMaxPlayers());
         this.serverManager.registerPacketProcessing(new BungeePacketProcessing(this));
 
         this.getProxy().getPluginManager().registerListener(this, new BungeeListeners(this));

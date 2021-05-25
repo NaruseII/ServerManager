@@ -50,7 +50,7 @@ public class ServerManager {
         this.plugin = plugin;
 
         this.configurationManager = new ConfigurationManager(this);
-        ServerManagerLogger.setDebug(configurationManager.getConfig().contains("debug") ? configurationManager.getConfig().contains("debug") : false);
+        ServerManagerLogger.setDebug(configurationManager.getConfig().contains("debug") ? configurationManager.getConfig().get("debug") : false);
         if(coreData.getServerName() == null){
             coreData.setServerName(configurationManager.getConfig().get("currentServerName"));
         }

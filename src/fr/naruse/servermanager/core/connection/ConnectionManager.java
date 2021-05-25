@@ -88,6 +88,7 @@ public class ConnectionManager {
                             }
 
                             packet.process(this.serverManager);
+                            this.serverManager.processPacket(packet);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

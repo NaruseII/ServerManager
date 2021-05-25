@@ -15,40 +15,41 @@ public class PacketSwitchServer implements IPacket {
 
     public PacketSwitchServer() { }
 
-    private UUID[] uuids;
+    private String[] names;
     private Server server;
-    public PacketSwitchServer(Server server, UUID... uuids) {
+    public PacketSwitchServer(Server server, String... names) {
         this.server = server;
-        this.uuids = uuids;
+        this.names = names;
     }
 
     @Override
     public void write(DataOutputStream stream) throws IOException {
         stream.writeUTF(this.server.getName());
-        stream.writeInt(this.uuids.length);
-        for (int i = 0; i < this.uuids.length; i++) {
-            stream.writeUTF(this.uuids[i].toString());
+        stream.writeInt(this.names.length);
+        for (int i = 0; i < this.names.length; i++) {
+            stream.writeUTF(this.names[i]);
         }
     }
 
     @Override
     public void read(DataInputStream stream) throws IOException {
-        Set<UUID> set = new HashSet<>();
+        Set<String> set = new HashSet<>();
 
         this.server = ServerList.getByName(stream.readUTF());
         int size = stream.readInt();
         for (int i = 0; i < size; i++) {
-            set.add(UUID.fromString(stream.readUTF()));
+            set.add(stream.readUTF());
         }
+        this.names = set.toArray(new String[0]);
     }
 
     @Override
     public void process(ServerManager serverManager) {
-        serverManager.processPacket(this);
+
     }
 
-    public UUID[] getUUIDs() {
-        return uuids;
+    public String[] getNames() {
+        return names;
     }
 
     public Server getServer() {

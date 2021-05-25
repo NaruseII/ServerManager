@@ -25,6 +25,7 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
         Updater.needToUpdate();
 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUKKIT_MANAGER, this.getDataFolder(), 4848, Bukkit.getServerName(), Bukkit.getPort()), this);
+        this.serverManager.getCurrentServer().getData().setCapacity(Bukkit.getMaxPlayers());
         this.serverManager.registerPacketProcessing(new BukkitPacketProcessing(this));
 
         for (Player player : Bukkit.getOnlinePlayers()) {

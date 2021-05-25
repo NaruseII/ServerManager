@@ -11,8 +11,8 @@ import java.io.*;
 
 public class ServerProcess {
 
-    private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("");
     private static final File LOG_FOLDER = new File("serverLogs");
+    private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("");
 
     private final FileManager fileManager;
     private Process process;
@@ -37,19 +37,19 @@ public class ServerProcess {
         this.keepLogs = keepLogs;
 
         if(!LOG_FOLDER.exists()){
-            LOGGER.info("Creating log folder...");
+            LOGGER.debug("Creating log folder...");
             LOG_FOLDER.mkdirs();
         }
 
         File serverLogFolder = new File(LOG_FOLDER, name);
-        LOGGER.info("Creating 'serverLogs/"+serverLogFolder.getName()+"'...");
+        LOGGER.debug("Creating 'serverLogs/"+serverLogFolder.getName()+"'...");
         if(serverLogFolder.exists()){
             serverLogFolder.delete();
         }
         serverLogFolder.mkdirs();
 
         this.logFile = new File(serverLogFolder, "logs.log");
-        LOGGER.info("Creating '"+this.logFile.getName()+"'...");
+        LOGGER.debug("Creating '"+this.logFile.getName()+"'...");
     }
 
     public void start() {

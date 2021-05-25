@@ -29,7 +29,7 @@ public class CreateServerTask {
         }
         String name = template.get("baseName")+ "-" +Utils.randomLetters()+"-"+Utils.randomLetters();
         LOGGER.setTag("CreateServerTask - "+name);
-        LOGGER.info("Starting creation of '"+name+"'...");
+        LOGGER.debug("Starting creation of '"+name+"'...");
 
         String templateFolderUrl = template.get("pathTemplate");
         LOGGER.debug("Template folder URL is '"+templateFolderUrl+"'");

@@ -21,6 +21,7 @@ public class BasicServerManagerPlugin implements IServerManagerPlugin {
 
     @Override
     public void callEvent(IEvent event) {
+        this.eventListenerSet.forEach(eventListener -> eventListener.onEvent(event));
         if(event instanceof ServerRegisterEvent){
             this.eventListenerSet.forEach(eventListener -> eventListener.onServerRegisterEvent((ServerRegisterEvent) event));
         }else if(event instanceof ServerDeleteEvent){

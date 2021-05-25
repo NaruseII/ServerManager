@@ -13,7 +13,7 @@ public class Updater {
 
     public static boolean needToUpdate(){
         String currentVersion = ServerManager.VERSION;
-        LOGGER.info("-----------------------------------------------------------------------------------------");
+        LOGGER.info("=-------------------------------------------------------------=");
         LOGGER.info("Starting...");
 
         String url = "https://raw.githubusercontent.com/NaruseII/ServerManager-Updater/main/version.txt";
@@ -39,7 +39,7 @@ public class Updater {
             }
         }
 
-        LOGGER.info("-----------------------------------------------------------------------------------------");
+        LOGGER.info("=-------------------------------------------------------------=");
         return b;
     }
 

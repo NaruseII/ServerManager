@@ -31,7 +31,7 @@ public class PacketReloadBungeeServers implements IPacket{
 
     @Override
     public void process(ServerManager serverManager) {
-        serverManager.processPacket(this);
+
     }
 
     public String getDefaultServer() {

@@ -12,5 +12,5 @@ public interface IPacket {
 
     void read(DataInputStream stream) throws IOException;
 
-    void process(ServerManager serverManager);
+    void process(ServerManager serverManager) ;
 }

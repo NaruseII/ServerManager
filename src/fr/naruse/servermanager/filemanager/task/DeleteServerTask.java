@@ -13,7 +13,7 @@ public class DeleteServerTask {
     public DeleteServerTask(Configuration template, String serverName) {
         LOGGER.setTag("DeleteServerTask - "+serverName);
         LOGGER.info("Launching new task...");
-        LOGGER.info("Starting deletion of '"+serverName+"'...");
+        LOGGER.debug("Starting deletion of '"+serverName+"'...");
 
         String templateFolderUrl = template.get("pathTemplate");
         LOGGER.debug("Template folder URL is '"+templateFolderUrl+"'");
@@ -35,15 +35,15 @@ public class DeleteServerTask {
         serverFolder.mkdirs();
 
         if(template.get("isPersistent")){
-            LOGGER.info("Keeping files...");
+            LOGGER.debug("Keeping files...");
             if(!Utils.copyDirectory(serverFolder, templateFolder)){
                 LOGGER.error("Something went wrong when keeping files! I didn't delete '"+serverName+"' to not loose its content.");
                 return;
             }
-            LOGGER.info("Files kept!");
+            LOGGER.debug("Files kept!");
         }
 
-        LOGGER.info("Deleting...");
+        LOGGER.debug("Deleting...");
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
@@ -53,6 +53,6 @@ public class DeleteServerTask {
         serverFolder.delete();
         serverFolder.deleteOnExit();
 
-        LOGGER.info("Server deleted");
+        LOGGER.info("Task complete");
     }
 }
