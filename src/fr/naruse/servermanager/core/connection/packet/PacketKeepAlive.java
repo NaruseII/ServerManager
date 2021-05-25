@@ -1,15 +1,19 @@
 package fr.naruse.servermanager.core.connection.packet;
 
 import fr.naruse.servermanager.core.*;
+import fr.naruse.servermanager.core.server.MultiMap;
 import fr.naruse.servermanager.core.server.Server;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.packetmanager.KeepAliveBuffer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class PacketKeepAlive implements IPacket {
@@ -22,7 +26,7 @@ public class PacketKeepAlive implements IPacket {
     private int serverManagerPort;
     private CoreServerType coreServerType;
     private int capacity;
-    private Map<String, String> uuidByNameMap;
+    private MultiMap<String, UUID> uuidByNameMap;
     private Map<String, Object> dataMap;
     private Set<Server.Status> statusSet;
 
@@ -44,7 +48,11 @@ public class PacketKeepAlive implements IPacket {
         stream.writeUTF(this.name);
         stream.writeUTF(this.coreServerType.name());
         stream.writeInt(this.capacity);
-        stream.writeUTF(Utils.GSON.toJson(this.uuidByNameMap));
+
+        Map<String, String> map = new HashMap<>();
+        this.uuidByNameMap.forEach((s, uuid) -> map.put(s, uuid.toString()));
+
+        stream.writeUTF(Utils.GSON.toJson(map));
         stream.writeUTF(Utils.GSON.toJson(this.dataMap));
         stream.writeUTF(Utils.GSON.toJson(this.statusSet.stream().map(status -> status.name()).collect(Collectors.toSet())));
     }
@@ -56,7 +64,11 @@ public class PacketKeepAlive implements IPacket {
         this.name = stream.readUTF();
         this.coreServerType = CoreServerType.valueOf(stream.readUTF());
         this.capacity = stream.readInt();
-        this.uuidByNameMap = Utils.GSON.fromJson(stream.readUTF(), Utils.MAP_STRING_TYPE);
+
+        Map<String, String> map = Utils.GSON.fromJson(stream.readUTF(), Utils.MAP_STRING_TYPE);
+        this.uuidByNameMap = new MultiMap<>();
+        map.forEach((s, s2) -> this.uuidByNameMap.put(s, UUID.fromString(s2)));
+
         this.dataMap = Utils.GSON.fromJson(stream.readUTF(), Utils.MAP_TYPE);
         this.statusSet = ((Set<String>) Utils.GSON.fromJson(stream.readUTF(), Utils.SET_TYPE)).stream().map(s -> {
             Server.Status status = Server.Status.valueOf(s);
@@ -73,34 +85,34 @@ public class PacketKeepAlive implements IPacket {
     }
 
     public int getPort() {
-        return port;
+        return this.port;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public CoreServerType getCoreServerType() {
-        return coreServerType;
+        return this.coreServerType;
     }
 
     public int getCapacity() {
-        return capacity;
+        return this.capacity;
     }
 
-    public Map<String, String> getUUIDByNameMap() {
-        return uuidByNameMap;
+    public MultiMap<String, UUID> getUUIDByNameMap() {
+        return this.uuidByNameMap;
     }
 
     public Map<String, Object> getDataMap() {
-        return dataMap;
+        return this.dataMap;
     }
 
     public int getServerManagerPort() {
-        return serverManagerPort;
+        return this.serverManagerPort;
     }
 
     public Set<Server.Status> getStatusSet() {
-        return statusSet;
+        return this.statusSet;
     }
 }

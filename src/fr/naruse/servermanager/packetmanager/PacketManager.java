@@ -5,6 +5,7 @@ import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.core.utils.Updater;
 
 import java.io.File;
 import java.util.Optional;

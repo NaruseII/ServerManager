@@ -19,7 +19,7 @@ public class BungeeListeners implements Listener {
     @EventHandler
     public void join(LoginEvent e){
         Server server = this.pl.getServerManager().getCurrentServer();
-        server.getData().getUUIDByNameMap().put(e.getConnection().getName(), e.getConnection().getUniqueId().toString());
+        server.getData().getUUIDByNameMap().put(e.getConnection().getName(), e.getConnection().getUniqueId());
         if(BungeeCord.getInstance().getPlayers().size() == 0){
             server.getData().removeStatus(Server.Status.READY);
             server.getData().addStatus(Server.Status.ALLOCATED);

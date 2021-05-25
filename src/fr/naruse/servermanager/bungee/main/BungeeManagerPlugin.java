@@ -3,10 +3,11 @@ package fr.naruse.servermanager.bungee.main;
 import fr.naruse.servermanager.bungee.api.ServerManagerBungeeEvent;
 import fr.naruse.servermanager.bungee.event.BungeeListeners;
 import fr.naruse.servermanager.bungee.event.BungeeServerManagerListeners;
-import fr.naruse.servermanager.bungee.packet.BungeePacketProcessing;
+import fr.naruse.servermanager.bungee.packet.BungeeProcessPacketListener;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.core.utils.Updater;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -28,7 +29,7 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
         this.setListenerInfo(BungeeCord.getInstance().getConfig().getListeners().stream().findFirst().get());
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, this.listenerInfo.getQueryPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(this.listenerInfo.getMaxPlayers());
-        this.serverManager.registerPacketProcessing(new BungeePacketProcessing(this));
+        this.serverManager.registerPacketProcessing(new BungeeProcessPacketListener(this));
 
         this.getProxy().getPluginManager().registerListener(this, new BungeeListeners(this));
         this.getProxy().getPluginManager().registerListener(this, new BungeeServerManagerListeners(this));

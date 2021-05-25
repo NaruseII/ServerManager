@@ -19,7 +19,7 @@ public class BukkitListeners implements Listener {
     @EventHandler
     public void join(PlayerJoinEvent e){
         Server server = this.pl.getServerManager().getCurrentServer();
-        server.getData().getUUIDByNameMap().put(e.getPlayer().getName(), e.getPlayer().getUniqueId().toString());
+        server.getData().getUUIDByNameMap().put(e.getPlayer().getName(), e.getPlayer().getUniqueId());
         if(Bukkit.getOnlinePlayers().size() == 1){
             server.getData().removeStatus(Server.Status.READY);
             server.getData().addStatus(Server.Status.ALLOCATED);

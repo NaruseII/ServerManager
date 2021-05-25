@@ -84,6 +84,43 @@ public class ServerList {
         }).filter(predicate).findFirst();
     }
 
+    public static Optional<Server> findPlayerBukkitServer(String playerName){
+        return findPlayerServer(CoreServerType.BUKKIT_MANAGER, playerName);
+    }
+
+    public static Optional<Server> findPlayerBungeeServer(String playerName){
+        return findPlayerServer(CoreServerType.BUNGEE_MANAGER, playerName);
+    }
+
+    public static Optional<Server> findPlayerBukkitServer(UUID uuid){
+        return findPlayerServer(CoreServerType.BUKKIT_MANAGER, uuid);
+    }
+
+    public static Optional<Server> findPlayerBungeeServer(UUID uuid){
+        return findPlayerServer(CoreServerType.BUNGEE_MANAGER, uuid);
+    }
+
+    private static Optional<String> getPlayerNameByUUID(UUID uuid){
+        Optional<Server> optional = findPlayerServer(CoreServerType.BUKKIT_MANAGER, uuid);
+        return optional.isPresent() ? Optional.of(optional.get().getData().getByUUID(uuid)) : Optional.empty();
+    }
+
+    private static Optional<Server> findPlayerServer(CoreServerType coreServerType, String playerName){
+        return findServer(coreServerType).stream().filter(server -> server.getData().containsPlayer(playerName)).findFirst();
+    }
+
+    private static Optional<Server> findPlayerServer(CoreServerType coreServerType, UUID uuid){
+        return findServer(coreServerType).stream().filter(server -> server.getData().containsPlayer(uuid)).findFirst();
+    }
+
+    public static boolean isPlayerOnline(String playerName){
+        return findPlayerBukkitServer(playerName).isPresent();
+    }
+
+    public static boolean isPlayerOnline(UUID uuid){
+        return findPlayerBukkitServer(uuid).isPresent();
+    }
+
     public static Server getByName(String name){
         return map.get(name);
     }

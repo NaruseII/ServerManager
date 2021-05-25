@@ -1,7 +1,7 @@
 package fr.naruse.servermanager.filemanager.task;
 
 import fr.naruse.servermanager.core.ServerManager;
-import fr.naruse.servermanager.core.Utils;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.filemanager.FileManager;
@@ -10,11 +10,7 @@ import fr.naruse.servermanager.filemanager.ServerProcess;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.channels.FileChannel;
 import java.util.*;
-import java.util.function.Consumer;
 
 public class CreateServerTask {
 

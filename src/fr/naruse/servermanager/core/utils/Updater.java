@@ -1,5 +1,6 @@
-package fr.naruse.servermanager.core;
+package fr.naruse.servermanager.core.utils;
 
+import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import javax.net.ssl.HttpsURLConnection;

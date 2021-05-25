@@ -1,32 +1,28 @@
 package fr.naruse.servermanager.bungee.packet;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import fr.naruse.servermanager.bungee.main.BungeeManagerPlugin;
 import fr.naruse.servermanager.bungee.utils.BungeeUtils;
 import fr.naruse.servermanager.core.CoreServerType;
-import fr.naruse.servermanager.core.connection.packet.PacketExecuteConsoleCommand;
-import fr.naruse.servermanager.core.connection.packet.PacketProcessing;
-import fr.naruse.servermanager.core.connection.packet.PacketReloadBungeeServers;
-import fr.naruse.servermanager.core.connection.packet.PacketSwitchServer;
+import fr.naruse.servermanager.core.connection.packet.*;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
-import java.util.UUID;
 
-public class BungeePacketProcessing extends PacketProcessing {
+public class BungeeProcessPacketListener extends ProcessPacketListener {
 
     private final BungeeManagerPlugin pl;
 
-    public BungeePacketProcessing(BungeeManagerPlugin pl) {
+    public BungeeProcessPacketListener(BungeeManagerPlugin pl) {
         this.pl = pl;
     }
 
@@ -108,6 +104,7 @@ public class BungeePacketProcessing extends PacketProcessing {
                     break;
                 }
             }
+            TextComponent.fromLegacyText("test");
         }
 
         if(serverInfo == null){
@@ -120,5 +117,10 @@ public class BungeePacketProcessing extends PacketProcessing {
                 player.connect(serverInfo);
             }
         }
+    }
+
+    @Override
+    public void processBroadcast(PacketBroadcast packet) {
+        BungeeCord.getInstance().broadcast(packet.getMessage());
     }
 }

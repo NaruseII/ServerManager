@@ -3,10 +3,11 @@ package fr.naruse.servermanager.bukkit.main;
 import fr.naruse.servermanager.bukkit.api.ServerManagerBukkitEvent;
 import fr.naruse.servermanager.bukkit.cmd.BukkitServerManagerCommand;
 import fr.naruse.servermanager.bukkit.event.BukkitListeners;
-import fr.naruse.servermanager.bukkit.packet.BukkitPacketProcessing;
+import fr.naruse.servermanager.bukkit.packet.BukkitProcessPacketListener;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.core.utils.Updater;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -26,10 +27,10 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUKKIT_MANAGER, this.getDataFolder(), 4848, Bukkit.getServerName(), Bukkit.getPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(Bukkit.getMaxPlayers());
-        this.serverManager.registerPacketProcessing(new BukkitPacketProcessing(this));
+        this.serverManager.registerPacketProcessing(new BukkitProcessPacketListener(this));
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            this.serverManager.getCurrentServer().getData().getUUIDByNameMap().put(player.getName(), player.getUniqueId().toString());
+            this.serverManager.getCurrentServer().getData().getUUIDByNameMap().put(player.getName(), player.getUniqueId());
         }
 
         this.getServer().getPluginManager().registerEvents(new BukkitListeners(this), this);

@@ -90,7 +90,7 @@ public class Server {
     public static class Data {
 
         private Map<String, Object> dataMap = new HashMap<>();
-        private Map<String, String> uuidByNameMap = new HashMap<>(); // Name -> UUID
+        private MultiMap<String, UUID> uuidByNameMap = new MultiMap<>(); // Name -> UUID
         private int capacity;
         private Set<Status> statusSet = new HashSet<>();
 
@@ -119,18 +119,26 @@ public class Server {
         }
 
         public UUID getByName(String name){
-            String uuid = this.uuidByNameMap.get(name);
-            if(uuid == null){
-                return null;
-            }
-            return UUID.fromString(uuid);
+            return this.uuidByNameMap.get(name);
         }
 
-        public Map<String, String> getUUIDByNameMap() {
-            return uuidByNameMap;
+        public String getByUUID(UUID uuid){
+            return this.uuidByNameMap.reverse().get(uuid);
         }
 
-        public void setUUIDByNameMap(Map<String, String> uuidByNameMap) {
+        public boolean containsPlayer(String name){
+            return this.getByName(name) != null;
+        }
+
+        public boolean containsPlayer(UUID uuid){
+            return this.getByUUID(uuid) != null;
+        }
+
+        public MultiMap<String, UUID> getUUIDByNameMap() {
+            return this.uuidByNameMap;
+        }
+
+        public void setUUIDByNameMap(MultiMap<String, UUID> uuidByNameMap) {
             this.uuidByNameMap = uuidByNameMap;
         }
 

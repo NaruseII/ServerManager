@@ -27,7 +27,7 @@ public class ServerProcess {
 
     public ServerProcess(FileManager fileManager, ProcessBuilder processBuilder, String name, Configuration template, File serverFolder, boolean keepLogs) {
         LOGGER.setTag("ServerProcess - "+name);
-        LOGGER.info("Starting following process for '"+name+"'...");
+        LOGGER.info("Starting following process...");
 
         this.fileManager = fileManager;
         this.name = name;

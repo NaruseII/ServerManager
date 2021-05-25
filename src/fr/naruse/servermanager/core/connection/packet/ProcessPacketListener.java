@@ -1,6 +1,6 @@
 package fr.naruse.servermanager.core.connection.packet;
 
-public class PacketProcessing {
+public class ProcessPacketListener {
 
     public void processAllPackets(IPacket packet) { }
 
@@ -11,4 +11,6 @@ public class PacketProcessing {
     public void processExecuteConsoleCommand(PacketExecuteConsoleCommand packet) { }
 
     public void processSwitchServer(PacketSwitchServer packet) { }
+
+    public void processBroadcast(PacketBroadcast packet) { }
 }

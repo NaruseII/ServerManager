@@ -1,6 +1,6 @@
 package fr.naruse.servermanager.filemanager.task;
 
-import fr.naruse.servermanager.core.Utils;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 

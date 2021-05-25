@@ -1,6 +1,6 @@
 package fr.naruse.servermanager.core.config;
 
-import fr.naruse.servermanager.core.Utils;
+import fr.naruse.servermanager.core.utils.Utils;
 
 import java.io.*;
 import java.util.HashMap;

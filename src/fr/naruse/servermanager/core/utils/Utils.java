@@ -1,4 +1,4 @@
-package fr.naruse.servermanager.core;
+package fr.naruse.servermanager.core.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

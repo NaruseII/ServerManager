@@ -6,10 +6,11 @@ import fr.naruse.servermanager.core.connection.packet.PacketExecuteConsoleComman
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.core.utils.Updater;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.filemanager.event.FileManagerEventListener;
-import fr.naruse.servermanager.filemanager.packet.FileManagerPacketProcessing;
+import fr.naruse.servermanager.filemanager.packet.FileManagerProcessPacketListener;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
-import fr.naruse.servermanager.filemanager.task.DeleteServerTask;
 import fr.naruse.servermanager.filemanager.task.EditBungeeConfigFile;
 
 import java.io.File;
@@ -80,7 +81,7 @@ public class FileManager {
                 super.shutdown();
             }
         };
-        serverManager.registerPacketProcessing(new FileManagerPacketProcessing(this));
+        serverManager.registerPacketProcessing(new FileManagerProcessPacketListener(this));
         serverManager.registerEventListener(new FileManagerEventListener(this));
 
         Configuration.ConfigurationSection autoScalerSection = serverManager.getConfigurationManager().getConfig().getSection("autoScaler");

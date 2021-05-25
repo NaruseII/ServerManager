@@ -27,6 +27,7 @@ public class Packets {
         registerPacket("BUNGEE_REQUEST_CONFIG_WRITE", PacketBungeeRequestConfigWrite.class);
         registerPacket("EXECUTE_CONSOLE_COMMAND", PacketExecuteConsoleCommand.class);
         registerPacket("SWITCH_SERVER", PacketSwitchServer.class);
+        registerPacket("BROADCAST", PacketBroadcast.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

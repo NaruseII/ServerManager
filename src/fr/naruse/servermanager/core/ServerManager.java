@@ -8,6 +8,7 @@ import fr.naruse.servermanager.core.connection.packet.*;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.core.utils.Utils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class ServerManager {
 
     private final Server server;
     private final Set<EventListener> eventListenerSet = new HashSet<>();
-    private final Set<PacketProcessing> packetProcessingSet = new HashSet<>();
+    private final Set<ProcessPacketListener> processPacketListenerSet = new HashSet<>();
     private boolean isShutDowned = false;
 
     public ServerManager(CoreData coreData) {
@@ -101,20 +102,22 @@ public class ServerManager {
         this.eventListenerSet.add(eventListener);
     }
 
-    public void registerPacketProcessing(PacketProcessing packetProcessing){
-        this.packetProcessingSet.add(packetProcessing);
+    public void registerPacketProcessing(ProcessPacketListener processPacketListener){
+        this.processPacketListenerSet.add(processPacketListener);
     }
 
     public void processPacket(IPacket packet){
-        this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processAllPackets(packet));
+        this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processAllPackets(packet));
         if(packet instanceof PacketReloadBungeeServers){
-            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processReloadBungeeServers((PacketReloadBungeeServers) packet));
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processReloadBungeeServers((PacketReloadBungeeServers) packet));
         }else if(packet instanceof PacketBungeeRequestConfigWrite){
-            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processBungeeRequestConfigWrite((PacketBungeeRequestConfigWrite) packet));
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processBungeeRequestConfigWrite((PacketBungeeRequestConfigWrite) packet));
         }else if(packet instanceof PacketExecuteConsoleCommand){
-            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processExecuteConsoleCommand((PacketExecuteConsoleCommand) packet));
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processExecuteConsoleCommand((PacketExecuteConsoleCommand) packet));
         }else if(packet instanceof PacketSwitchServer){
-            this.packetProcessingSet.forEach(packetProcessing -> packetProcessing.processSwitchServer((PacketSwitchServer) packet));
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processSwitchServer((PacketSwitchServer) packet));
+        }else if(packet instanceof PacketBroadcast){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processBroadcast((PacketBroadcast) packet));
         }
     }
 
