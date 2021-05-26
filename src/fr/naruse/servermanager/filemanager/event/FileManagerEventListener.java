@@ -15,13 +15,6 @@ public class FileManagerEventListener extends EventListener {
     }
 
     @Override
-    public void onServerRegisterEvent(ServerRegisterEvent e) {
-        if(this.fileManager.getAutoScaler() != null){
-            this.fileManager.getAutoScaler().scale();
-        }
-    }
-
-    @Override
     public void onServerDeleteEvent(ServerDeleteEvent e) {
         if(e.getServer().getCoreServerType().is(CoreServerType.BUNGEE_MANAGER, CoreServerType.BUKKIT_MANAGER)){
             this.fileManager.shutdownServer(e.getServer().getName());

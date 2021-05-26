@@ -145,6 +145,10 @@ public class ServerManager {
         return plugin;
     }
 
+    public boolean isShutDowned() {
+        return isShutDowned;
+    }
+
     public void printStatus() {
         ServerManagerLogger.info("Server list:");
         for (Server server : ServerList.getAll()) {

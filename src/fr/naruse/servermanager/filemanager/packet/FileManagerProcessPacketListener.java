@@ -36,6 +36,5 @@ public class FileManagerProcessPacketListener extends ProcessPacketListener {
                 e.printStackTrace();
             }
         });
-
     }
 }

@@ -70,7 +70,7 @@ public class ServerProcess {
 
     public void shutdown() {
         if(process.isAlive()){
-            LOGGER.info("Stopping server '"+this.name+"'...");
+            LOGGER.info("Stopping server...");
 
             Server server = ServerList.getByName(this.name);
             if(server != null){
@@ -82,20 +82,16 @@ public class ServerProcess {
                 }
 
                 if(process.isAlive()){
-                    LOGGER.info("Server '"+this.name+"' is still alive! Killing it...");
+                    LOGGER.info("Server is still alive! Killing it...");
                     process.destroy();
                 }
             }else{
                 process.destroy();
             }
-            LOGGER.info("Server '"+this.name+"' stopped");
+            LOGGER.info("Server stopped");
         }
         this.isStopped = true;
         new DeleteServerTask(this.template, this.name);
-
-        if(this.fileManager.getAutoScaler() != null){
-            this.fileManager.getAutoScaler().scale();
-        }
     }
 
     public String getName() {

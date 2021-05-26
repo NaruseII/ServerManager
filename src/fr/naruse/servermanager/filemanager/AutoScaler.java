@@ -9,10 +9,14 @@ import fr.naruse.servermanager.core.server.ServerList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class AutoScaler {
 
+    private static final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
     private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("AutoScaler");
 
     private final FileManager fileManager;
@@ -23,6 +27,7 @@ public class AutoScaler {
     public AutoScaler(FileManager fileManager, Set<Configuration.ConfigurationSection> sectionSet) {
         this.fileManager = fileManager;
         this.sectionSet = sectionSet;
+        this.EXECUTOR_SERVICE.scheduleAtFixedRate(() -> this.scale(), 0, 2, TimeUnit.SECONDS);
         LOGGER.info("Started");
     }
 
@@ -61,6 +66,7 @@ public class AutoScaler {
 
     public void shutdown() {
         this.cancel = true;
+        this.EXECUTOR_SERVICE.shutdown();
     }
 
     public abstract static class Matches<T, E> {

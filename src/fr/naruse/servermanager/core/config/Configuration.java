@@ -11,15 +11,41 @@ public class Configuration {
 
     private final File file;
     private final String defaultResourceName;
+    private final boolean loadDefaultResource;
     private Map<String, Object> map = new HashMap<>();
 
     public Configuration(File file) {
-        this(file, file.getName());
+        this(file, true);
+    }
+
+    public Configuration(File file, boolean loadDefaultResource) {
+        this(file, file.getName(), loadDefaultResource);
     }
 
     public Configuration(File file, String defaultResourceName) {
+        this(file, defaultResourceName, true);
+    }
+
+    private InputStream defaultResourceStream;
+    public Configuration(File file, InputStream defaultResourceStream) {
+        this.file = file;
+        this.defaultResourceName = "";
+        this.loadDefaultResource = true;
+        this.defaultResourceStream = defaultResourceStream;
+
+        ConfigurationManager.LOGGER.info("Loading '"+file.getName()+"'...");
+        try {
+            this.reload();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ConfigurationManager.LOGGER.info("'"+file.getName()+"' loaded");
+    }
+
+    public Configuration(File file, String defaultResourceName, boolean loadDefaultResource) {
         this.file = file;
         this.defaultResourceName = defaultResourceName;
+        this.loadDefaultResource = loadDefaultResource;
 
         ConfigurationManager.LOGGER.info("Loading '"+file.getName()+"'...");
         try {
@@ -43,8 +69,8 @@ public class Configuration {
         }
         reader.close();
 
-        if(this.map == null || this.map.isEmpty()){
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("resources/"+this.defaultResourceName);
+        if((this.map == null || this.map.isEmpty()) && this.loadDefaultResource){
+            InputStream inputStream = this.defaultResourceStream != null ? this.defaultResourceStream : getClass().getClassLoader().getResourceAsStream("resources/"+this.defaultResourceName);
             if(inputStream != null){
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 

@@ -117,6 +117,7 @@ public class ConnectionManager {
         this.sendPacket(packet, this.inetAddress, this.serverManager.getCoreData().getServerPort());
     }
 
+    private int retryCount = 0;
     private void sendPacket(IPacket packet, InetAddress inetAddress, int port){
         EXECUTOR_SERVICE.submit(() -> {
             try {
@@ -142,11 +143,14 @@ public class ConnectionManager {
                 if(e.getClass().isAssignableFrom(ConnectException.class)){
                     LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
                     if(port == this.serverManager.getCoreData().getServerPort()){
-                        LOGGER.error("");
-                        LOGGER.error("Can't connect to Packet-Manager!");
-                        LOGGER.error("");
-                        LOGGER.warn("Shutting down...");
-                        System.exit(0);
+                        LOGGER.error("Retrying...");
+                        this.retryCount++;
+                        if(this.retryCount >= 5){
+                            LOGGER.error("Can't connect to Packet-Manager!");
+                            LOGGER.error("");
+                            LOGGER.warn("Shutting down...");
+                            System.exit(0);
+                        }
                     }
                 }else{
                     e.printStackTrace();
