@@ -20,7 +20,7 @@ public class BukkitListeners implements Listener {
     public void join(PlayerJoinEvent e){
         Server server = this.pl.getServerManager().getCurrentServer();
         server.getData().getUUIDByNameMap().put(e.getPlayer().getName(), e.getPlayer().getUniqueId());
-        if(Bukkit.getOnlinePlayers().size() == 1){
+        if(Bukkit.getServer().getOnlinePlayers().size() == 1){
             server.getData().removeStatus(Server.Status.READY);
             server.getData().addStatus(Server.Status.ALLOCATED);
         }
@@ -30,7 +30,7 @@ public class BukkitListeners implements Listener {
     public void quit(PlayerQuitEvent e){
         Server server = this.pl.getServerManager().getCurrentServer();
         server.getData().getUUIDByNameMap().remove(e.getPlayer().getName());
-        if(Bukkit.getOnlinePlayers().size() == 1){
+        if(Bukkit.getServer().getOnlinePlayers().size() == 1){
             server.getData().removeStatus(Server.Status.ALLOCATED);
             server.getData().addStatus(Server.Status.READY);
         }
