@@ -6,15 +6,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class PacketBungeeRequestConfigWrite implements IPacket {
+public class PacketProxyRequestConfigWrite implements IPacket {
 
-    public PacketBungeeRequestConfigWrite() {
+    public PacketProxyRequestConfigWrite() {
     }
 
     private String bungeeName;
     private String serverTarget;
     private boolean delete;
-    public PacketBungeeRequestConfigWrite(String bungeeName, String serverTarget, boolean delete) {
+    public PacketProxyRequestConfigWrite(String bungeeName, String serverTarget, boolean delete) {
         this.bungeeName = bungeeName;
         this.serverTarget = serverTarget;
         this.delete = delete;

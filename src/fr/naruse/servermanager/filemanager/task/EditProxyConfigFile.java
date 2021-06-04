@@ -2,7 +2,7 @@ package fr.naruse.servermanager.filemanager.task;
 
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.config.Configuration;
-import fr.naruse.servermanager.core.connection.packet.PacketReloadBungeeServers;
+import fr.naruse.servermanager.core.connection.packet.PacketReloadProxyServers;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
-public class EditBungeeConfigFile {
+public class EditProxyConfigFile {
 
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
     private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("");
@@ -32,7 +32,7 @@ public class EditBungeeConfigFile {
     private boolean isOnPriorities = false;
     private boolean priorityAppended = false;
 
-    public EditBungeeConfigFile(String serverName, String hostAddress, int port, ServerProcess process, boolean needToDelete) throws Exception {
+    public EditProxyConfigFile(String serverName, String hostAddress, int port, ServerProcess process, boolean needToDelete) throws Exception {
         if(process == null){
             return;
         }
@@ -40,15 +40,6 @@ public class EditBungeeConfigFile {
         LOGGER.setTag("EditBungeeConfigTask - "+process.getName());
         LOGGER.info("Launching new task...");
         LOGGER.info((port == 0 ? "Removing '" : "Adding '")+serverName+" -> "+hostAddress+":"+port+"'...");
-
-        File configFile = new File(process.getServerFolder(), "config.yml");
-        if(!configFile.exists()){
-            configFile.createNewFile();
-            LOGGER.debug("'config.yml' created");
-        }
-
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new FileReader(configFile));
 
         Configuration.ConfigurationSection configSection = process.getTemplate().getSection("config.yml");
         Configuration.ConfigurationSection prioritiesSection = configSection.getSection("priorities");
@@ -61,6 +52,20 @@ public class EditBungeeConfigFile {
                 return !(needToDelete && server.getName().equals(serverName));
             }
         });
+
+        Server bungeeServer = ServerList.getByName(process.getName());
+        if(bungeeServer != null){
+            bungeeServer.sendPacket(new PacketReloadProxyServers(optionalServer.isPresent() ? optionalServer.get().getName() : "null", configSection.get("transformToLocalhostIfPossible")));
+        }
+
+        File configFile = new File(process.getServerFolder(), "config.yml");
+        if(true){ // Don't need anymore to edit config.yml or velocity.toml files (Code stays in case I need to edit)
+            LOGGER.info("Task complete");
+            return;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new FileReader(configFile));
 
         reader.lines().forEach(line -> {
 
@@ -128,8 +133,6 @@ public class EditBungeeConfigFile {
         FileWriter fileWriter = new FileWriter(configFile);
         fileWriter.write(stringBuilder.toString());
         fileWriter.close();
-
-        ServerList.getByName(process.getName()).sendPacket(new PacketReloadBungeeServers(optionalServer.isPresent() ? optionalServer.get().getName() : "null", configSection.get("transformToLocalhostIfPossible")));
 
         LOGGER.info("Task complete");
     }

@@ -6,14 +6,14 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class PacketReloadBungeeServers implements IPacket{
+public class PacketReloadProxyServers implements IPacket{
 
-    public PacketReloadBungeeServers() {
+    public PacketReloadProxyServers() {
     }
 
     private String defaultServer;
     private boolean transformToLocalhostIfPossible;
-    public PacketReloadBungeeServers(String defaultServer, boolean transformToLocalhostIfPossible) {
+    public PacketReloadProxyServers(String defaultServer, boolean transformToLocalhostIfPossible) {
         this.defaultServer = defaultServer;
     }
 

@@ -108,10 +108,10 @@ public class ServerManager {
 
     public void processPacket(IPacket packet){
         this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processAllPackets(packet));
-        if(packet instanceof PacketReloadBungeeServers){
-            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processReloadBungeeServers((PacketReloadBungeeServers) packet));
-        }else if(packet instanceof PacketBungeeRequestConfigWrite){
-            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processBungeeRequestConfigWrite((PacketBungeeRequestConfigWrite) packet));
+        if(packet instanceof PacketReloadProxyServers){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processReloadProxyServers((PacketReloadProxyServers) packet));
+        }else if(packet instanceof PacketProxyRequestConfigWrite){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processProxyRequestConfigWrite((PacketProxyRequestConfigWrite) packet));
         }else if(packet instanceof PacketExecuteConsoleCommand){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processExecuteConsoleCommand((PacketExecuteConsoleCommand) packet));
         }else if(packet instanceof PacketSwitchServer){

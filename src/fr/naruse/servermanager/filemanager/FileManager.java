@@ -11,7 +11,7 @@ import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.filemanager.event.FileManagerEventListener;
 import fr.naruse.servermanager.filemanager.packet.FileManagerProcessPacketListener;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
-import fr.naruse.servermanager.filemanager.task.EditBungeeConfigFile;
+import fr.naruse.servermanager.filemanager.task.EditProxyConfigFile;
 
 import java.io.File;
 import java.util.*;
@@ -76,7 +76,7 @@ public class FileManager {
                 EXECUTOR_SERVICE.shutdown();
 
                 ServerManagerLogger.info("Stopping task threads...");
-                EditBungeeConfigFile.EXECUTOR_SERVICE.shutdown();
+                EditProxyConfigFile.EXECUTOR_SERVICE.shutdown();
 
                 super.shutdown();
             }

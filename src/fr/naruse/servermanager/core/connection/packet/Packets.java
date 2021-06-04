@@ -23,8 +23,8 @@ public class Packets {
         registerPacket("CREATE_SERVER", PacketCreateServer.class);
         registerPacket("SHUTDOWN", PacketShutdown.class);
         registerPacket("SERVER_LIST", PacketServerList.class);
-        registerPacket("RELOAD_BUNGEE_SERVERS", PacketReloadBungeeServers.class);
-        registerPacket("BUNGEE_REQUEST_CONFIG_WRITE", PacketBungeeRequestConfigWrite.class);
+        registerPacket("RELOAD_PROXY_SERVERS", PacketReloadProxyServers.class);
+        registerPacket("PROXY_REQUEST_CONFIG_WRITE", PacketProxyRequestConfigWrite.class);
         registerPacket("EXECUTE_CONSOLE_COMMAND", PacketExecuteConsoleCommand.class);
         registerPacket("SWITCH_SERVER", PacketSwitchServer.class);
         registerPacket("BROADCAST", PacketBroadcast.class);

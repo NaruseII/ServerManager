@@ -56,7 +56,7 @@ public class CreateServerTask {
         LOGGER.debug("Copy done !");
 
         LOGGER.debug("Editing 'ServerManager/config.json'...");
-        this.editConfigJson(serverFolder, name);
+        this.editServerManagerPluginConfig(serverFolder, name);
         LOGGER.debug("'ServerManager/config.json' edited");
 
         LOGGER.debug("Getting ready to start the server...");
@@ -69,9 +69,9 @@ public class CreateServerTask {
         boolean isJarFile = template.get("isJarFile");
 
         try {
-            this.editServerProperties(template, new File(serverFolder, "server.properties"), name);
+            this.editVanillaConfig(template, new File(serverFolder, "server.properties"), name);
 
-            this.editConfigYml(template, new File(serverFolder, "config.yml"));
+            this.editProxyConfig(template, serverFolder);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -99,7 +99,12 @@ public class CreateServerTask {
         fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, template, serverFolder, template.get("keepLogs")));
     }
 
-    private void editConfigYml(Configuration template, File configFile) throws IOException {
+    private void editProxyConfig(Configuration template, File serverFolder) throws IOException {
+        File configFile = new File(serverFolder, "config.yml");
+        if(!configFile.exists()){
+            configFile = new File(serverFolder, "velocity.toml");
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
 
         Configuration.ConfigurationSection section = template.getSection("config.yml");
@@ -111,6 +116,8 @@ public class CreateServerTask {
                 try{
                     if(editMaxPlayers && line.contains("max_players:")){
                         stringBuilder.append("  max_players: ").append(Utils.getIntegerFromPacket(section.get("maxPlayers"))).append("\n");
+                    }else if(editMaxPlayers && line.contains("show-max-players")){
+                        stringBuilder.append("show-max-players = ").append(Utils.getIntegerFromPacket(section.get("maxPlayers"))).append("\n");
                     }
                     else{
                         stringBuilder.append(line).append("\n");
@@ -127,10 +134,11 @@ public class CreateServerTask {
         }
     }
 
-    private void editConfigJson(File serverFolder, String serverName) {
+    private void editServerManagerPluginConfig(File serverFolder, String serverName) {
         boolean isSponge = new File(serverFolder, "mods").exists();
+        boolean isVelocity = new File(serverFolder, "velocity.toml").exists();
 
-        File configJson = new File(serverFolder, isSponge ? "config/servermanager/config.json" : "plugins/ServerManager/config.json");
+        File configJson = new File(serverFolder, isSponge ? "config/servermanager/config.json" : isVelocity ? "plugins/servermanager/config.json" : "plugins/ServerManager/config.json");
         configJson.getParentFile().mkdirs();
         if(configJson.exists()){
             configJson.delete();
@@ -155,7 +163,7 @@ public class CreateServerTask {
         }
     }
 
-    private void editServerProperties(Configuration template, File propertiesFile, String serverName) throws IOException {
+    private void editVanillaConfig(Configuration template, File propertiesFile, String serverName) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
 
         Configuration.ConfigurationSection section = template.getSection("server.properties");

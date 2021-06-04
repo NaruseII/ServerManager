@@ -1,8 +1,8 @@
-package fr.naruse.servermanager.bungee.packet;
+package fr.naruse.servermanager.proxy.bungee.packet;
 
 import com.google.common.collect.Sets;
-import fr.naruse.servermanager.bungee.main.BungeeManagerPlugin;
-import fr.naruse.servermanager.bungee.utils.BungeeUtils;
+import fr.naruse.servermanager.proxy.bungee.main.BungeeManagerPlugin;
+import fr.naruse.servermanager.proxy.common.ProxyUtils;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.connection.packet.*;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
@@ -10,7 +10,6 @@ import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -27,7 +26,7 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
     }
 
     @Override
-    public void processReloadBungeeServers(PacketReloadBungeeServers packet) {
+    public void processReloadProxyServers(PacketReloadProxyServers packet) {
         ServerInfo defaultServer = BungeeCord.getInstance().getServerInfo(packet.getDefaultServer());
 
         if(defaultServer == null && !packet.getDefaultServer().equals("null")){
@@ -91,7 +90,7 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
             return null;
         }
 
-        return ProxyServer.getInstance().constructServerInfo(server.getName(), BungeeUtils.getAddr(address), server.getName(), false);
+        return ProxyServer.getInstance().constructServerInfo(server.getName(), ProxyUtils.getAddress(address), server.getName(), false);
     }
 
 
@@ -109,7 +108,6 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
                     break;
                 }
             }
-            TextComponent.fromLegacyText("test");
         }
 
         if(serverInfo == null){

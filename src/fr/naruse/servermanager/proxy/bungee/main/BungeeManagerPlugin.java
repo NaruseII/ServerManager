@@ -1,9 +1,8 @@
-package fr.naruse.servermanager.bungee.main;
+package fr.naruse.servermanager.proxy.bungee.main;
 
-import fr.naruse.servermanager.bungee.api.ServerManagerBungeeEvent;
-import fr.naruse.servermanager.bungee.event.BungeeListeners;
-import fr.naruse.servermanager.bungee.event.BungeeServerManagerListeners;
-import fr.naruse.servermanager.bungee.packet.BungeeProcessPacketListener;
+import fr.naruse.servermanager.proxy.bungee.api.ServerManagerBungeeEvent;
+import fr.naruse.servermanager.proxy.bungee.event.BungeeListeners;
+import fr.naruse.servermanager.proxy.bungee.packet.BungeeProcessPacketListener;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
@@ -32,7 +31,6 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
         this.serverManager.registerPacketProcessing(new BungeeProcessPacketListener(this));
 
         this.getProxy().getPluginManager().registerListener(this, new BungeeListeners(this));
-        this.getProxy().getPluginManager().registerListener(this, new BungeeServerManagerListeners(this));
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
     }

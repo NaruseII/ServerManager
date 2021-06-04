@@ -28,9 +28,7 @@ public class PacketShutdown implements IPacket {
             case FILE_MANAGER:
                 System.exit(0);
                 return;
-            case BUKKIT_MANAGER:
-            case SPONGE_MANAGER:
-            case BUNGEE_MANAGER:
+            default:
                 serverManager.getPlugin().shutdown();
                 return;
         }

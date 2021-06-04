@@ -1,0 +1,10 @@
+{
+  "id": "servermanager",
+  "name": "ServerManager",
+  "version": "1.0.0",
+  "description": "ServerManager Velocity Manager",
+  "url": "https://www.spigotmc.org/resources/server-manager.92600/",
+  "author": ["Naruse"],
+  "dependencies": [],
+  "main": "fr.naruse.servermanager.proxy.velocity.main.VelocityManagerPlugin"
+}

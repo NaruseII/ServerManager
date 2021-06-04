@@ -1,15 +1,14 @@
-package fr.naruse.servermanager.sponge.logging;
+package fr.naruse.servermanager.core.logging;
 
-import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import org.slf4j.Logger;
 
 import java.util.logging.Level;
 
-public class SpongeCustomLogger extends ServerManagerLogger.CustomLogger {
+public class SLF4JCustomLogger extends ServerManagerLogger.CustomLogger {
 
     private final Logger logger;
 
-    public SpongeCustomLogger(Logger logger) {
+    public SLF4JCustomLogger(Logger logger) {
         this.logger = logger;
     }
 

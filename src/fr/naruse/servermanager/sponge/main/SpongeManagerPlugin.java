@@ -9,7 +9,7 @@ import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.sponge.api.ServerManagerSpongeEvent;
 import fr.naruse.servermanager.sponge.event.SpongeListeners;
-import fr.naruse.servermanager.sponge.logging.SpongeCustomLogger;
+import fr.naruse.servermanager.core.logging.SLF4JCustomLogger;
 import fr.naruse.servermanager.sponge.packet.SpongeProcessPacketListener;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -18,7 +18,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 import javax.inject.Inject;
@@ -39,7 +38,7 @@ public class SpongeManagerPlugin implements IServerManagerPlugin {
     public void onServerStart(GameInitializationEvent e){
         long millis  = System.currentTimeMillis();
 
-        ServerManagerLogger.setCustomLogger(new SpongeCustomLogger(this.logger));
+        ServerManagerLogger.setCustomLogger(new SLF4JCustomLogger(this.logger));
         ServerManagerLogger.info("Starting SpongeManager...");
 
         Updater.needToUpdate();

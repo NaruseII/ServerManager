@@ -151,7 +151,7 @@ public class ConnectionManager {
                 if(e.getClass().isAssignableFrom(ConnectException.class)){
                     LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
                     if(port == this.serverManager.getCoreData().getServerPort()){
-                        LOGGER.warn("Retrying... ("+this.retryCount+"/5");
+                        LOGGER.warn("Retrying... ("+this.retryCount+"/5)");
                         this.retryCount++;
                         if(this.retryCount >= 5){
                             LOGGER.error("Can't connect to Packet-Manager!");

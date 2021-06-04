@@ -1,4 +1,4 @@
-package fr.naruse.servermanager.bungee.api;
+package fr.naruse.servermanager.proxy.bungee.api;
 
 import fr.naruse.servermanager.core.api.events.IEvent;
 import net.md_5.bungee.api.plugin.Event;

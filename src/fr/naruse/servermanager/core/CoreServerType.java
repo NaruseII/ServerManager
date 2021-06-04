@@ -7,6 +7,7 @@ public enum CoreServerType {
     FILE_MANAGER,
     PACKET_MANAGER,
     SPONGE_MANAGER,
+    VELOCITY_MANAGER,
     ;
 
     public boolean is(CoreServerType... types) {
