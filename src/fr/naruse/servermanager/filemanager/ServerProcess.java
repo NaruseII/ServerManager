@@ -76,7 +76,7 @@ public class ServerProcess {
             if(server != null){
                 this.fileManager.getServerManager().getConnectionManager().sendPacket(server, new PacketShutdown());
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

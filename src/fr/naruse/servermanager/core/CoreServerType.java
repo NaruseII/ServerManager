@@ -6,6 +6,7 @@ public enum CoreServerType {
     BUKKIT_MANAGER,
     FILE_MANAGER,
     PACKET_MANAGER,
+    SPONGE_MANAGER,
     ;
 
     public boolean is(CoreServerType... types) {

@@ -167,7 +167,9 @@ public class FileManager {
                             continue;
                         }
                     }
-                    this.createServer(args[1]);
+                    for (int i = 0; i < count; i++) {
+                        this.createServer(args[1]);
+                    }
                 }
             }else if(line.startsWith("status")){
                 serverManager.printStatus();

@@ -39,6 +39,7 @@ public class EditBungeeConfigFile {
 
         LOGGER.setTag("EditBungeeConfigTask - "+process.getName());
         LOGGER.info("Launching new task...");
+        LOGGER.info((port == 0 ? "Removing '" : "Adding '")+serverName+" -> "+hostAddress+":"+port+"'...");
 
         File configFile = new File(process.getServerFolder(), "config.yml");
         if(!configFile.exists()){
@@ -52,7 +53,9 @@ public class EditBungeeConfigFile {
         Configuration.ConfigurationSection configSection = process.getTemplate().getSection("config.yml");
         Configuration.ConfigurationSection prioritiesSection = configSection.getSection("priorities");
 
-        Optional<Server> optionalServer = ServerList.findServer(CoreServerType.BUKKIT_MANAGER, ServerList.SortType.valueOf(prioritiesSection.get("sortType")), prioritiesSection.get("forceOnTemplate"), new Predicate<Server>() {
+        CoreServerType[] defaultServerTypes = new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER};
+
+        Optional<Server> optionalServer = ServerList.findServer(defaultServerTypes, ServerList.SortType.valueOf(prioritiesSection.get("sortType")), prioritiesSection.get("forceOnTemplate"), new Predicate<Server>() {
             @Override
             public boolean test(Server server) {
                 return !(needToDelete && server.getName().equals(serverName));

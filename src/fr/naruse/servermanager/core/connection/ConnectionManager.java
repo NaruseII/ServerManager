@@ -135,7 +135,15 @@ public class ConnectionManager {
 
                 DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 dataOutputStream.writeUTF(packetName);
-                dataOutputStream.writeUTF(this.serverManager.getConfigurationManager().getConfig().get("key"));
+
+                String secretKet = this.serverManager.getConfigurationManager().getConfig().get("key");
+                if(secretKet == null){
+                    LOGGER.error("Secret key is null! Stopping...");
+                    System.exit(0);
+                    return;
+                }
+
+                dataOutputStream.writeUTF(secretKet);
                 packet.write(dataOutputStream);
 
                 socket.close();
@@ -143,7 +151,7 @@ public class ConnectionManager {
                 if(e.getClass().isAssignableFrom(ConnectException.class)){
                     LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
                     if(port == this.serverManager.getCoreData().getServerPort()){
-                        LOGGER.error("Retrying...");
+                        LOGGER.warn("Retrying... ("+this.retryCount+"/5");
                         this.retryCount++;
                         if(this.retryCount >= 5){
                             LOGGER.error("Can't connect to Packet-Manager!");

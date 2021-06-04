@@ -128,7 +128,9 @@ public class CreateServerTask {
     }
 
     private void editConfigJson(File serverFolder, String serverName) {
-        File configJson = new File(serverFolder, "plugins/ServerManager/config.json");
+        boolean isSponge = new File(serverFolder, "mods").exists();
+
+        File configJson = new File(serverFolder, isSponge ? "config/servermanager/config.json" : "plugins/ServerManager/config.json");
         configJson.getParentFile().mkdirs();
         if(configJson.exists()){
             configJson.delete();

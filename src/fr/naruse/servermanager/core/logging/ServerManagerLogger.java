@@ -13,6 +13,11 @@ public class ServerManagerLogger {
 
     public static final StringBuilder LOGS_BUILDER = new StringBuilder();
     private static boolean debug = false;
+    private static CustomLogger customLogger;
+
+    public static void setCustomLogger(CustomLogger customLogger) {
+        ServerManagerLogger.customLogger = customLogger;
+    }
 
     public static void setDebug(boolean debug) {
         ServerManagerLogger.debug = debug;
@@ -48,6 +53,12 @@ public class ServerManagerLogger {
                 return;
             }
         }
+
+        if(customLogger != null){
+            LOGS_BUILDER.append(customLogger.log(level, msg, logger)).append("\n");
+            return;
+        }
+
         if(PLUGIN_LOGGER != null){
             String s = (logger != null ? "["+ logger.getTag()+"] " : "")+msg;
             PLUGIN_LOGGER.log(level, s);
@@ -133,5 +144,11 @@ public class ServerManagerLogger {
         public void setTag(String tag) {
             this.tag = tag;
         }
+    }
+
+    public static abstract class CustomLogger {
+
+        public abstract String log(Level level, String msg, Logger logger) ;
+
     }
 }

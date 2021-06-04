@@ -32,7 +32,7 @@ public class BungeeServerManagerListeners implements Listener {
             ServerRegisterEvent e = (ServerRegisterEvent) iEvent;
 
             Server server = e.getServer();
-            if(server.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER)){
+            if(server.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER)){
                 ServerList.findServer(CoreServerType.FILE_MANAGER).forEach(fileManager -> {
                     fileManager.sendPacket(new PacketBungeeRequestConfigWrite(pl.getServerManager().getCoreData().getServerName(), server.getName(), false));
                 });
@@ -42,7 +42,7 @@ public class BungeeServerManagerListeners implements Listener {
             ServerDeleteEvent e = (ServerDeleteEvent) iEvent;
 
             Server server = e.getServer();
-            if(server.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER)){
+            if(server.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER)){
                 ServerList.findServer(CoreServerType.FILE_MANAGER).forEach(fileManager -> {
                     fileManager.sendPacket(new PacketBungeeRequestConfigWrite(pl.getServerManager().getCoreData().getServerName(), server.getName(), true));
                 });

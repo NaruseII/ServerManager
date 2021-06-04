@@ -22,6 +22,10 @@ public class ServerList {
         }
 
         Server server = new Server(name, port, serverManagerPort, coreServerType);
+        if(server.equals(ServerManager.get().getCurrentServer())){
+            return null;
+        }
+
         ServerRegisterEvent event = new ServerRegisterEvent(server);
         ServerManager.get().getPlugin().callEvent(event);
         if(event.isCancelled()){
@@ -74,7 +78,11 @@ public class ServerList {
     }
 
     public static Optional<Server> findServer(CoreServerType coreServerType, SortType sortType, String nameStartsWith, Predicate<Server> predicate){
-        return getAll().stream().filter(server -> server.getCoreServerType() == coreServerType && server.getName().startsWith(nameStartsWith)).sorted((o1, o2) -> {
+        return findServer(new CoreServerType[]{coreServerType}, sortType, nameStartsWith, predicate);
+    }
+
+    public static Optional<Server> findServer(CoreServerType[] coreServerTypes, SortType sortType, String nameStartsWith, Predicate<Server> predicate){
+        return getAll().stream().filter(server -> server.getCoreServerType().is(coreServerTypes) && server.getName().startsWith(nameStartsWith)).sorted((o1, o2) -> {
             if(o1.getData().getPlayerSize() > o2.getData().getPlayerSize()){
                 return sortType == SortType.FIND_MOST_POPULATED ? 1 : -1;
             }else if(o1.getData().getPlayerSize() < o2.getData().getPlayerSize()){

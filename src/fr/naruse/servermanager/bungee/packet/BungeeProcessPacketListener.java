@@ -52,7 +52,7 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
             BungeeCord.getInstance().getServers().remove(s);
         });
 
-        ServerList.getAll().stream().filter(s -> !set.contains(s.getName()) && s.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER)).forEach(server -> {
+        ServerList.getAll().stream().filter(s -> !set.contains(s.getName()) && s.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER)).forEach(server -> {
             ServerInfo serverInfo = this.buildServerInfo(server, packet.transformToLocalhostIfPossible());
             BungeeCord.getInstance().getServers().put(server.getName(), serverInfo);
         });
@@ -66,6 +66,11 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
         }
 
         ServerManagerLogger.info("'config.yml' reloaded");
+        if(defaultServer != null){
+            ServerManagerLogger.info("Default server is '"+defaultServer.getName()+"'");
+        }else{
+            ServerManagerLogger.info("Default server is 'null'");
+        }
     }
 
     @Override
