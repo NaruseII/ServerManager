@@ -74,7 +74,7 @@ public class VelocityProcessPacketListener extends ProcessPacketListener {
 
     @Override
     public void processSwitchServer(PacketSwitchServer packet) {
-        if(packet.getServer() == null){
+        if(packet.getServer() == null) {
             return;
         }
 
@@ -98,7 +98,7 @@ public class VelocityProcessPacketListener extends ProcessPacketListener {
             if(optionalPlayer.isPresent()){
                 Player player = optionalPlayer.get();
                 if(player != null && (player.getCurrentServer().isPresent() && !player.getCurrentServer().get().equals(optionalServer.get()))){
-                    player.createConnectionRequest(optionalServer.get());
+                    player.createConnectionRequest(optionalServer.get()).connect();
                 }
             }
         }

@@ -20,8 +20,8 @@ public class KeepAliveServerThread {
     public static void launch(ServerManager serverManager) {
         EXECUTOR_SERVICE.scheduleAtFixedRate(() -> {
             if(serverManager.getCoreData().getCoreServerType() == CoreServerType.PACKET_MANAGER){
-                Set<Server> set = ServerList.getAll();
-                for (Server server : ServerList.getAll()) {
+                Set<Server> set = ServerList.getAll(false);
+                for (Server server : ServerList.getAll(false)) {
                     Integer integer = server.getData().get("countBeforeDelete");
                     if(integer == null){
                         server.getData().set("countBeforeDelete", 3);

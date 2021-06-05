@@ -29,7 +29,7 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
         this.serverManager.getCurrentServer().getData().setCapacity(Bukkit.getMaxPlayers());
         this.serverManager.registerPacketProcessing(new BukkitProcessPacketListener(this));
 
-        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             this.serverManager.getCurrentServer().getData().getUUIDByNameMap().put(player.getName(), player.getUniqueId());
         }
 

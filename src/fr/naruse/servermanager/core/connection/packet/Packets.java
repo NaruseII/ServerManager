@@ -28,6 +28,8 @@ public class Packets {
         registerPacket("EXECUTE_CONSOLE_COMMAND", PacketExecuteConsoleCommand.class);
         registerPacket("SWITCH_SERVER", PacketSwitchServer.class);
         registerPacket("BROADCAST", PacketBroadcast.class);
+        registerPacket("DATABASE_REQUEST", PacketDatabaseRequest.class);
+        registerPacket("DATABASE_ANSWER", PacketDatabaseAnswer.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

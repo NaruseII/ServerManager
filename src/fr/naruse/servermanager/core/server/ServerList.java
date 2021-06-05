@@ -162,7 +162,15 @@ public class ServerList {
     }
 
     public static Set<Server> getAll(){
-        return new HashSet<>(map.values());
+        return getAll(true);
+    }
+
+    public static Set<Server> getAll(boolean addCurrentServer){
+        Set<Server> set = new HashSet<>(map.values());
+        if(addCurrentServer){
+            set.add(ServerManager.get().getCurrentServer());
+        }
+        return set;
     }
 
     public static Set<String> getAllNames(){

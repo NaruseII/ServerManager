@@ -19,6 +19,8 @@ public class Utils {
     public static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
     public static final Type MAP_STRING_TYPE = new TypeToken<Map<String, String>>(){}.getType();
     public static final Type SET_TYPE = new TypeToken<Set<String>>(){}.getType();
+    public static final Type LIST_GENERIC_TYPE = new TypeToken<List>(){}.getType();
+    public static final Type MAP_GENERIC_TYPE = new TypeToken<Map>(){}.getType();
 
     public static final char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz".toCharArray();
     public static final Random RANDOM = new Random();
