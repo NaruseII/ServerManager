@@ -32,7 +32,7 @@ public class ServerList {
             return null;
         }
 
-        if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)){
+        if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER)){
             ServerManagerLogger.info("Registering server '"+name+"' -> ["+server.getAddress().getHostAddress()+"] Port: "+port+" SMPort: "+serverManagerPort);
         }
 
@@ -50,7 +50,7 @@ public class ServerList {
             ServerManager.get().getPlugin().callEvent(new ServerDeleteEvent(server));
 
             map.remove(name);
-            if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER)) {
+            if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER)) {
                 ServerManagerLogger.info("Deleting server '" + name + "' -> ["+server.getAddress().getHostAddress()+"] Port: "+server.getPort()+" SMPort: "+server.getServerManagerPort());
             }
 
@@ -96,29 +96,53 @@ public class ServerList {
         return findPlayerServer(CoreServerType.BUKKIT_MANAGER, playerName);
     }
 
-    public static Optional<Server> findPlayerBungeeServer(String playerName){
-        return findPlayerServer(CoreServerType.BUNGEE_MANAGER, playerName);
+    public static Optional<Server> findPlayerSpongeServer(String playerName){
+        return findPlayerServer(CoreServerType.SPONGE_MANAGER, playerName);
+    }
+
+    public static Optional<Server> findPlayerBukkitOrSpongeServer(String playerName){
+        return findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER}, playerName);
+    }
+
+    public static Optional<Server> findPlayerProxyServer(String playerName){
+        return findPlayerServer(new CoreServerType[]{CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER}, playerName);
     }
 
     public static Optional<Server> findPlayerBukkitServer(UUID uuid){
         return findPlayerServer(CoreServerType.BUKKIT_MANAGER, uuid);
     }
 
-    public static Optional<Server> findPlayerBungeeServer(UUID uuid){
-        return findPlayerServer(CoreServerType.BUNGEE_MANAGER, uuid);
+    public static Optional<Server> findPlayerSpongeServer(UUID uuid){
+        return findPlayerServer(CoreServerType.SPONGE_MANAGER, uuid);
     }
 
-    private static Optional<String> getPlayerNameByUUID(UUID uuid){
+    public static Optional<Server> findPlayerBukkitOrSpongeServer(UUID uuid){
+        return findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER}, uuid);
+    }
+
+    public static Optional<Server> findPlayerProxyServer(UUID uuid){
+        return findPlayerServer(new CoreServerType[]{CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER}, uuid);
+    }
+
+    public static Optional<String> getPlayerNameByUUID(UUID uuid){
         Optional<Server> optional = findPlayerServer(CoreServerType.BUKKIT_MANAGER, uuid);
         return optional.isPresent() ? Optional.of(optional.get().getData().getByUUID(uuid)) : Optional.empty();
     }
 
-    private static Optional<Server> findPlayerServer(CoreServerType coreServerType, String playerName){
+    public static Optional<Server> findPlayerServer(CoreServerType coreServerType, String playerName){
         return findServer(coreServerType).stream().filter(server -> server.getData().containsPlayer(playerName)).findFirst();
     }
 
-    private static Optional<Server> findPlayerServer(CoreServerType coreServerType, UUID uuid){
+    public static Optional<Server> findPlayerServer(CoreServerType[] coreServerTypes, String playerName){
+        return findServer(coreServerTypes).stream().filter(server -> server.getData().containsPlayer(playerName)).findFirst();
+    }
+
+    public static Optional<Server> findPlayerServer(CoreServerType coreServerType, UUID uuid){
         return findServer(coreServerType).stream().filter(server -> server.getData().containsPlayer(uuid)).findFirst();
+    }
+
+    public static Optional<Server> findPlayerServer(CoreServerType[] coreServerTypes, UUID uuid){
+        return findServer(coreServerTypes).stream().filter(server -> server.getData().containsPlayer(uuid)).findFirst();
     }
 
     public static boolean isPlayerOnline(String playerName){

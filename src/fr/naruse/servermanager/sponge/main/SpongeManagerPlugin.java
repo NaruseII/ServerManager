@@ -8,11 +8,13 @@ import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.sponge.api.ServerManagerSpongeEvent;
+import fr.naruse.servermanager.sponge.cmd.SpongeServerManagerCommand;
 import fr.naruse.servermanager.sponge.event.SpongeListeners;
 import fr.naruse.servermanager.core.logging.SLF4JCustomLogger;
 import fr.naruse.servermanager.sponge.packet.SpongeProcessPacketListener;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -52,6 +54,14 @@ public class SpongeManagerPlugin implements IServerManagerPlugin {
         }
 
         Sponge.getEventManager().registerListeners(this, new SpongeListeners());
+        Sponge.getCommandManager().register(this, CommandSpec.builder()
+                .permission("servermanager")
+                .executor(new SpongeServerManagerCommand())
+                .child(new SpongeServerManagerCommand.CreateServer(), "createServer")
+                .child(new SpongeServerManagerCommand.ShutdownServer(), "shutdown")
+                .child(new SpongeServerManagerCommand.InsertCommand(), "insertCommand")
+                .child(new SpongeServerManagerCommand.Status(), "status")
+                .build(), "servermanager", "sm");
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
     }
