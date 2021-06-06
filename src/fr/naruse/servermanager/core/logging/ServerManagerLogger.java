@@ -67,11 +67,11 @@ public class ServerManagerLogger {
             Date date = Date.from(Instant.now());
 
             StringBuilder stringBuilder = new StringBuilder("[")
-                    .append(date.getHours())
+                    .append(String.valueOf(date.getHours()).length() == 1 ? "0"+date.getHours() : date.getHours())
                     .append(":")
-                    .append(date.getMinutes())
+                    .append(String.valueOf(date.getMinutes()).length() == 1 ? "0"+date.getMinutes() : date.getMinutes())
                     .append(":")
-                    .append(date.getSeconds())
+                    .append(String.valueOf(date.getSeconds()).length() == 1 ? "0"+date.getSeconds() : date.getSeconds())
                     .append("] [")
                     .append(Thread.currentThread().getName())
                     .append(" | ")

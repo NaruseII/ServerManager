@@ -75,23 +75,29 @@ public class ServerProcess {
             Server server = ServerList.getByName(this.name);
             if(server != null){
                 this.fileManager.getServerManager().getConnectionManager().sendPacket(server, new PacketShutdown());
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                sleep(5000);
 
                 if(process.isAlive()){
                     LOGGER.info("Server is still alive! Killing it...");
                     process.destroy();
+                    sleep(2000);
                 }
             }else{
                 process.destroy();
+                sleep(2000);
             }
             LOGGER.info("Server stopped");
         }
         this.isStopped = true;
         new DeleteServerTask(this.template, this.name);
+    }
+
+    private void sleep(long time){
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getName() {

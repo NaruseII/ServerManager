@@ -30,6 +30,7 @@ public class Packets {
         registerPacket("BROADCAST", PacketBroadcast.class);
         registerPacket("DATABASE_REQUEST", PacketDatabaseRequest.class);
         registerPacket("DATABASE_ANSWER", PacketDatabaseAnswer.class);
+        registerPacket("DATABASE_REQUEST_UPDATE", PacketDatabaseRequestUpdate.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

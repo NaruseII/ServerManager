@@ -1,6 +1,7 @@
 package fr.naruse.servermanager.core.connection.packet;
 
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.callback.Callback;
 import fr.naruse.servermanager.core.database.Database;
 
 import java.io.DataInputStream;
@@ -24,11 +25,19 @@ public class PacketDatabaseAnswer implements IPacket {
     @Override
     public void write(DataOutputStream stream) throws IOException {
         stream.writeInt(this.callBackId);
+        if(this.dataObjects == null){
+            stream.writeInt(0);
+            return;
+        }
         stream.writeInt(this.dataObjects.length);
         for (int i = 0; i < this.dataObjects.length; i++) {
             Database.DataObject dataObject = this.dataObjects[i];
-            stream.writeInt(dataObject.getDataType().getId());
-            stream.writeUTF(dataObject.getDataType().toString(dataObject.getValue()));
+            if(dataObject == null){
+                stream.writeInt(-1);
+            }else{
+                stream.writeInt(dataObject.getDataType().getId());
+                stream.writeUTF(dataObject.getDataType().toString(dataObject.getValue()));
+            }
         }
     }
 
@@ -37,15 +46,23 @@ public class PacketDatabaseAnswer implements IPacket {
         this.callBackId = stream.readInt();
         Set<Database.DataObject> set = new HashSet<>();
         int count = stream.readInt();
+        if(count == 0){
+            return;
+        }
         for (int i = 0; i < count; i++) {
-            Database.DataType dataType = Database.DataType.byId(stream.readInt());
-            set.add(new Database.DataObject(dataType, dataType.toObject(stream.readUTF())));
+            int id = stream.readInt();
+            if(id == -1){
+                return;
+            }else{
+                Database.DataType dataType = Database.DataType.byId(id);
+                set.add(new Database.DataObject(dataType, dataType.toObject(stream.readUTF())));
+            }
         }
         this.dataObjects = set.toArray(new Database.DataObject[0]);
     }
 
     @Override
     public void process(ServerManager serverManager) {
-        PacketDatabaseRequest.Callback.process(this.callBackId, this.dataObjects);
+        Callback.process(this.callBackId, this.dataObjects);
     }
 }

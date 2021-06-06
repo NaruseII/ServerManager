@@ -42,7 +42,7 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
         set.stream().filter(s -> ServerList.getByName(s) == null).forEach(s -> {
             ServerInfo serverInfo = BungeeCord.getInstance().getServerInfo(s);
 
-            if(finalDefaultServer != null){
+            if(finalDefaultServer != null && serverInfo != null){
                 for (ProxiedPlayer p : serverInfo.getPlayers()) {
                     p.connect(finalDefaultServer);
                 }

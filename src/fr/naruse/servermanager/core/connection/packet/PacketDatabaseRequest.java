@@ -1,7 +1,9 @@
 package fr.naruse.servermanager.core.connection.packet;
 
-import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.callback.Callback;
+import fr.naruse.servermanager.core.callback.CallbackPlural;
+import fr.naruse.servermanager.core.callback.CallbackSingle;
 import fr.naruse.servermanager.core.database.Database;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
@@ -9,7 +11,6 @@ import fr.naruse.servermanager.core.server.ServerList;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
 
 public class PacketDatabaseRequest implements IPacket {
 
@@ -21,29 +22,30 @@ public class PacketDatabaseRequest implements IPacket {
     private String key;
     private Database.DataObject dataObject;
     private int callbackId = -1;
+    private boolean sendUpdatePacket;
 
-    private PacketDatabaseRequest(Action action, String key, Database.DataObject dataObject) {
-        this.action = action;
-        this.key = key;
+    private PacketDatabaseRequest(Action action, String key, Database.DataObject dataObject, boolean sendUpdatePacket) {
+        this(action, key, sendUpdatePacket);
         this.dataObject = dataObject;
     }
 
-    private PacketDatabaseRequest(Action action, String key) {
-        this.action = action;
+    private PacketDatabaseRequest(Action action, String key, boolean sendUpdatePacket) {
+        this(action, sendUpdatePacket);
         this.key = key;
     }
 
-    private PacketDatabaseRequest(Action action, String key, int callbackId) {
-        this(action, key);
+    private PacketDatabaseRequest(Action action, String key, int callbackId, boolean sendUpdatePacket) {
+        this(action, key, sendUpdatePacket);
         this.callbackId = callbackId;
     }
 
-    private PacketDatabaseRequest(Action action) {
+    private PacketDatabaseRequest(Action action, boolean sendUpdatePacket) {
         this.action = action;
+        this.sendUpdatePacket = sendUpdatePacket;
     }
 
-    private PacketDatabaseRequest(Action action, int callbackId) {
-        this(action);
+    private PacketDatabaseRequest(Action action, int callbackId, boolean sendUpdatePacket) {
+        this(action, sendUpdatePacket);
         this.callbackId = callbackId;
     }
 
@@ -51,6 +53,7 @@ public class PacketDatabaseRequest implements IPacket {
     public void write(DataOutputStream stream) throws IOException {
         stream.writeUTF(this.server.getName());
         stream.writeInt(this.callbackId);
+        stream.writeBoolean(this.sendUpdatePacket);
         stream.writeUTF(this.action.name());
         if(this.key != null){
             stream.writeUTF(this.key);
@@ -63,13 +66,19 @@ public class PacketDatabaseRequest implements IPacket {
 
     @Override
     public void read(DataInputStream stream) throws IOException {
-        this.server = ServerList.getByName(stream.readUTF());
+        String serverName = stream.readUTF();
+        this.server = ServerList.getByName(serverName);
 
         if(server == null){
-            return;
+            if(ServerManager.get().getCurrentServer().getName().equals(serverName)){
+                this.server = ServerManager.get().getCurrentServer();
+            }else{
+                return;
+            }
         }
 
         this.callbackId = stream.readInt();
+        this.sendUpdatePacket = stream.readBoolean();
 
         this.action = Action.valueOf(stream.readUTF());
         switch (this.action){
@@ -88,92 +97,71 @@ public class PacketDatabaseRequest implements IPacket {
 
     @Override
     public void process(ServerManager serverManager) {
-        if(serverManager.getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER)){
-            switch (this.action) {
-                case CLEAR:
-                    Database.clear();
-                    return;
-                case REMOVE:
-                    Database.remove(this.key);
-                    return;
-                case PUT:
-                    Database.put(this.key, this.dataObject);
-                    return;
-                case GET_ALL:
-                    this.server.sendPacket(new PacketDatabaseAnswer(this.callbackId, Database.getAll().toArray(new Database.DataObject[0])));
-                    return;
-                case GET:
-                    Database.DataObject dataObject = Database.get(this.key);
-                    if(dataObject == null){
-                        return;
-                    }
-                    this.server.sendPacket(new PacketDatabaseAnswer(this.callbackId, dataObject));
-                    return;
-            }
-        }
+
+    }
+
+    @Override
+    public String toString() {
+        return "PacketDatabaseRequest{" +
+                "server=" + server +
+                ", action=" + action +
+                ", key='" + key + '\'' +
+                ", dataObject=" + dataObject +
+                ", callbackId=" + callbackId +
+                ", sendUpdatePacket=" + sendUpdatePacket +
+                '}';
+    }
+
+    public Server getServer() {
+        return server;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public Database.DataObject getDataObject() {
+        return dataObject;
+    }
+
+    public int getCallbackId() {
+        return callbackId;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public boolean needToSendUpdatePacket() {
+        return sendUpdatePacket;
     }
 
     public static class Builder {
 
-        public static PacketDatabaseRequest put(String key, Database.DataObject dataObject){
-            return new PacketDatabaseRequest(Action.PUT, key, dataObject);
+        public static PacketDatabaseRequest put(String key, Database.DataObject dataObject, boolean sendUpdatePacket){
+            return new PacketDatabaseRequest(Action.PUT, key, dataObject, sendUpdatePacket);
         }
 
-        public static PacketDatabaseRequest get(String key, CallbackSingle callbackSingle){
-            int callbackId = CALLBACK_MAP.size();
-            CALLBACK_MAP.put(callbackId, callbackSingle);
-            return new PacketDatabaseRequest(Action.GET, key, callbackId);
+        public static PacketDatabaseRequest get(String key, CallbackSingle callbackSingle, boolean sendUpdatePacket){
+            int callbackId = Callback.CALLBACK_ID_MAP.size();
+            Callback.CALLBACK_ID_MAP.put(callbackId, callbackSingle);
+            return new PacketDatabaseRequest(Action.GET, key, callbackId, sendUpdatePacket);
         }
 
-        public static PacketDatabaseRequest remove(String key){
-            return new PacketDatabaseRequest(Action.REMOVE, key);
+        public static PacketDatabaseRequest remove(String key, boolean sendUpdatePacket){
+            return new PacketDatabaseRequest(Action.REMOVE, key, sendUpdatePacket);
         }
 
-        public static PacketDatabaseRequest clear(){
-            return new PacketDatabaseRequest(Action.CLEAR);
+        public static PacketDatabaseRequest clear(boolean sendUpdatePacket){
+            return new PacketDatabaseRequest(Action.CLEAR, sendUpdatePacket);
         }
 
-        public static PacketDatabaseRequest getAll(CallbackPlural callbackPlural){
-            int callbackId = CALLBACK_MAP.size();
-            CALLBACK_MAP.put(callbackId, callbackPlural);
-            return new PacketDatabaseRequest(Action.GET_ALL, callbackId);
+        public static PacketDatabaseRequest getAll(CallbackPlural callbackPlural, boolean sendUpdatePacket){
+            int callbackId = Callback.CALLBACK_ID_MAP.size();
+            Callback.CALLBACK_ID_MAP.put(callbackId, callbackPlural);
+            return new PacketDatabaseRequest(Action.GET_ALL, callbackId, sendUpdatePacket);
         }
 
-    }
-
-    private static final Map<Integer, Callback> CALLBACK_MAP = new HashMap<>();
-
-    public static abstract class Callback<T> {
-
-        public static void process(int id, Database.DataObject[] array){
-            Callback callback = CALLBACK_MAP.remove(id);
-            if(callback != null){
-                List list = Arrays.asList(array.clone());
-                if(list.size() == 1){
-                    callback.runSingle(list.get(0));
-                }
-                callback.runPlural(list);
-            }
-        }
-
-        public abstract void runPlural(List<T> values) ;
-
-        public abstract void runSingle(T value);
-
-    }
-
-    public static abstract class CallbackSingle extends Callback<Database.DataObject> {
-        @Override
-        public void runPlural(List<Database.DataObject> values) {
-
-        }
-    }
-
-    public static abstract class CallbackPlural extends Callback<Database.DataObject> {
-        @Override
-        public void runSingle(Database.DataObject value) {
-
-        }
     }
 
     public enum Action {

@@ -2,14 +2,17 @@ package fr.naruse.servermanager.packetmanager;
 
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
+import fr.naruse.servermanager.core.database.Database;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.utils.Updater;
+import fr.naruse.servermanager.packetmanager.packet.PacketManagerProcessPacketListener;
 
 import java.io.File;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.function.BiConsumer;
 
 public class PacketManager {
 
@@ -23,6 +26,7 @@ public class PacketManager {
     }
 
     private final ServerManager serverManager;
+    private final Database database = new Database();
 
     public PacketManager(long millis) {
 
@@ -59,6 +63,7 @@ public class PacketManager {
                 super.shutdown();
             }
         };
+        this.serverManager.registerPacketProcessing(new PacketManagerProcessPacketListener(this));
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
 
@@ -75,18 +80,26 @@ public class PacketManager {
                 ServerManagerLogger.info("Generation...");
                 ServerManagerLogger.info("Key generated: "+this.serverManager.generateNewSecretKey());
             }else if(line.startsWith("status")){
-                serverManager.printStatus();
+                this.serverManager.printStatus();
+            }else if(line.startsWith("database")){
+                ServerManagerLogger.info("Database's datas:");
+                this.database.getMap().forEach((s, dataObject) -> ServerManagerLogger.info("["+s+"] -> "+dataObject.getValue().toString()));
             }else{
                 ServerManagerLogger.info("Available commands:");
                 ServerManagerLogger.info("");
                 ServerManagerLogger.info("-> stop (Stop server)");
                 ServerManagerLogger.info("-> generateSecretKey");
                 ServerManagerLogger.info("-> status");
+                ServerManagerLogger.info("-> database (Show all datas)");
             }
         }
     }
 
     public ServerManager getServerManager() {
         return serverManager;
+    }
+
+    public Database getDatabase() {
+        return database;
     }
 }

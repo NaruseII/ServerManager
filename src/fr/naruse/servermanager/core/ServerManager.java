@@ -118,6 +118,10 @@ public class ServerManager {
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processSwitchServer((PacketSwitchServer) packet));
         }else if(packet instanceof PacketBroadcast){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processBroadcast((PacketBroadcast) packet));
+        }else if(packet instanceof PacketDatabaseRequest){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processDatabaseRequest((PacketDatabaseRequest) packet));
+        }else if(packet instanceof PacketDatabaseRequestUpdate){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processDatabaseRequestUpdate((PacketDatabaseRequestUpdate) packet));
         }
     }
 

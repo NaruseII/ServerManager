@@ -13,4 +13,8 @@ public class ProcessPacketListener {
     public void processSwitchServer(PacketSwitchServer packet) { }
 
     public void processBroadcast(PacketBroadcast packet) { }
+
+    public void processDatabaseRequest(PacketDatabaseRequest packet) { }
+
+    public void processDatabaseRequestUpdate(PacketDatabaseRequestUpdate packet) { }
 }
