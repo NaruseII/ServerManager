@@ -8,10 +8,14 @@ import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.filemanager.task.DeleteServerTask;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 
 public class ServerProcess {
 
     private static final File LOG_FOLDER = new File("serverLogs");
+    public static boolean BE_PATIENT = false;
     private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("");
 
     private final FileManager fileManager;
@@ -75,16 +79,17 @@ public class ServerProcess {
             Server server = ServerList.getByName(this.name);
             if(server != null){
                 this.fileManager.getServerManager().getConnectionManager().sendPacket(server, new PacketShutdown());
-                sleep(5000);
+                sleep(10000);
 
                 if(process.isAlive()){
-                    LOGGER.info("Server is still alive! Killing it...");
+                    LOGGER.info("Server is still alive! Killing it... (It may take several seconds)");
                     process.destroy();
-                    sleep(2000);
+                    waitFor();
                 }
             }else{
-                process.destroy();
-                sleep(2000);
+                LOGGER.info("Server didn't fully started! Killing it... (It may take several seconds)");
+                process.destroyForcibly();
+                waitFor();
             }
             LOGGER.info("Server stopped");
         }
@@ -96,6 +101,17 @@ public class ServerProcess {
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void waitFor(){
+        try {
+            process.waitFor();
+            if(BE_PATIENT){
+                sleep(30000);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

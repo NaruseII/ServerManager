@@ -76,9 +76,11 @@ public class FileManager {
 
                 ServerManagerLogger.info("Stopping server creator thread pool...");
                 EXECUTOR_SERVICE.shutdown();
+                while (!EXECUTOR_SERVICE.isTerminated()) ;
 
                 ServerManagerLogger.info("Stopping task threads...");
                 EditProxyConfigFile.EXECUTOR_SERVICE.shutdown();
+                while (!EditProxyConfigFile.EXECUTOR_SERVICE.isTerminated()) ;
 
                 super.shutdown();
             }

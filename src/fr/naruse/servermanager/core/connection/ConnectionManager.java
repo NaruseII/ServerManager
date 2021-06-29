@@ -11,6 +11,7 @@ import fr.naruse.servermanager.core.connection.packet.PacketDisconnection;
 import fr.naruse.servermanager.core.connection.packet.Packets;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.filemanager.ServerProcess;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -139,7 +140,8 @@ public class ConnectionManager {
                 String secretKet = this.serverManager.getConfigurationManager().getConfig().get("key");
                 if(secretKet == null){
                     LOGGER.error("Secret key is null! Stopping...");
-                    System.exit(0);
+                    ServerProcess.BE_PATIENT = true;
+                    System.exit(1);
                     return;
                 }
 
@@ -149,17 +151,23 @@ public class ConnectionManager {
                 socket.close();
             } catch (Exception e) {
                 if(e.getClass().isAssignableFrom(ConnectException.class)){
-                    LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
+
                     if(port == this.serverManager.getCoreData().getServerPort()){
-                        LOGGER.warn("Retrying... ("+this.retryCount+"/5)");
                         this.retryCount++;
-                        if(this.retryCount >= 5){
+                        if(this.retryCount == 5){
                             LOGGER.error("Can't connect to Packet-Manager!");
                             LOGGER.error("");
                             LOGGER.warn("Shutting down...");
-                            System.exit(0);
+                            ServerProcess.BE_PATIENT = true;
+                            System.exit(1);
+                        }else if(this.retryCount <= 5){
+                            LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
+                            LOGGER.warn("Retrying... ("+this.retryCount+"/5)");
                         }
+                    }else{
+                        LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
                     }
+
                 }else{
                     e.printStackTrace();
                 }
