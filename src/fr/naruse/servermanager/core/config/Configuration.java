@@ -3,6 +3,10 @@ package fr.naruse.servermanager.core.config;
 import fr.naruse.servermanager.core.utils.Utils;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,10 +38,12 @@ public class Configuration {
         this.defaultResourceStream = defaultResourceStream;
 
         ConfigurationManager.LOGGER.info("Loading '"+file.getName()+"'...");
-        try {
-            this.reload();
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 0; i < 5; i++) {
+            try {
+                this.reload();
+            } catch (Exception e) {
+                currentCharset++;
+            }
         }
         ConfigurationManager.LOGGER.info("'"+file.getName()+"' loaded");
     }
@@ -48,10 +54,12 @@ public class Configuration {
         this.loadDefaultResource = loadDefaultResource;
 
         ConfigurationManager.LOGGER.info("Loading '"+file.getName()+"'...");
-        try {
-            this.reload();
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 0; i < 5; i++) {
+            try {
+                this.reload();
+            } catch (Exception e) {
+                currentCharset++;
+            }
         }
         ConfigurationManager.LOGGER.info("'"+file.getName()+"' loaded");
     }
@@ -62,40 +70,60 @@ public class Configuration {
             this.file.createNewFile();
         }
 
-        BufferedReader reader = new BufferedReader(new FileReader(this.file));
-        Map<String, Object> map = Utils.GSON.fromJson(reader.lines().collect(Collectors.joining()), Utils.MAP_TYPE);
+        Charset charset = charset();
+
+        Map<String, Object> map = Utils.GSON.fromJson(Files.lines(Paths.get(file.toURI()), charset).collect(Collectors.joining()), Utils.MAP_TYPE);
         if(map != null){
             this.map = map;
         }
-        reader.close();
 
         if((this.map == null || this.map.isEmpty()) && this.loadDefaultResource){
-            InputStream inputStream = this.defaultResourceStream != null ? this.defaultResourceStream : getClass().getClassLoader().getResourceAsStream("resources/"+this.defaultResourceName);
+            InputStream inputStream = this.defaultResourceStream != null ? this.defaultResourceStream : Configuration.class.getClassLoader().getResourceAsStream("resources/"+this.defaultResourceName);
             if(inputStream != null){
-                reader = new BufferedReader(new InputStreamReader(inputStream));
+                InputStreamReader inputStreamReader;
+                BufferedReader reader = new BufferedReader(inputStreamReader = new InputStreamReader(inputStream, charset));
 
-                StringBuilder stringBuilder = new StringBuilder();
-                FileWriter fileWriter = new FileWriter(file);
+                FileOutputStream fileOutputStream;
+                OutputStreamWriter writer = new OutputStreamWriter(fileOutputStream = new FileOutputStream(file), StandardCharsets.UTF_8);
 
-                reader.lines().forEach(s -> {
-                    stringBuilder.append(s);
-                });
+                String json = reader.lines().collect(Collectors.joining());
 
-                map = Utils.GSON.fromJson(stringBuilder.toString(), Utils.MAP_TYPE);
+                map = Utils.GSON.fromJson(json, Utils.MAP_TYPE);
                 if(map != null){
                     this.map = map;
                 }
-                fileWriter.write(Utils.GSON.toJson(map));
 
-                fileWriter.close();
+                writer.write(Utils.GSON.toJson(map));
+
+                writer.close();
                 reader.close();
                 inputStream.close();
+                inputStreamReader.close();
+                fileOutputStream.close();
             }
         }
     }
 
     public <T> T get(String path){
         return (T) this.map.get(path);
+    }
+
+    public int getInt(String path){
+        Object o = get(path);
+        if(o instanceof Double && (o.toString().endsWith(".0") || !o.toString().contains("."))){
+            int i = (int) (double) o;
+            o = i;
+        }
+        return (int) o;
+    }
+
+    public long getLong(String path){
+        Object o = get(path);
+        if(o instanceof Double && (o.toString().endsWith(".0") || !o.toString().contains("."))){
+            long i = (long) (double) o;
+            o = i;
+        }
+        return (long) o;
     }
 
     public void set(String path, Object o){
@@ -125,6 +153,25 @@ public class Configuration {
         return file;
     }
 
+    private int currentCharset = 0;
+    private Charset charset(){
+        switch (currentCharset){
+            case 0:
+                return StandardCharsets.UTF_8;
+            case 1:
+                return StandardCharsets.ISO_8859_1;
+            case 2:
+                return StandardCharsets.US_ASCII;
+            case 3:
+                return StandardCharsets.UTF_16;
+            case 4:
+                return StandardCharsets.UTF_16BE;
+            case 5:
+                return StandardCharsets.UTF_16LE;
+        }
+        return null;
+    }
+
 
     public class ConfigurationSection {
 
@@ -145,6 +192,20 @@ public class Configuration {
                 return (T) (((Map<String, Object>) section.get(initialPath)).get(path));
             }
             return (T) (((Map<String, Object>) map.get(initialPath)).get(path));
+        }
+
+        public int getInt(String path){
+            if(this.section != null){
+                return (int) (double) ((Map<String, Object>) section.get(initialPath)).get(path);
+            }
+            return (int) (double) ((Map<String, Object>) map.get(initialPath)).get(path);
+        }
+
+        public long getLong(String path){
+            if(this.section != null){
+                return (long) (double) ((Map<String, Object>) section.get(initialPath)).get(path);
+            }
+            return (long) (double) ((Map<String, Object>) map.get(initialPath)).get(path);
         }
 
         public void set(String path, Object o){

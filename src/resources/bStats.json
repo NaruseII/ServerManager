@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "serverUUID": "",
+  "logFailedRequests": false,
+  "logSentData": false,
+  "logResponseStatusText": false
+}

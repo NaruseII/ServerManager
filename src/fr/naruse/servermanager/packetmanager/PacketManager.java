@@ -55,7 +55,7 @@ public class PacketManager {
                         while (ServerList.getSize() > 1){
                             Thread.sleep(1000);
                         }
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -64,6 +64,8 @@ public class PacketManager {
             }
         };
         this.serverManager.registerPacketProcessing(new PacketManagerProcessPacketListener(this));
+
+        new Metrics(serverManager, 11607);
 
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
 
