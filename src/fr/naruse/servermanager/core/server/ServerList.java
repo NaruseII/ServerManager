@@ -154,7 +154,17 @@ public class ServerList {
     }
 
     public static Server getByName(String name){
-        return map.get(name);
+        return getByName(name, true);
+    }
+
+    public static Server getByName(String name, boolean addCurrentServer){
+        Server server = map.get(name);
+        if(server == null && addCurrentServer){
+            if(ServerManager.get().getCurrentServer().getName().equals(name)){
+                server = ServerManager.get().getCurrentServer();
+            }
+        }
+        return server;
     }
 
     public static int getSize() {

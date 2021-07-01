@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.bukkit.cmd;
 
+import fr.naruse.servermanager.bukkit.inventory.InventoryMain;
 import fr.naruse.servermanager.bukkit.main.BukkitManagerPlugin;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.connection.packet.PacketCreateServer;
@@ -11,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Set;
@@ -31,10 +33,22 @@ public class BukkitServerManagerCommand implements CommandExecutor, TabCompleter
         }
 
         if(args.length == 0){
+            this.sendMessage(sender, "§6/§7sm inventory");
             this.sendMessage(sender, "§6/§7sm createServer <Template name>");
             this.sendMessage(sender, "§6/§7sm shutdown <Server name, -All>");
             this.sendMessage(sender, "§6/§7sm insertCommand <Server name> <Command>");
             return this.sendMessage(sender, "§6/§7sm status <-ls>");
+        }
+
+        // CREATE SERVER
+        if(args[0].equalsIgnoreCase("inventory")){
+            if(!(sender instanceof Player)){
+                return sendMessage(sender, "§cCommand for players.");
+
+            }
+            Player p = (Player) sender;
+            new InventoryMain(pl, p);
+            return true;
         }
 
         // STATUS

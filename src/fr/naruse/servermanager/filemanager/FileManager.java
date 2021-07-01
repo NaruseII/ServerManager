@@ -248,7 +248,7 @@ public class FileManager {
 
     public void shutdownServer(ServerProcess process){
         if(process == null){
-            ServerManagerLogger.error("Server not found");
+            //ServerManagerLogger.error("Server not found");
             return;
         }
         this.serverProcesses.remove(process.getName());
