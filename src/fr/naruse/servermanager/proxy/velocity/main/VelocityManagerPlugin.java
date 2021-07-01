@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 
 import java.nio.file.Path;
 
-@Plugin(id = "servermanager", name = "ServerManager", version = "1.0.0", url = "https://www.spigotmc.org/resources/server-manager.92600/", description = "ServerManager Velocity Manager", authors = "Naruse")
+@Plugin(id = "servermanager", name = "ServerManager", version = "1.0.0", url = "https://www.mc-market.org/resources/20469/", description = "ServerManager Velocity Manager", authors = "Naruse")
 public class VelocityManagerPlugin implements IServerManagerPlugin {
 
     private final ProxyServer proxyServer;
@@ -43,7 +43,10 @@ public class VelocityManagerPlugin implements IServerManagerPlugin {
         ServerManagerLogger.setCustomLogger(new SLF4JCustomLogger(this.logger));
         ServerManagerLogger.info("Starting VelocityManager...");
 
-        Updater.needToUpdate();
+        if(Updater.needToUpdate(CoreServerType.VELOCITY_MANAGER)){
+            proxyServer.shutdown();
+            return;
+        }
 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.VELOCITY_MANAGER, this.dataFolderPath.toFile(), 4848, null, this.proxyServer.getBoundAddress().getPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(this.proxyServer.getConfiguration().getShowMaxPlayers());

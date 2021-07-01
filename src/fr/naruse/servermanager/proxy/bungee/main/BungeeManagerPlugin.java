@@ -23,7 +23,10 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
         ServerManagerLogger.load(this.getLogger());
         ServerManagerLogger.info("Starting BungeeManager...");
 
-        Updater.needToUpdate();
+        if(Updater.needToUpdate(CoreServerType.BUNGEE_MANAGER)){
+            BungeeCord.getInstance().stop();
+            return;
+        }
 
         this.setListenerInfo(BungeeCord.getInstance().getConfig().getListeners().stream().findFirst().get());
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, this.listenerInfo.getQueryPort()), this);

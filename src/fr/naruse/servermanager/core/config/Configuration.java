@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 
 public class Configuration {
 
-    private final File file;
-    private final String defaultResourceName;
-    private final boolean loadDefaultResource;
+    private File file;
+    private String defaultResourceName;
+    private boolean loadDefaultResource;
     private Map<String, Object> map = new HashMap<>();
 
     public Configuration(File file) {
@@ -28,6 +28,17 @@ public class Configuration {
 
     public Configuration(File file, String defaultResourceName) {
         this(file, defaultResourceName, true);
+    }
+
+    private String json;
+    public Configuration(String json) {
+        this.json = json;
+
+        try {
+            this.reload();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private InputStream defaultResourceStream;
@@ -65,6 +76,11 @@ public class Configuration {
     }
 
     public void reload() throws IOException {
+        if(this.json != null){
+            this.map = Utils.GSON.fromJson(json, Utils.MAP_TYPE);
+            return;
+        }
+
         if(!this.file.exists()){
             this.file.getParentFile().mkdirs();
             this.file.createNewFile();
@@ -139,6 +155,9 @@ public class Configuration {
     }
 
     public void save(){
+        if(this.json != null){
+            return;
+        }
         try{
             String json = Utils.GSON.toJson(this.map);
             FileWriter fileWriter = new FileWriter(this.file);

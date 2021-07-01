@@ -43,7 +43,10 @@ public class SpongeManagerPlugin implements IServerManagerPlugin {
         ServerManagerLogger.setCustomLogger(new SLF4JCustomLogger(this.logger));
         ServerManagerLogger.info("Starting SpongeManager...");
 
-        Updater.needToUpdate();
+        if(Updater.needToUpdate(CoreServerType.SPONGE_MANAGER)){
+            Sponge.getServer().shutdown();
+            return;
+        }
 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.SPONGE_MANAGER, this.getDataFolder(), 4848, null, Sponge.getServer().getBoundAddress().get().getPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(Sponge.getServer().getMaxPlayers());

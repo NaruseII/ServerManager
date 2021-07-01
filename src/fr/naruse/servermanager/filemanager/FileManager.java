@@ -31,7 +31,7 @@ public class FileManager {
     public static void main(String[] args) {
         long millis  = System.currentTimeMillis();
         ServerManagerLogger.info("Starting FileManager...");
-        if(Updater.needToUpdate()){
+        if(Updater.needToUpdate(CoreServerType.FILE_MANAGER)){
             return;
         }
         new FileManager(millis);
@@ -136,7 +136,13 @@ public class FileManager {
 
         Scanner scanner = new Scanner(System.in);
         while (true){
-            String line = scanner.nextLine();
+            String line;
+            try{
+                line = scanner.nextLine();
+            }catch (NoSuchElementException e){
+                continue;
+            }
+
             String[] args = line.split(" ");
             if(line.startsWith("stop")){
                 System.exit(0);

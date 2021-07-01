@@ -10,6 +10,7 @@ import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.packetmanager.packet.PacketManagerProcessPacketListener;
 
 import java.io.File;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.BiConsumer;
@@ -19,7 +20,7 @@ public class PacketManager {
     public static void main(String[] args) {
         long millis  = System.currentTimeMillis();
         ServerManagerLogger.info("Starting PacketManager...");
-        if(Updater.needToUpdate()){
+        if(Updater.needToUpdate(CoreServerType.PACKET_MANAGER)){
             return;
         }
         new PacketManager(millis);
@@ -74,7 +75,13 @@ public class PacketManager {
 
         Scanner scanner = new Scanner(System.in);
         while (true){
-            String line = scanner.nextLine();
+            String line;
+            try{
+                line = scanner.nextLine();
+            }catch (NoSuchElementException e){
+                continue;
+            }
+
             String[] args = line.split(" ");
             if(line.startsWith("stop")){
                 System.exit(0);
