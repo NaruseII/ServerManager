@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.packetmanager;
 
+import fr.naruse.servermanager.core.connection.KeepAliveServerThread;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.connection.packet.PacketKeepAlive;
@@ -33,7 +34,7 @@ public class KeepAliveBuffer {
 
     private static void process(){
         map.forEach((server, packet) -> {
-            server.getData().set("countBeforeDelete", 3);
+            KeepAliveServerThread.EXECUTOR_SERVICE.submit(() -> server.getData().setCountBeforeDelete(3));
             server.getData().setCapacity(packet.getCapacity());
             server.getData().setUUIDByNameMap(packet.getUUIDByNameMap());
             server.getData().setDataMap(packet.getDataMap());

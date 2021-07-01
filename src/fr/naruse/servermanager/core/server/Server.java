@@ -93,6 +93,7 @@ public class Server {
         private MultiMap<String, UUID> uuidByNameMap = new MultiMap<>(); // Name -> UUID
         private int capacity;
         private Set<Status> statusSet = new HashSet<>();
+        private int countBeforeDelete = 3;
 
         public Data() {
             this.statusSet.add(Status.READY);
@@ -176,6 +177,14 @@ public class Server {
 
         public void removeStatus(Status status){
             this.statusSet.remove(status);
+        }
+
+        public int getCountBeforeDelete() {
+            return countBeforeDelete;
+        }
+
+        public void setCountBeforeDelete(int countBeforeDelete) {
+            this.countBeforeDelete = countBeforeDelete;
         }
 
         @Override
