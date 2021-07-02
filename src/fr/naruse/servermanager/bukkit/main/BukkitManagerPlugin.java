@@ -44,11 +44,6 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
 
     @Override
     public void onDisable() {
-        Bukkit.savePlayers();
-        for (World world : Bukkit.getWorlds()) {
-            world.save();
-        }
-
         if(this.serverManager != null){
             this.serverManager.shutdown();
         }

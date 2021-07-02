@@ -32,7 +32,9 @@ public class VelocityProcessPacketListener extends ProcessPacketListener {
         if(!optionalDefaultServer.isPresent() && !packet.getDefaultServer().equals("null")){
             Server server = ServerList.getByName(packet.getDefaultServer());
 
-            optionalDefaultServer = Optional.of(this.buildServerInfo(server, packet.transformToLocalhostIfPossible()));
+            if(server != null){
+                optionalDefaultServer = Optional.of(this.buildServerInfo(server, packet.transformToLocalhostIfPossible()));
+            }
         }
 
         this.pl.getProxyServer().getAllServers().stream().filter(registeredServer -> ServerList.getByName(registeredServer.getServerInfo().getName()) == null).forEach(registeredServer -> {

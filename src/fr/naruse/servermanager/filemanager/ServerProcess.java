@@ -8,9 +8,6 @@ import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.filemanager.task.DeleteServerTask;
 
 import java.io.*;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
 
 public class ServerProcess {
 
@@ -26,8 +23,10 @@ public class ServerProcess {
     private final File logFile;
     private final File serverFolder;
     private final boolean keepLogs;
+    private long startTime;
 
     private boolean isStopped = false;
+    private boolean isShuttingDown = false;
 
     public ServerProcess(FileManager fileManager, ProcessBuilder processBuilder, String name, Configuration template, File serverFolder, boolean keepLogs) {
         LOGGER.setTag("ServerProcess - "+name);
@@ -66,6 +65,7 @@ public class ServerProcess {
                 this.processBuilder.redirectOutput(this.logFile);
             }
             this.process = processBuilder.start();
+            this.startTime = System.currentTimeMillis();
             LOGGER.info("Server started");
         } catch (IOException e) {
             e.printStackTrace();
@@ -73,6 +73,10 @@ public class ServerProcess {
     }
 
     public void shutdown() {
+        if(this.isShuttingDown){
+           return;
+        }
+        this.isShuttingDown = true;
         if(process.isAlive()){
             LOGGER.info("Stopping server...");
 
@@ -88,12 +92,13 @@ public class ServerProcess {
                 }
             }else{
                 LOGGER.info("Server didn't fully started! Killing it... (It may take several seconds)");
-                process.destroyForcibly();
+                process.destroy();
                 waitFor();
             }
             LOGGER.info("Server stopped");
         }
         this.isStopped = true;
+
         new DeleteServerTask(this.template, this.name);
     }
 
@@ -108,9 +113,7 @@ public class ServerProcess {
     private void waitFor(){
         try {
             process.waitFor();
-            if(BE_PATIENT){
-                sleep(30000);
-            }
+            sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
         }

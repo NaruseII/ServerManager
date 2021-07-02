@@ -31,10 +31,11 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
 
         if(defaultServer == null && !packet.getDefaultServer().equals("null")){
             Server server = ServerList.getByName(packet.getDefaultServer());
+            if(server != null){
+                defaultServer = this.buildServerInfo(server, packet.transformToLocalhostIfPossible());
 
-            defaultServer = this.buildServerInfo(server, packet.transformToLocalhostIfPossible());
-
-            BungeeCord.getInstance().getServers().put(server.getName(), defaultServer);
+                BungeeCord.getInstance().getServers().put(server.getName(), defaultServer);
+            }
         }
 
         Set<String> set = Sets.newHashSet(BungeeCord.getInstance().getServers().keySet());

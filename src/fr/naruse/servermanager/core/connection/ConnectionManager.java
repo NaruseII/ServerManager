@@ -154,15 +154,15 @@ public class ConnectionManager {
 
                     if(port == this.serverManager.getCoreData().getServerPort()){
                         this.retryCount++;
-                        if(this.retryCount == 5){
+                        if(this.retryCount == 20){
                             LOGGER.error("Can't connect to Packet-Manager!");
                             LOGGER.error("");
                             LOGGER.warn("Shutting down...");
                             ServerProcess.BE_PATIENT = true;
                             System.exit(1);
-                        }else if(this.retryCount <= 5){
+                        }else if(this.retryCount <= 20){
                             LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
-                            LOGGER.warn("Retrying... ("+this.retryCount+"/5)");
+                            LOGGER.warn("Retrying... ("+this.retryCount+"/20)");
                         }
                     }else{
                         LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");

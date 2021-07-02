@@ -22,6 +22,7 @@ import java.util.concurrent.*;
 public class FileManager {
 
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    public static final ExecutorService ERROR_EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
 
     private static FileManager instance;
     public static FileManager get() {
@@ -82,9 +83,23 @@ public class FileManager {
                 EditProxyConfigFile.EXECUTOR_SERVICE.shutdown();
                 while (!EditProxyConfigFile.EXECUTOR_SERVICE.isTerminated()) ;
 
+                ERROR_EXECUTOR_SERVICE.shutdown();
                 super.shutdown();
             }
         };
+
+        for (Configuration template : serverManager.getConfigurationManager().getAllTemplates()) {
+            File serverFolder = new File((String) template.get("pathTarget"));
+            if(serverFolder.listFiles() != null){
+                for (File file : serverFolder.listFiles()) {
+                    if(file.getName().startsWith(template.get("baseName"))){
+                        Utils.delete(file);
+                        file.delete();
+                    }
+                }
+            }
+        }
+
         serverManager.registerPacketProcessing(new FileManagerProcessPacketListener(this));
         serverManager.registerEventListener(new FileManagerEventListener(this));
 
@@ -228,7 +243,7 @@ public class FileManager {
         Future future = EXECUTOR_SERVICE.submit(() -> {
             new CreateServerTask(this, templateName);
         });
-        EXECUTOR_SERVICE.submit(() -> {
+        ERROR_EXECUTOR_SERVICE.submit(() -> {
             try {
                 future.get();
             } catch (InterruptedException e) {
@@ -249,18 +264,18 @@ public class FileManager {
     }
 
     public void shutdownServer(String name){
-        this.shutdownServer(this.serverProcesses.get(name));
+        this.shutdownServer(name, this.serverProcesses.get(name));
     }
 
-    public void shutdownServer(ServerProcess process){
+    public void shutdownServer(String name, ServerProcess process){
         if(process == null){
-            //ServerManagerLogger.error("Server not found");
+            //ServerManagerLogger.warn("Server '"+name+"' not found on shutdown (This could be normal)");
             return;
         }
         this.serverProcesses.remove(process.getName());
         if(this.serverManager.isPrimaryThread()){
             Future future = EXECUTOR_SERVICE.submit(() -> process.shutdown());
-            EXECUTOR_SERVICE.submit(() -> {
+            ERROR_EXECUTOR_SERVICE.submit(() -> {
                 try {
                     future.get();
                 } catch (Exception e) {
@@ -275,7 +290,16 @@ public class FileManager {
     private void shutdownAllServers() {
         Set<ServerProcess> set = new HashSet<>(serverProcesses.values());
         for (ServerProcess serverProcess : set) {
-            EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
+            Future future = EXECUTOR_SERVICE.submit(() -> serverProcess.shutdown());
+            ERROR_EXECUTOR_SERVICE.submit(() -> {
+                try {
+                    future.get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
         }
     }
 

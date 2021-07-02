@@ -8,6 +8,9 @@ import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.filemanager.FileManager;
 import fr.naruse.servermanager.filemanager.task.EditProxyConfigFile;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 public class FileManagerProcessPacketListener extends ProcessPacketListener {
 
     private final FileManager fileManager;
@@ -25,7 +28,7 @@ public class FileManagerProcessPacketListener extends ProcessPacketListener {
 
         Server targetServer = ServerList.getByName(packet.getServerTarget());
 
-        EditProxyConfigFile.EXECUTOR_SERVICE.submit(() -> {
+        Future future = EditProxyConfigFile.EXECUTOR_SERVICE.submit(() -> {
             try {
                 if(targetServer == null){
                     new EditProxyConfigFile(packet.getServerTarget(), "null", 0, fileManager.getServerProcess(packet.getBungeeName()), packet.needToDelete());
@@ -33,6 +36,16 @@ public class FileManagerProcessPacketListener extends ProcessPacketListener {
                     new EditProxyConfigFile(targetServer.getName(), targetServer.getAddress().getHostAddress(), targetServer.getPort(), fileManager.getServerProcess(packet.getBungeeName()), packet.needToDelete());
                 }
             } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        fileManager.ERROR_EXECUTOR_SERVICE.submit(() -> {
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
                 e.printStackTrace();
             }
         });

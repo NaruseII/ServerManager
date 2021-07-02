@@ -45,11 +45,14 @@ public class PacketServerList implements IPacket {
                 continue;
             }
 
-            server.getData().setCapacity(packetKeepAlive.getCapacity());
-            server.getData().setUUIDByNameMap(packetKeepAlive.getUUIDByNameMap());
-            server.getData().setDataMap(packetKeepAlive.getDataMap());
-            server.setServerManagerPort(packetKeepAlive.getServerManagerPort());
-            server.getData().setStatusSet(packetKeepAlive.getStatusSet());
+            if(!server.equals(ServerManager.get().getCurrentServer())){
+                server.getData().setCapacity(packetKeepAlive.getCapacity());
+                server.getData().setUUIDByNameMap(packetKeepAlive.getUUIDByNameMap());
+                server.getData().setDataMap(packetKeepAlive.getDataMap());
+                server.setServerManagerPort(packetKeepAlive.getServerManagerPort());
+                server.getData().setStatusSet(packetKeepAlive.getStatusSet());
+
+            }
 
             this.set.add(server);
         }

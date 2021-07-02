@@ -27,7 +27,7 @@ public class AutoScaler {
     public AutoScaler(FileManager fileManager, Set<Configuration.ConfigurationSection> sectionSet) {
         this.fileManager = fileManager;
         this.sectionSet = sectionSet;
-        this.EXECUTOR_SERVICE.scheduleAtFixedRate(() -> this.scale(), 0, 2, TimeUnit.SECONDS);
+        this.EXECUTOR_SERVICE.scheduleAtFixedRate(() -> this.scale(), 2, 2, TimeUnit.SECONDS);
         LOGGER.info("Started");
     }
 

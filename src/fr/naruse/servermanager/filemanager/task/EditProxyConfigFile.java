@@ -39,7 +39,7 @@ public class EditProxyConfigFile {
 
         LOGGER.setTag("EditBungeeConfigTask - "+process.getName());
         LOGGER.info("Launching new task...");
-        LOGGER.info((port == 0 ? "Removing '" : "Adding '")+serverName+" -> "+hostAddress+":"+port+"'...");
+        LOGGER.info((port == 0 ? "Removing '" : "Adding '")+serverName+" -> "+(hostAddress.equals("null") ? "" : hostAddress+":")+port+"'...");
 
         Configuration.ConfigurationSection configSection = process.getTemplate().getSection("config.yml");
         Configuration.ConfigurationSection prioritiesSection = configSection.getSection("priorities");
