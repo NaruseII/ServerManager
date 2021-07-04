@@ -2,6 +2,7 @@ package fr.naruse.servermanager.bukkit.inventory;
 
 import com.google.common.collect.Sets;
 import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
+import fr.naruse.servermanager.core.connection.packet.PacketSwitchServer;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.utils.Utils;
@@ -12,6 +13,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Optional;
 
 public class InventoryServer extends AbstractInventory {
 
@@ -46,6 +49,7 @@ public class InventoryServer extends AbstractInventory {
         inventory.remove(Material.GLASS);
 
         inventory.addItem(buildItem(Material.TNT, 0, "§c§lShutdown", true, null));
+        inventory.addItem(buildItem(Material.COMPASS, 0, "§c§lConnect", true, null));
 
         inventory.setItem(inventory.getSize()-1, buildItem(Material.BARRIER, 0, "§cBack", false, null));
     }
@@ -58,6 +62,13 @@ public class InventoryServer extends AbstractInventory {
             if(item.getType() == Material.TNT){
                 back = true;
                 server.sendPacket(new PacketShutdown());
+            }else if(item.getType() == Material.COMPASS){
+                Optional<Server> proxyOptional = ServerList.findPlayerProxyServer(p.getName());
+                if(proxyOptional.isPresent()){
+                    proxyOptional.get().sendPacket(new PacketSwitchServer(server, p.getName()));
+                }else{
+                    p.sendMessage("§cYou're not on a proxy.");
+                }
             }
         }
 

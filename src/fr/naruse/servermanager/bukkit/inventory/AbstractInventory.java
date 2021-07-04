@@ -3,7 +3,6 @@ package fr.naruse.servermanager.bukkit.inventory;
 import com.google.common.collect.Lists;
 import fr.naruse.servermanager.core.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;

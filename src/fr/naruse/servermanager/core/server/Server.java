@@ -55,7 +55,11 @@ public class Server {
     }
 
     public void sendPacket(IPacket packet){
-        this.serverManager.getConnectionManager().sendPacket(this, packet);
+        if(port == serverManagerPort){
+            this.serverManager.getConnectionManager().sendPacket(packet);
+        }else{
+            this.serverManager.getConnectionManager().sendPacket(this, packet);
+        }
     }
 
     public InetAddress getAddress() {

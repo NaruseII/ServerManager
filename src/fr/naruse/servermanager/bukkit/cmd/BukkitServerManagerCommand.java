@@ -40,8 +40,8 @@ public class BukkitServerManagerCommand implements CommandExecutor, TabCompleter
             return this.sendMessage(sender, "§6/§7sm status <-ls>");
         }
 
-        // CREATE SERVER
-        if(args[0].equalsIgnoreCase("inventory")){
+        // INVENTORY
+        if(args[0].equalsIgnoreCase("inventory") || args[0].equalsIgnoreCase("inv")){
             if(!(sender instanceof Player)){
                 return sendMessage(sender, "§cCommand for players.");
 
