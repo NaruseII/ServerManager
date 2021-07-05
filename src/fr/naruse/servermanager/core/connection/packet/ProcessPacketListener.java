@@ -21,4 +21,6 @@ public class ProcessPacketListener {
     public void processTeleportToLocation(PacketTeleportToLocation packet) { }
 
     public void processTeleportToPlayer(PacketTeleportToPlayer packet) { }
+
+    public void processKickPlayer(PacketKickPlayer packet) { }
 }

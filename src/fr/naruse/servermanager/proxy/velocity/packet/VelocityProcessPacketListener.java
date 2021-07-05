@@ -3,6 +3,7 @@ package fr.naruse.servermanager.proxy.velocity.packet;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
+import com.velocitypowered.proxy.Velocity;
 import fr.naruse.servermanager.proxy.common.ProxyListeners;
 import fr.naruse.servermanager.proxy.common.ProxyUtils;
 import fr.naruse.servermanager.core.CoreServerType;
@@ -125,5 +126,13 @@ public class VelocityProcessPacketListener extends ProcessPacketListener {
     @Override
     public void processTeleportToPlayer(PacketTeleportToPlayer packet) {
         ProxyListeners.processTeleportToPlayer(this, packet);
+    }
+
+    @Override
+    public void processKickPlayer(PacketKickPlayer packet) {
+        Optional<Player> optional = pl.getProxyServer().getPlayer(packet.getPlayerName());
+        if(optional.isPresent()){
+            optional.get().disconnect(TextComponent.of(packet.getReason() == null ? "" : packet.getReason()));
+        }
     }
 }

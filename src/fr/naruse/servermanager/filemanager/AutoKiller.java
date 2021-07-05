@@ -85,7 +85,6 @@ public class AutoKiller {
     }
 
     public void shutdown(){
-        LOGGER.info("Stopping thread...");
         EXECUTOR_SERVICE.shutdown();
     }
 }

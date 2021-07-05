@@ -6,8 +6,6 @@ import fr.naruse.servermanager.core.connection.packet.*;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.sponge.main.SpongeManagerPlugin;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.MemoryDataView;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.Text;
@@ -99,5 +97,17 @@ public class SpongeProcessPacketListener extends ProcessPacketListener {
                 }
             }
         }, 0, 250, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void processKickPlayer(PacketKickPlayer packet) {
+        SpongeExecutorService service = Sponge.getScheduler().createSyncExecutor(pl);
+        service.submit(() -> {
+            Optional<Player> optional = Sponge.getServer().getPlayer(packet.getPlayerName());
+            if(optional.isPresent()){
+                optional.get().kick(Text.of(packet.getReason() == null ? "" : packet.getReason()));
+            }
+        });
+        service.shutdown();
     }
 }

@@ -126,6 +126,8 @@ public class ServerManager {
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processTeleportToLocation((PacketTeleportToLocation) packet));
         }else if(packet instanceof PacketTeleportToPlayer){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processTeleportToPlayer((PacketTeleportToPlayer) packet));
+        }else if(packet instanceof PacketKickPlayer){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processKickPlayer((PacketKickPlayer) packet));
         }
     }
 

@@ -139,4 +139,12 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
     public void processTeleportToPlayer(PacketTeleportToPlayer packet) {
         ProxyListeners.processTeleportToPlayer(this, packet);
     }
+
+    @Override
+    public void processKickPlayer(PacketKickPlayer packet) {
+        ProxiedPlayer player = BungeeCord.getInstance().getPlayer(packet.getPlayerName());
+        if(player != null){
+            player.disconnect(packet.getReason() == null ? "" : packet.getReason());
+        }
+    }
 }

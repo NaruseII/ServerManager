@@ -53,17 +53,28 @@ public class EditProxyConfigFile {
             }
         });
 
-        Server bungeeServer = ServerList.getByName(process.getName());
-        if(bungeeServer != null){
-            bungeeServer.sendPacket(new PacketReloadProxyServers(optionalServer.isPresent() ? optionalServer.get().getName() : "null", configSection.get("transformToLocalhostIfPossible")));
-        }
+        int count = 0;
+        Server bungeeServer;
+        do {
+            bungeeServer = ServerList.getByName(process.getName());
+            if(bungeeServer != null){
+                bungeeServer.sendPacket(new PacketReloadProxyServers(optionalServer.isPresent() ? optionalServer.get().getName() : "null", configSection.get("transformToLocalhostIfPossible")));
+                break;
+            }else{
+                if(count > 16){
+                    break;
+                }
+                Thread.sleep(250);
+                count++;
+            }
+        }while (bungeeServer == null);
 
-        File configFile = new File(process.getServerFolder(), "config.yml");
         if(true){ // Don't need anymore to edit config.yml or velocity.toml files (Code stays in case I need to edit)
             LOGGER.info("Task complete");
             return;
         }
 
+        File configFile = new File(process.getServerFolder(), "config.yml");
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader reader = new BufferedReader(new FileReader(configFile));
 

@@ -82,7 +82,6 @@ public class PacketManager {
                 continue;
             }
 
-            String[] args = line.split(" ");
             if(line.startsWith("stop")){
                 System.exit(0);
             }else if(line.startsWith("generateSecretKey")){

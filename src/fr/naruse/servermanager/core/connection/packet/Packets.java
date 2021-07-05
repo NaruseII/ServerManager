@@ -31,6 +31,7 @@ public class Packets {
         registerPacket("DATABASE_REQUEST_UPDATE", PacketDatabaseRequestUpdate.class);
         registerPacket("TELEPORT_TO_LOCATION", PacketTeleportToLocation.class);
         registerPacket("TELEPORT_TO_PLAYER", PacketTeleportToPlayer.class);
+        registerPacket("KICK_PLAYER", PacketKickPlayer.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

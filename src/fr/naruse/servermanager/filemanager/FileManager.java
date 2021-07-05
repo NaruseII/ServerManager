@@ -50,10 +50,12 @@ public class FileManager {
             @Override
             public void shutdown() {
                 if(autoScaler != null){
+                    ServerManagerLogger.info("Stopping AutoScaler...");
                     autoScaler.shutdown();
                 }
 
                 if(autoKiller != null){
+                    ServerManagerLogger.info("Stopping AutoKiller...");
                     autoKiller.shutdown();
                 }
 
@@ -88,6 +90,8 @@ public class FileManager {
             }
         };
 
+        ServerManagerLogger.info("Looking for undeleted servers...");
+        int found = 0;
         for (Configuration template : serverManager.getConfigurationManager().getAllTemplates()) {
             File serverFolder = new File((String) template.get("pathTarget"));
             if(serverFolder.listFiles() != null){
@@ -95,10 +99,12 @@ public class FileManager {
                     if(file.getName().startsWith(template.get("baseName"))){
                         Utils.delete(file);
                         file.delete();
+                        found++;
                     }
                 }
             }
         }
+        ServerManagerLogger.info(found+" undeleted servers found and deleted.");
 
         serverManager.registerPacketProcessing(new FileManagerProcessPacketListener(this));
         serverManager.registerEventListener(new FileManagerEventListener(this));

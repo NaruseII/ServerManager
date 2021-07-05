@@ -82,4 +82,14 @@ public class BukkitProcessPacketListener extends ProcessPacketListener {
             }
         }.runTaskTimer(pl, 0, 5);
     }
+
+    @Override
+    public void processKickPlayer(PacketKickPlayer packet) {
+        Bukkit.getScheduler().runTask(pl, () -> {
+            Player p = Bukkit.getPlayer(packet.getPlayerName());
+            if(p != null){
+                p.kickPlayer(packet.getReason() == null ? "" : packet.getReason());
+            }
+        });
+    }
 }

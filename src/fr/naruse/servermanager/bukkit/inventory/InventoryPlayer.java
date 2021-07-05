@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.bukkit.inventory;
 
+import fr.naruse.servermanager.core.connection.packet.PacketKickPlayer;
 import fr.naruse.servermanager.core.connection.packet.PacketTeleportToPlayer;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
@@ -31,7 +32,9 @@ public class InventoryPlayer extends AbstractInventory{
         setDecoration();
 
         this.addServer(currentServer);
+
         inventory.addItem(buildItem(Material.COMPASS, 0, "§6Teleport", false, null));
+        inventory.addItem(buildItem(Material.DIAMOND_SWORD, 0, "§4Kick", false, null));
 
         inventory.setItem(inventory.getSize()-1, buildItem(Material.BARRIER, 0, "§cBack", false, null));
     }
@@ -61,6 +64,21 @@ public class InventoryPlayer extends AbstractInventory{
                     p.closeInventory();
                     p.sendMessage("§cNo Proxy found.");
                 }
+            }else if(item.getType() == Material.DIAMOND_SWORD){
+                Optional<Server> optionalProxy = ServerList.findPlayerProxyServer(p.getName());
+                if(optionalProxy.isPresent()){
+                    optionalProxy.get().sendPacket(new PacketTeleportToPlayer(p.getName(), owner));
+                }else{
+                    Optional<Server> optionalServer = ServerList.findPlayerBukkitOrSpongeServer(owner);
+                    if(optionalServer.isPresent()){
+                        optionalServer.get().sendPacket(new PacketKickPlayer(owner));
+                    }else{
+                        p.closeInventory();
+                        p.sendMessage("§cPlayer's server not found.");
+                        return;
+                    }
+                }
+                slot = inventory.getSize()-1;
             }else{
                 Server server = getServerFromItem(item);
 
