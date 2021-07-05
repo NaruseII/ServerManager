@@ -1,7 +1,7 @@
 package fr.naruse.servermanager.core.connection.packet;
 
 import fr.naruse.servermanager.core.*;
-import fr.naruse.servermanager.core.server.MultiMap;
+import fr.naruse.servermanager.core.utils.MultiMap;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.packetmanager.KeepAliveBuffer;

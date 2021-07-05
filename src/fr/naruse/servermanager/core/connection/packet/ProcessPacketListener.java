@@ -17,4 +17,8 @@ public class ProcessPacketListener {
     public void processDatabaseRequest(PacketDatabaseRequest packet) { }
 
     public void processDatabaseRequestUpdate(PacketDatabaseRequestUpdate packet) { }
+
+    public void processTeleportToLocation(PacketTeleportToLocation packet) { }
+
+    public void processTeleportToPlayer(PacketTeleportToPlayer packet) { }
 }

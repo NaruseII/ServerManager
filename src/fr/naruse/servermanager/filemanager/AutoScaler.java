@@ -27,7 +27,7 @@ public class AutoScaler {
     public AutoScaler(FileManager fileManager, Set<Configuration.ConfigurationSection> sectionSet) {
         this.fileManager = fileManager;
         this.sectionSet = sectionSet;
-        this.EXECUTOR_SERVICE.scheduleAtFixedRate(() -> this.scale(), 2, 2, TimeUnit.SECONDS);
+        this.EXECUTOR_SERVICE.scheduleAtFixedRate(() -> this.scale(), 5, 5, TimeUnit.SECONDS);
         LOGGER.info("Started");
     }
 
@@ -53,7 +53,7 @@ public class AutoScaler {
                     continue;
                 }
 
-                for (int i = 0; i < Utils.getIntegerFromPacket(section.get("startServers")); i++) {
+                for (int i = 0; i < section.getInt("startServers"); i++) {
                     fileManager.createServer(section.getInitialPath());
                 }
             }

@@ -69,6 +69,11 @@ public class InventoryServer extends AbstractInventory {
                 }else{
                     p.sendMessage("§cYou're not on a proxy.");
                 }
+            }else if(item.getType() == Material.SKULL_ITEM){
+                String owner = ((SkullMeta) item.getItemMeta()).getOwner();
+                if(owner != null){
+                    new InventoryPlayer(pl, p, server, owner);
+                }
             }
         }
 

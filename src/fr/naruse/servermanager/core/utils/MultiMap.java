@@ -1,4 +1,4 @@
-package fr.naruse.servermanager.core.server;
+package fr.naruse.servermanager.core.utils;
 
 import java.util.HashMap;
 import java.util.Map;

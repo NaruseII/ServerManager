@@ -2,6 +2,7 @@ package fr.naruse.servermanager.proxy.bungee.packet;
 
 import com.google.common.collect.Sets;
 import fr.naruse.servermanager.proxy.bungee.main.BungeeManagerPlugin;
+import fr.naruse.servermanager.proxy.common.ProxyListeners;
 import fr.naruse.servermanager.proxy.common.ProxyUtils;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.connection.packet.*;
@@ -15,6 +16,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Optional;
 import java.util.Set;
 
 public class BungeeProcessPacketListener extends ProcessPacketListener {
@@ -126,5 +128,15 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
     @Override
     public void processBroadcast(PacketBroadcast packet) {
         BungeeCord.getInstance().broadcast(packet.getMessage());
+    }
+
+    @Override
+    public void processTeleportToLocation(PacketTeleportToLocation packet) {
+        ProxyListeners.processTeleportToLocation(packet);
+    }
+
+    @Override
+    public void processTeleportToPlayer(PacketTeleportToPlayer packet) {
+        ProxyListeners.processTeleportToPlayer(this, packet);
     }
 }

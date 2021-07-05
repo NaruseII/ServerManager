@@ -1,8 +1,13 @@
 package fr.naruse.servermanager.bukkit.inventory;
 
 import com.google.common.collect.Lists;
+import fr.naruse.servermanager.core.CoreServerType;
+import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.server.Server;
+import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -131,6 +136,54 @@ public abstract class AbstractInventory implements Listener {
         }
 
         return slots;
+    }
+
+    protected void addServer(Server server){
+        Material material = Material.WATER_BUCKET;
+        String tag = "§a";
+
+        switch (server.getCoreServerType()) {
+            case FILE_MANAGER:
+                material = Material.BOOK;
+                tag = "§4";
+                break;
+            case SPONGE_MANAGER:
+                material = Material.SPONGE;
+                tag = "§§6";
+                break;
+            case VELOCITY_MANAGER:
+                material = Material.ICE;
+                tag = "§b";
+                break;
+            case BUNGEE_MANAGER:
+                material = Material.MILK_BUCKET;
+                tag = "§3";
+                break;
+            case PACKET_MANAGER:
+                material = Material.WEB;
+                tag = "§c";
+                break;
+        }
+
+        List<String> lore = Lists.newArrayList(
+                "§5Address: §d"+server.getAddress().getHostAddress(),
+                "§5Port: §d"+server.getPort(),
+                "§5SMPort: §d"+server.getServerManagerPort(),
+                "§5Capacity: §d"+server.getData().getCapacity(),
+                "§5PlayerSize: §d"+server.getData().getPlayerSize(),
+                "§5Players: §d"+server.getData().getUUIDByNameMap().keySet().toString(),
+                "§5Status: §d"+server.getData().getStatusSet().toString());
+
+        inventory.addItem(buildItem(material, 0, tag+server.getName(), false, lore));
+    }
+
+    protected Server getServerFromItem(ItemStack item){
+        String name = ChatColor.stripColor(item.getItemMeta().getDisplayName());
+        Server server = ServerList.getByName(name);
+        if(name.equals("packet-manager")){
+            server = new Server("packet-manager", ServerManager.get().getCoreData().getServerManagerPort(), ServerManager.get().getCoreData().getServerManagerPort(), CoreServerType.PACKET_MANAGER);
+        }
+        return server;
     }
 
     public void setDone(boolean done) {

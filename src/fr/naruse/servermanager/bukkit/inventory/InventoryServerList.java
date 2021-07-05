@@ -1,6 +1,5 @@
 package fr.naruse.servermanager.bukkit.inventory;
 
-import com.google.common.collect.Lists;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.server.Server;
@@ -13,8 +12,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.List;
-
 public class InventoryServerList extends AbstractInventory {
 
     public InventoryServerList(JavaPlugin pl, Player p) {
@@ -26,61 +23,19 @@ public class InventoryServerList extends AbstractInventory {
         setDecoration();
 
         for (Server server : ServerList.getAll()) {
-            this.add(server);
+            this.addServer(server);
         }
 
-        this.add(new Server("packet-manager", ServerManager.get().getCoreData().getServerManagerPort(), ServerManager.get().getCoreData().getServerManagerPort(), CoreServerType.PACKET_MANAGER));
+        this.addServer(new Server("packet-manager", ServerManager.get().getCoreData().getServerManagerPort(), ServerManager.get().getCoreData().getServerManagerPort(), CoreServerType.PACKET_MANAGER));
 
         inventory.setItem(inventory.getSize()-1, buildItem(Material.BARRIER, 0, "§cBack", false, null));
-    }
-
-    private void add(Server server){
-        Material material = Material.WATER_BUCKET;
-        String tag = "§a";
-
-        switch (server.getCoreServerType()) {
-            case FILE_MANAGER:
-                material = Material.BOOK;
-                tag = "§4";
-                break;
-            case SPONGE_MANAGER:
-                material = Material.SPONGE;
-                tag = "§§6";
-                break;
-            case VELOCITY_MANAGER:
-                material = Material.ICE;
-                tag = "§b";
-                break;
-            case BUNGEE_MANAGER:
-                material = Material.MILK_BUCKET;
-                tag = "§3";
-                break;
-            case PACKET_MANAGER:
-                material = Material.WEB;
-                tag = "§c";
-                break;
-        }
-
-        List<String> lore = Lists.newArrayList(
-                "§5Address: §d"+server.getAddress().getHostAddress(),
-                "§5Port: §d"+server.getPort(),
-                "§5SMPort: §d"+server.getServerManagerPort(),
-                "§5Capacity: §d"+server.getData().getCapacity(),
-                "§5PlayerSize: §d"+server.getData().getPlayerSize(),
-                "§5Players: §d"+server.getData().getUUIDByNameMap().keySet().toString(),
-                "§5Status: §d"+server.getData().getStatusSet().toString());
-
-        inventory.addItem(buildItem(material, 0, tag+server.getName(), false, lore));
     }
 
     @Override
     protected void actionPerformed(Player p, ItemStack item, InventoryAction action, int slot) {
         if(item != null && item.getType() != Material.STAINED_GLASS_PANE){
-            String name = ChatColor.stripColor(item.getItemMeta().getDisplayName());
-            Server server = ServerList.getByName(name);
-            if(name.equals("packet-manager")){
-                server = new Server("packet-manager", ServerManager.get().getCoreData().getServerManagerPort(), ServerManager.get().getCoreData().getServerManagerPort(), CoreServerType.PACKET_MANAGER);
-            }
+            Server server = getServerFromItem(item);
+
             if(server != null){
                 new InventoryServer(pl, p, server);
                 return;

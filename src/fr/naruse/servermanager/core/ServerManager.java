@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class ServerManager {
 
-    public static final String VERSION = "1.0.5";
+    public static final String VERSION = "1.0.6";
 
     private static ServerManager instance;
     public static ServerManager get() {
@@ -55,7 +55,7 @@ public class ServerManager {
         if(coreData.getServerName() == null){
             coreData.setServerName(configurationManager.getConfig().get("currentServerName"));
         }
-        coreData.setServerPort(Utils.getIntegerFromPacket(configurationManager.getConfig().get("serverPort")));
+        coreData.setServerPort(configurationManager.getConfig().getInt("serverPort"));
 
 
         this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getServerManagerPort(), coreData.getCoreServerType());
@@ -122,6 +122,10 @@ public class ServerManager {
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processDatabaseRequest((PacketDatabaseRequest) packet));
         }else if(packet instanceof PacketDatabaseRequestUpdate){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processDatabaseRequestUpdate((PacketDatabaseRequestUpdate) packet));
+        }else if(packet instanceof PacketTeleportToLocation){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processTeleportToLocation((PacketTeleportToLocation) packet));
+        }else if(packet instanceof PacketTeleportToPlayer){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processTeleportToPlayer((PacketTeleportToPlayer) packet));
         }
     }
 

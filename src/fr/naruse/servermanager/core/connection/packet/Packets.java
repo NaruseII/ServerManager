@@ -3,16 +3,14 @@ package fr.naruse.servermanager.core.connection.packet;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.api.events.packet.PacketLoadEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
-
-import java.util.HashMap;
-import java.util.Map;
+import fr.naruse.servermanager.core.utils.SimpleImmutableMap;
 
 public class Packets {
 
     private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("PacketManager");
 
-    private static final Map<String, Class<? extends IPacket>> packetByName = new HashMap<>();
-    private static final Map<Class<? extends IPacket>, String> nameByPacket = new HashMap<>();
+    private static final SimpleImmutableMap<String, Class<? extends IPacket>> packetByName = new SimpleImmutableMap<>();
+    private static final SimpleImmutableMap<Class<? extends IPacket>, String> nameByPacket = new SimpleImmutableMap<>();
 
     public static void load(){
         LOGGER.info("Loading packets...");
@@ -31,6 +29,8 @@ public class Packets {
         registerPacket("DATABASE_REQUEST", PacketDatabaseRequest.class);
         registerPacket("DATABASE_ANSWER", PacketDatabaseAnswer.class);
         registerPacket("DATABASE_REQUEST_UPDATE", PacketDatabaseRequestUpdate.class);
+        registerPacket("TELEPORT_TO_LOCATION", PacketTeleportToLocation.class);
+        registerPacket("TELEPORT_TO_PLAYER", PacketTeleportToPlayer.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

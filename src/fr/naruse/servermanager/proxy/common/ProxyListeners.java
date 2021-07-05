@@ -5,9 +5,11 @@ import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.api.events.server.ServerDeleteEvent;
 import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
-import fr.naruse.servermanager.core.connection.packet.PacketProxyRequestConfigWrite;
+import fr.naruse.servermanager.core.connection.packet.*;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
+
+import java.util.Optional;
 
 public class ProxyListeners {
 
@@ -31,6 +33,21 @@ public class ProxyListeners {
                     fileManager.sendPacket(new PacketProxyRequestConfigWrite(ServerManager.get().getCoreData().getServerName(), server.getName(), true));
                 });
             }
+        }
+    }
+
+    public static void processTeleportToLocation(PacketTeleportToLocation packet) {
+        Optional<Server> optional = ServerList.findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER}, packet.getPlayerName());
+        if(optional.isPresent()){
+            optional.get().sendPacket(packet);
+        }
+    }
+
+    public static void processTeleportToPlayer(ProcessPacketListener listener, PacketTeleportToPlayer packet) {
+        Optional<Server> optional = ServerList.findPlayerBukkitOrSpongeServer(packet.getTargetName());
+        if(optional.isPresent()){
+            listener.processSwitchServer(new PacketSwitchServer(optional.get(), packet.getPlayerName()));
+            optional.get().sendPacket(packet);
         }
     }
 }
