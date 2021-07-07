@@ -2,7 +2,6 @@ package fr.naruse.servermanager.packetmanager;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
@@ -13,8 +12,6 @@ import fr.naruse.servermanager.core.server.ServerList;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -23,7 +20,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -185,7 +181,7 @@ public class Metrics {
      */
     private void startSubmitting() {
         final Runnable submitTask = () -> {
-            if (serverManager.isShutDowned()) { // Plugin was disabled
+            if (serverManager.isShuttingDowned()) { // Plugin was disabled
                 scheduler.shutdown();
                 return;
             }

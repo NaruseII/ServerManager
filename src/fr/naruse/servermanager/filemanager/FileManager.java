@@ -22,7 +22,7 @@ import java.util.concurrent.*;
 public class FileManager {
 
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
-    public static final ExecutorService ERROR_EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
+    public static final ExecutorService ERROR_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
     private static FileManager instance;
     public static FileManager get() {

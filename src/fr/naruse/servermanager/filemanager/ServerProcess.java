@@ -8,6 +8,9 @@ import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.filemanager.task.DeleteServerTask;
 
 import java.io.*;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 public class ServerProcess {
 
@@ -87,12 +90,12 @@ public class ServerProcess {
 
                 if(process.isAlive()){
                     LOGGER.info("Server is still alive! Killing it... (It may take several seconds)");
-                    process.destroy();
+                    destroy();
                     waitFor();
                 }
             }else{
                 LOGGER.info("Server didn't fully started! Killing it... (It may take several seconds)");
-                process.destroy();
+                destroy();
                 waitFor();
             }
             LOGGER.info("Server stopped");
@@ -100,6 +103,30 @@ public class ServerProcess {
         this.isStopped = true;
 
         new DeleteServerTask(this.template, this.name);
+    }
+
+    private void destroy() {
+        AtomicBoolean cant = new AtomicBoolean(false);
+        try {
+            Method method = process.getClass().getDeclaredMethod("descendants");
+            if(method != null){
+                Stream stream = (Stream) method.invoke(process);
+                stream.forEach(o -> {
+                    try {
+                        Method m = o.getClass().getMethod("destroy");
+                        m.invoke(o);
+                    } catch (Exception e) {
+                        cant.set(true);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            cant.set(true);
+        }
+        process.destroy();
+        if(cant.get() && System.currentTimeMillis()-startTime < 60000){
+            LOGGER.warn("I detected a recent start, but I can't stop all subprocess on Java below 1.9! You'll probably need to stop it manually.");
+        }
     }
 
     private void sleep(long time){

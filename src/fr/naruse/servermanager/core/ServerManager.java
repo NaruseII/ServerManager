@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class ServerManager {
 
-    public static final String VERSION = "1.0.6";
+    public static final String VERSION = "1.0.7";
 
     private static ServerManager instance;
     public static ServerManager get() {
@@ -31,7 +31,7 @@ public class ServerManager {
     private final Server server;
     private final Set<EventListener> eventListenerSet = new HashSet<>();
     private final Set<ProcessPacketListener> processPacketListenerSet = new HashSet<>();
-    private boolean isShutDowned = false;
+    private boolean isShuttingDowned = false;
 
     public ServerManager(CoreData coreData) {
         this(coreData, null);
@@ -67,15 +67,18 @@ public class ServerManager {
         plugin.callEvent(new InitializationEndedEvent());
         ServerManagerLogger.info("ServerManager Core initialised");
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> this.shutdown()));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> this.preShutdown()));
+    }
+
+    public void preShutdown(){
+        if(this.isShuttingDowned){
+            return;
+        }
+        this.isShuttingDowned = true;
+        this.shutdown();
     }
 
     public void shutdown(){
-        if(this.isShutDowned){
-            return;
-        }
-        this.isShutDowned = true;
-
         this.plugin.callEvent(new ShutdownEvent());
 
         ServerManagerLogger.info("Shutting down...");
@@ -155,8 +158,8 @@ public class ServerManager {
         return plugin;
     }
 
-    public boolean isShutDowned() {
-        return isShutDowned;
+    public boolean isShuttingDowned() {
+        return isShuttingDowned;
     }
 
     public void printStatus() {

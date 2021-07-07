@@ -1,7 +1,7 @@
 {
   "id": "servermanager",
   "name": "ServerManager",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "ServerManager Velocity Manager",
   "url": "https://www.spigotmc.org/resources/server-manager.92600/",
   "author": ["Naruse"],

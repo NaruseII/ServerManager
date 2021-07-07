@@ -67,7 +67,7 @@ public class InventoryPlayer extends AbstractInventory{
             }else if(item.getType() == Material.DIAMOND_SWORD){
                 Optional<Server> optionalProxy = ServerList.findPlayerProxyServer(p.getName());
                 if(optionalProxy.isPresent()){
-                    optionalProxy.get().sendPacket(new PacketTeleportToPlayer(p.getName(), owner));
+                    optionalProxy.get().sendPacket(new PacketKickPlayer(owner));
                 }else{
                     Optional<Server> optionalServer = ServerList.findPlayerBukkitOrSpongeServer(owner);
                     if(optionalServer.isPresent()){
