@@ -38,7 +38,12 @@ public class ConnectionManager {
         try {
             this.inetAddress = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            try {
+                this.inetAddress = InetAddress.getByName("127.0.0.1");
+            } catch (UnknownHostException unknownHostException) {
+                unknownHostException.printStackTrace();
+                e.printStackTrace();
+            }
         }
 
         LOGGER.info("Local address is '"+this.inetAddress.getHostAddress()+"'");
