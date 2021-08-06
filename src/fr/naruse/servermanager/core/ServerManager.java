@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class ServerManager {
 
-    public static final String VERSION = "1.0.10";
+    public static final String VERSION = "1.0.11";
 
     private static ServerManager instance;
     public static ServerManager get() {

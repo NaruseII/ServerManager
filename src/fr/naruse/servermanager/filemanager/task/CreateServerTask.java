@@ -177,7 +177,7 @@ public class CreateServerTask {
             reader.lines().forEach(line -> {
                 try{
                     if(editServerIP && line.contains("server-ip=")){
-                        stringBuilder.append("server-ip="+ InetAddress.getLocalHost().getHostAddress()+"\n");
+                        stringBuilder.append("server-ip="+ Utils.getLocalHost().getHostAddress()+"\n");
                     }
                     else if(editServerPort && line.contains("server-port=")){
                         ServerSocket socket = new ServerSocket(0);

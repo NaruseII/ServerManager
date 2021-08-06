@@ -4,6 +4,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.proxy.Velocity;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.proxy.common.ProxyListeners;
 import fr.naruse.servermanager.proxy.common.ProxyUtils;
 import fr.naruse.servermanager.core.CoreServerType;
@@ -62,18 +63,13 @@ public class VelocityProcessPacketListener extends ProcessPacketListener {
 
     private RegisteredServer buildServerInfo(Server server, boolean transformToLocalhostIfPossible) {
         String address;
-        try {
-            if(transformToLocalhostIfPossible && InetAddress.getLocalHost().getHostAddress().equals(server.getAddress().getHostAddress())){
-                address = "localhost:"+server.getPort();
-            }else{
-                address = server.getAddress().getHostAddress()+":"+server.getPort();
-            }
-
-            return this.pl.getProxyServer().registerServer(new ServerInfo(server.getName(), (InetSocketAddress) ProxyUtils.getAddress(address)));
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+        if(transformToLocalhostIfPossible && Utils.getLocalHost().getHostAddress().equals(server.getAddress().getHostAddress())){
+            address = "localhost:"+server.getPort();
+        }else{
+            address = server.getAddress().getHostAddress()+":"+server.getPort();
         }
-        return null;
+
+        return this.pl.getProxyServer().registerServer(new ServerInfo(server.getName(), (InetSocketAddress) ProxyUtils.getAddress(address)));
     }
 
     @Override

@@ -11,6 +11,7 @@ import fr.naruse.servermanager.core.connection.packet.PacketDisconnection;
 import fr.naruse.servermanager.core.connection.packet.Packets;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.filemanager.ServerProcess;
 
 import java.io.DataInputStream;
@@ -35,16 +36,7 @@ public class ConnectionManager {
         LOGGER.info("Starting ConnectionManager...");
         this.serverManager = serverManager;
 
-        try {
-            this.inetAddress = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            try {
-                this.inetAddress = InetAddress.getByName("127.0.0.1");
-            } catch (UnknownHostException unknownHostException) {
-                unknownHostException.printStackTrace();
-                e.printStackTrace();
-            }
-        }
+        this.inetAddress = Utils.getLocalHost();
 
         LOGGER.info("Local address is '"+this.inetAddress.getHostAddress()+"'");
 

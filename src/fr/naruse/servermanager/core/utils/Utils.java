@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
 import java.util.*;
 
@@ -119,6 +121,28 @@ public class Utils {
         for (File file1 : list) {
             file1.delete();
         }
+    }
+
+    public static InetAddress getLocalHost(){
+        InetAddress inetAddress = findHost(null, false);
+        if(inetAddress == null){
+            inetAddress = findHost("127.0.0.1", false);
+        }
+        if(inetAddress == null){
+            inetAddress = findHost("::1", true);
+        }
+        return inetAddress;
+    }
+
+    private static InetAddress findHost(String host, boolean trace){
+        try {
+            return host == null ? InetAddress.getLocalHost() : InetAddress.getByName(host);
+        } catch (UnknownHostException unknownHostException) {
+            if(trace){
+                unknownHostException.printStackTrace();
+            }
+        }
+        return null;
     }
 
 }

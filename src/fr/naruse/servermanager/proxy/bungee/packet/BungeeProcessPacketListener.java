@@ -1,6 +1,7 @@
 package fr.naruse.servermanager.proxy.bungee.packet;
 
 import com.google.common.collect.Sets;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.proxy.bungee.main.BungeeManagerPlugin;
 import fr.naruse.servermanager.proxy.common.ProxyListeners;
 import fr.naruse.servermanager.proxy.common.ProxyUtils;
@@ -82,15 +83,10 @@ public class BungeeProcessPacketListener extends ProcessPacketListener {
 
     private ServerInfo buildServerInfo(Server server, boolean transformToLocalhostIfPossible){
         String address;
-        try {
-            if(transformToLocalhostIfPossible && InetAddress.getLocalHost().getHostAddress().equals(server.getAddress().getHostAddress())){
-                address = "localhost:"+server.getPort();
-            }else{
-                address = server.getAddress().getHostAddress()+":"+server.getPort();
-            }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            return null;
+        if(transformToLocalhostIfPossible && Utils.getLocalHost().getHostAddress().equals(server.getAddress().getHostAddress())){
+            address = "localhost:"+server.getPort();
+        }else{
+            address = server.getAddress().getHostAddress()+":"+server.getPort();
         }
 
         return ProxyServer.getInstance().constructServerInfo(server.getName(), ProxyUtils.getAddress(address), server.getName(), false);

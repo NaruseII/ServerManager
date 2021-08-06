@@ -6,6 +6,7 @@ import fr.naruse.servermanager.core.connection.packet.PacketReloadProxyServers;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.filemanager.ServerProcess;
 
 import java.io.BufferedReader;
@@ -151,13 +152,9 @@ public class EditProxyConfigFile {
     private void append(StringBuilder stringBuilder, String serverName, String hostAddress, int port, boolean transformToLocalhostIfPossible) {
         stringBuilder.append("  ").append(serverName).append(":").append("\n");
         stringBuilder.append("    ").append("motd: ").append(serverName).append("\n");
-        try {
-            stringBuilder.append("    ").append("address: ")
-                    .append(transformToLocalhostIfPossible ? hostAddress.equals(InetAddress.getLocalHost().getHostAddress()) ? "localhost" : hostAddress : hostAddress)
-                    .append(":").append(port).append("\n");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        stringBuilder.append("    ").append("address: ")
+                .append(transformToLocalhostIfPossible ? hostAddress.equals(Utils.getLocalHost().getHostAddress()) ? "localhost" : hostAddress : hostAddress)
+                .append(":").append(port).append("\n");
         stringBuilder.append("    ").append("restricted: ").append(false).append("\n");
     }
 }

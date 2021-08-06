@@ -5,6 +5,7 @@ import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.connection.packet.IPacket;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.MultiMap;
+import fr.naruse.servermanager.core.utils.Utils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -64,12 +65,7 @@ public class Server {
     }
 
     public InetAddress getAddress() {
-        try {
-            return InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return Utils.getLocalHost();
     }
 
     @Override
