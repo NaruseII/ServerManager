@@ -8,12 +8,12 @@ import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class KeepAliveBuffer {
 
-    private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("KeepAliveBuffer");
-
-    private static final Map<Server, PacketKeepAlive> map = new HashMap<>();
+    private static final ConcurrentMap<Server, PacketKeepAlive> map = new ConcurrentHashMap<>();
 
     public static void put(PacketKeepAlive packet){
         Server server = ServerList.getByName(packet.getName());
@@ -33,7 +33,7 @@ public class KeepAliveBuffer {
     }
 
     private static void process(){
-        map.forEach((server, packet) -> {
+        new HashMap<>(map).forEach((server, packet) -> {
             KeepAliveServerThread.EXECUTOR_SERVICE.submit(() -> server.getData().setCountBeforeDelete(3));
             server.getData().setCapacity(packet.getCapacity());
             server.getData().setUUIDByNameMap(packet.getUUIDByNameMap());

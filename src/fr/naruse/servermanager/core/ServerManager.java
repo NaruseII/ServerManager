@@ -74,11 +74,11 @@ public class ServerManager {
         if(this.isShuttingDowned){
             return;
         }
-        this.isShuttingDowned = true;
         this.shutdown();
     }
 
     public void shutdown(){
+        this.isShuttingDowned = true;
         this.plugin.callEvent(new ShutdownEvent());
 
         ServerManagerLogger.info("Shutting down...");

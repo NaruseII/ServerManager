@@ -231,6 +231,16 @@ public class FileManager {
                         }
                     }
                 }
+            }else if(line.startsWith("deleteUnUsedLogs")){
+                File file = new File("serverLogs");
+                if(file.exists() && file.listFiles() != null){
+                    for (File f : file.listFiles()) {
+                        if(!this.serverProcesses.keySet().contains(f.getName())){
+                            Utils.delete(f);
+                        }
+                    }
+                }
+                ServerManagerLogger.info("Done");
             }else{
                 ServerManagerLogger.info("Available commands:");
                 ServerManagerLogger.info("");
@@ -241,6 +251,7 @@ public class FileManager {
                 ServerManagerLogger.info("-> create <Template Name> <[count]>");
                 ServerManagerLogger.info("-> scale");
                 ServerManagerLogger.info("-> insertCommand <Server name> <Cmd>");
+                ServerManagerLogger.info("-> deleteUnUsedLogs");
             }
         }
     }

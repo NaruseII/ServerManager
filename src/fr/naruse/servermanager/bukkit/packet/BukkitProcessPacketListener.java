@@ -19,7 +19,7 @@ public class BukkitProcessPacketListener extends ProcessPacketListener {
 
     @Override
     public void processExecuteConsoleCommand(PacketExecuteConsoleCommand packet) {
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), packet.getCommand());
+        Bukkit.getScheduler().runTask(pl, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), packet.getCommand()));
     }
 
     @Override
