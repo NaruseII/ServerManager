@@ -20,9 +20,10 @@ import java.lang.reflect.Method;
 
 public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlugin {
 
-    private ServerManager serverManager;
+    private String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
+    private double doubleVersion;
 
-    private boolean isUpperTwelve = false;
+    private ServerManager serverManager;
 
     @Override
     public void onEnable() {
@@ -35,13 +36,15 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
             return;
         }
 
+        String sVersion = version.replace("v", "").replace("R1", "").replace("R2", "").replace("R3", "").replace("R4", "").replace("_", ".");
+        doubleVersion = Double.valueOf(sVersion.trim().substring(0, sVersion.length()-2));
+
         String serverName = "unknown";
         try {
             serverName = (String) Bukkit.class.getDeclaredMethod("getServerName").invoke(null);
         } catch (Exception illegalAccessException) {
             try {
                 serverName = new Configuration(new File(this.getDataFolder(), "config.json")).get("currentServerName");
-                isUpperTwelve = true;
             } catch (Exception e) { }
         }
 
@@ -74,7 +77,7 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
     @Override
     public void callEvent(IEvent event) {
         Runnable runnable = () -> Bukkit.getPluginManager().callEvent(new ServerManagerBukkitEvent(event));
-        if(this.isUpperTwelve){
+        if(doubleVersion >= 1.13){
             if(this.serverManager != null && this.serverManager.isShuttingDowned()){
                 return;
             }
