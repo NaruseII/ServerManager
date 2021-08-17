@@ -23,7 +23,24 @@ public class CreateServerTask {
             LOGGER.error("Template '"+templateName+".json' not found!");
             return;
         }
-        String name = template.get("baseName")+ "-" +Utils.randomLetters()+"-"+Utils.randomLetters();
+
+        String name = template.get("baseName");
+        int repeat = 0;
+        do{
+            boolean random = template.get("randomName");
+            if(repeat >= 6){
+                name += "-" +Utils.randomLetters(12)+"-"+Utils.randomLetters(12);
+                break;
+            }else if(random){
+                name += "-" +Utils.randomLetters(4)+"-"+Utils.randomLetters(4);
+            }
+            repeat++;
+        }while (fileManager.getServerProcess(name) != null);
+        if(fileManager.getServerProcess(name) != null){
+            LOGGER.error("Could not create '"+templateName+"' all names are used! This isn't supposed to happen unless you create "+((12*26*26*2)*2+(4*26*26*2)*2)+" servers!");
+            return;
+        }
+
         LOGGER.setTag("CreateServerTask - "+name);
         LOGGER.debug("Starting creation of '"+name+"'...");
 

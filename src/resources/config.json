@@ -1,4 +1,5 @@
 {
+  "currentServerName": "",
   "key": "empty_key",
   "debug": false,
   "startServerOnStart": {

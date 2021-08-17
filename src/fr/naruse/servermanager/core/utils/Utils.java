@@ -28,9 +28,9 @@ public class Utils {
     public static final Random RANDOM = new Random();
 
 
-    public static String randomLetters(){
+    public static String randomLetters(int count){
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < count; i++) {
             stringBuilder.append(randomLetter());
         }
         return stringBuilder.toString();

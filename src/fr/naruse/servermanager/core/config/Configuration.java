@@ -52,6 +52,7 @@ public class Configuration {
         for (int i = 0; i < 5; i++) {
             try {
                 this.reload();
+                break;
             } catch (Exception e) {
                 currentCharset++;
             }
@@ -68,6 +69,7 @@ public class Configuration {
         for (int i = 0; i < 5; i++) {
             try {
                 this.reload();
+                break;
             } catch (Exception e) {
                 currentCharset++;
             }
@@ -117,6 +119,49 @@ public class Configuration {
                 inputStreamReader.close();
                 fileOutputStream.close();
             }
+        }
+
+        this.fill();
+    }
+
+    public void fill() throws IOException {
+        if(!this.loadDefaultResource) {
+            return;
+        }
+        InputStream inputStream = this.defaultResourceStream != null ? this.defaultResourceStream : Configuration.class.getClassLoader().getResourceAsStream("resources/"+this.defaultResourceName);
+        if(inputStream == null) {
+            return;
+        }
+        InputStreamReader inputStreamReader;
+        BufferedReader reader = new BufferedReader(inputStreamReader = new InputStreamReader(inputStream, charset()));
+
+        String json = reader.lines().collect(Collectors.joining());
+
+        Map<String, Object> resourceMap = Utils.GSON.fromJson(json, Utils.MAP_TYPE);
+
+        boolean save = false;
+        if(this.map != null){
+            for (String key : resourceMap.keySet()) {
+                if(!this.map.containsKey(key)){
+                    this.map.put(key, resourceMap.get(key));
+                    save = true;
+                }
+            }
+
+            for (String key : this.map.keySet()) {
+                if(!resourceMap.containsKey(key)){
+                    this.map.remove(key);
+                    save = true;
+                }
+            }
+        }
+
+        reader.close();
+        inputStream.close();
+        inputStreamReader.close();
+
+        if(save){
+            this.save();
         }
     }
 
@@ -176,11 +221,11 @@ public class Configuration {
     private Charset charset(){
         switch (currentCharset){
             case 0:
-                return StandardCharsets.UTF_8;
+                return StandardCharsets.US_ASCII;
             case 1:
                 return StandardCharsets.ISO_8859_1;
             case 2:
-                return StandardCharsets.US_ASCII;
+                return StandardCharsets.UTF_8;
             case 3:
                 return StandardCharsets.UTF_16;
             case 4:

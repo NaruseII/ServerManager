@@ -31,8 +31,7 @@ public class ConfigurationManager {
     private void load() {
         LOGGER.info("Loading configurations...");
 
-        File configFile = new File(serverManager.getCoreData().getDataFolder(), "config.json");
-        this.config = new Configuration(configFile);
+        this.config = new Configuration(new File(serverManager.getCoreData().getDataFolder(), "config.json"));
 
         LOGGER.info("Configurations loaded");
 

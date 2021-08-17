@@ -166,6 +166,7 @@ public class FileManager {
 
             String[] args = line.split(" ");
             if(line.startsWith("stop")){
+
                 System.exit(0);
             }else if(line.startsWith("shutdown")){
                 if(args.length == 1){

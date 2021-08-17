@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class ServerManager {
 
-    public static final String VERSION = "1.0.12";
+    public static final String VERSION = "1.0.13";
 
     private static ServerManager instance;
     public static ServerManager get() {
@@ -51,11 +51,12 @@ public class ServerManager {
         this.plugin = plugin;
 
         this.configurationManager = new ConfigurationManager(this);
-        ServerManagerLogger.setDebug(configurationManager.getConfig().contains("debug") ? configurationManager.getConfig().get("debug") : false);
+        ServerManagerLogger.setDebug(this.configurationManager.getConfig().contains("debug") ? this.configurationManager.getConfig().get("debug") : false);
         if(coreData.getServerName() == null){
-            coreData.setServerName(configurationManager.getConfig().get("currentServerName"));
+            coreData.setServerName(this.configurationManager.getConfig().get("currentServerName"));
+            ServerManagerLogger.info("Server name is '"+coreData.getServerName()+"'");
         }
-        coreData.setServerPort(configurationManager.getConfig().getInt("serverPort"));
+        coreData.setServerPort(this.configurationManager.getConfig().getInt("serverPort"));
 
 
         this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getServerManagerPort(), coreData.getCoreServerType());
@@ -92,7 +93,7 @@ public class ServerManager {
     public String generateNewSecretKey(){
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < Utils.RANDOM.nextInt(200)+100; i++) {
-            builder.append(Utils.randomLetters());
+            builder.append(Utils.randomLetters(4));
         }
 
         String finalString = builder.toString();

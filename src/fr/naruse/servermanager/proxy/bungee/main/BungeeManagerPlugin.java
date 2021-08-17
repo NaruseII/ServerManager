@@ -7,6 +7,7 @@ import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.Updater;
+import fr.naruse.servermanager.proxy.common.ProxyUtils;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -32,6 +33,8 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, this.listenerInfo.getQueryPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(this.listenerInfo.getMaxPlayers());
         this.serverManager.registerPacketProcessing(new BungeeProcessPacketListener(this));
+
+        ProxyUtils.load(this.getDataFolder());
 
         this.getProxy().getPluginManager().registerListener(this, new BungeeListeners(this));
 

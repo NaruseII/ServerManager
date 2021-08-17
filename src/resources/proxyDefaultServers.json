@@ -1,0 +1,9 @@
+{
+  "defaultServers": [
+    {
+      "name": "Example Name That Will Not Be Used",
+      "address": "localhost",
+      "port": 25565
+    }
+  ]
+}
