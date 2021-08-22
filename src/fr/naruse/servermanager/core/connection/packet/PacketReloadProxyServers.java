@@ -15,6 +15,7 @@ public class PacketReloadProxyServers implements IPacket{
     private boolean transformToLocalhostIfPossible;
     public PacketReloadProxyServers(String defaultServer, boolean transformToLocalhostIfPossible) {
         this.defaultServer = defaultServer;
+        this.transformToLocalhostIfPossible = transformToLocalhostIfPossible;
     }
 
     @Override

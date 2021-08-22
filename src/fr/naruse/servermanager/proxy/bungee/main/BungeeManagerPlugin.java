@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.proxy.bungee.main;
 
+import fr.naruse.servermanager.core.connection.packet.PacketReloadProxyServers;
 import fr.naruse.servermanager.proxy.bungee.api.ServerManagerBungeeEvent;
 import fr.naruse.servermanager.proxy.bungee.event.BungeeListeners;
 import fr.naruse.servermanager.proxy.bungee.packet.BungeeProcessPacketListener;
@@ -21,7 +22,7 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
     @Override
     public void onEnable() {
         long millis  = System.currentTimeMillis();
-        ServerManagerLogger.load(this.getLogger());
+        ServerManagerLogger.loadPluginLogger(this.getLogger());
         ServerManagerLogger.info("Starting BungeeManager...");
 
         if(Updater.needToUpdate(CoreServerType.BUNGEE_MANAGER)){
@@ -32,9 +33,12 @@ public class BungeeManagerPlugin extends Plugin implements IServerManagerPlugin 
         this.setListenerInfo(BungeeCord.getInstance().getConfig().getListeners().stream().findFirst().get());
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUNGEE_MANAGER, this.getDataFolder(), 4848, null, this.listenerInfo.getQueryPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(this.listenerInfo.getMaxPlayers());
-        this.serverManager.registerPacketProcessing(new BungeeProcessPacketListener(this));
+
+        BungeeProcessPacketListener bungeeProcessPacketListener = new BungeeProcessPacketListener(this);
+        this.serverManager.registerPacketProcessing(bungeeProcessPacketListener);
 
         ProxyUtils.load(this.getDataFolder());
+        bungeeProcessPacketListener.processReloadProxyServers(new PacketReloadProxyServers("null", true));
 
         this.getProxy().getPluginManager().registerListener(this, new BungeeListeners(this));
 

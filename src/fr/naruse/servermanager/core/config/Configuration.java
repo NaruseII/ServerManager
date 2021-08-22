@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -139,29 +140,32 @@ public class Configuration {
 
         Map<String, Object> resourceMap = Utils.GSON.fromJson(json, Utils.MAP_TYPE);
 
-        boolean save = false;
         if(this.map != null){
-            for (String key : resourceMap.keySet()) {
-                if(!this.map.containsKey(key)){
-                    this.map.put(key, resourceMap.get(key));
-                    save = true;
-                }
-            }
-
-            for (String key : this.map.keySet()) {
-                if(!resourceMap.containsKey(key)){
-                    this.map.remove(key);
-                    save = true;
-                }
-            }
+            this.fillMap(this.map, resourceMap);
         }
 
         reader.close();
         inputStream.close();
         inputStreamReader.close();
 
-        if(save){
-            this.save();
+        this.save();
+    }
+
+    private void fillMap(Map<String, Object> map, Map<String, Object> resourceMap){
+        for (String key : resourceMap.keySet()) {
+            if(!map.containsKey(key)){
+                map.put(key, resourceMap.get(key));
+            }else if(resourceMap.get(key) instanceof Map){
+                fillMap((Map<String, Object>) map.get(key), (Map<String, Object>) resourceMap.get(key));
+            }
+        }
+
+        for (String key : new HashSet<>(map.keySet())) {
+            if(!resourceMap.containsKey(key)){
+                map.remove(key);
+            }else if(map.get(key) instanceof Map){
+                fillMap((Map<String, Object>) map.get(key), (Map<String, Object>) resourceMap.get(key));
+            }
         }
     }
 
@@ -221,11 +225,11 @@ public class Configuration {
     private Charset charset(){
         switch (currentCharset){
             case 0:
-                return StandardCharsets.US_ASCII;
+                return StandardCharsets.UTF_8;
             case 1:
                 return StandardCharsets.ISO_8859_1;
             case 2:
-                return StandardCharsets.UTF_8;
+                return StandardCharsets.US_ASCII;
             case 3:
                 return StandardCharsets.UTF_16;
             case 4:

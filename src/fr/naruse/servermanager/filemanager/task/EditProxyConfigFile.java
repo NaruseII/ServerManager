@@ -70,9 +70,9 @@ public class EditProxyConfigFile {
             }
         }while (bungeeServer == null);
 
-        if(true){ // Don't need anymore to edit config.yml or velocity.toml files (Code stays in case I need to edit)
+        //if(true){ // Don't need anymore to edit config.yml or velocity.toml files (Code stays in case I need to edit)
             LOGGER.info("Task complete");
-            return;
+       /*     return;
         }
 
         File configFile = new File(process.getServerFolder(), "config.yml");
@@ -146,15 +146,15 @@ public class EditProxyConfigFile {
         fileWriter.write(stringBuilder.toString());
         fileWriter.close();
 
-        LOGGER.info("Task complete");
+        LOGGER.info("Task complete");*/
     }
 
-    private void append(StringBuilder stringBuilder, String serverName, String hostAddress, int port, boolean transformToLocalhostIfPossible) {
+    /*private void append(StringBuilder stringBuilder, String serverName, String hostAddress, int port, boolean transformToLocalhostIfPossible) {
         stringBuilder.append("  ").append(serverName).append(":").append("\n");
         stringBuilder.append("    ").append("motd: ").append(serverName).append("\n");
         stringBuilder.append("    ").append("address: ")
                 .append(transformToLocalhostIfPossible ? hostAddress.equals(Utils.getLocalHost().getHostAddress()) ? "localhost" : hostAddress : hostAddress)
                 .append(":").append(port).append("\n");
         stringBuilder.append("    ").append("restricted: ").append(false).append("\n");
-    }
+    }*/
 }

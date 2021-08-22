@@ -3,6 +3,7 @@ package fr.naruse.servermanager.core.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -141,6 +142,15 @@ public class Utils {
             if(trace){
                 unknownHostException.printStackTrace();
             }
+        }
+        return null;
+    }
+
+    public static Object getStaticField(Class clazz, String methodName){
+        try {
+            return clazz.getDeclaredMethod(methodName).invoke(null);
+        } catch (Exception e) {
+            new ServerManagerLogger.Logger("Logger").error("Can't find color '"+methodName+"'!");
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.core;
 
+import com.diogonunes.jcolor.Attribute;
 import fr.naruse.servermanager.core.api.events.*;
 import fr.naruse.servermanager.core.config.ConfigurationManager;
 import fr.naruse.servermanager.core.connection.ConnectionManager;
@@ -15,7 +16,7 @@ import java.util.Set;
 
 public class ServerManager {
 
-    public static final String VERSION = "1.0.13";
+    public static final String VERSION = "1.0.14";
 
     private static ServerManager instance;
     public static ServerManager get() {
@@ -38,7 +39,7 @@ public class ServerManager {
     }
 
     public ServerManager(CoreData coreData, IServerManagerPlugin plugin) {
-        ServerManagerLogger.info("Initialising ServerManager Core on '"+coreData.getCoreServerType().name()+"'...");
+        ServerManagerLogger.info(Attribute.GREEN_TEXT(), "Initialising ServerManager Core on '"+coreData.getCoreServerType().name()+"'...");
         if(plugin == null){
             plugin = new BasicServerManagerPlugin(this.eventListenerSet);
         }
@@ -51,7 +52,7 @@ public class ServerManager {
         this.plugin = plugin;
 
         this.configurationManager = new ConfigurationManager(this);
-        ServerManagerLogger.setDebug(this.configurationManager.getConfig().contains("debug") ? this.configurationManager.getConfig().get("debug") : false);
+        ServerManagerLogger.loadConfigData();
         if(coreData.getServerName() == null){
             coreData.setServerName(this.configurationManager.getConfig().get("currentServerName"));
             ServerManagerLogger.info("Server name is '"+coreData.getServerName()+"'");
@@ -66,7 +67,7 @@ public class ServerManager {
         KeepAliveServerThread.launch(this);
 
         plugin.callEvent(new InitializationEndedEvent());
-        ServerManagerLogger.info("ServerManager Core initialised");
+        ServerManagerLogger.info(Attribute.GREEN_TEXT(), "ServerManager Core initialised");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> this.preShutdown()));
     }
@@ -86,7 +87,7 @@ public class ServerManager {
         KeepAliveServerThread.shutdown();
         this.configurationManager.shutdown();
         this.connectionManager.shutdown();
-        ServerManagerLogger.info("Server stopped. See you soon !");
+        ServerManagerLogger.info(Attribute.MAGENTA_TEXT(), "Server stopped. See you soon !");
         ServerManagerLogger.saveLogs();
     }
 
@@ -164,7 +165,7 @@ public class ServerManager {
     }
 
     public void printStatus() {
-        ServerManagerLogger.info("Server list:");
+        ServerManagerLogger.info(Attribute.CYAN_TEXT(), "Server list:");
         for (Server server : ServerList.getAll()) {
             ServerManagerLogger.info("");
             ServerManagerLogger.info(" -> "+server.getName()+" ["+server.getCoreServerType()+"]");

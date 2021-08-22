@@ -10,5 +10,12 @@
   },
   "autoKiller": {
     "enabled": false
+  },
+  "console":{
+    "defaultColor": "NONE",
+    "warningColor": "YELLOW_TEXT",
+    "errorColor": "RED_TEXT",
+    "debugColor": "BRIGHT_GREEN_TEXT",
+    "enabled": true
   }
 }

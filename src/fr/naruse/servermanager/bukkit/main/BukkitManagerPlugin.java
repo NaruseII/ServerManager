@@ -10,13 +10,10 @@ import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.Updater;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlugin {
 
@@ -28,7 +25,7 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
     @Override
     public void onEnable() {
         long millis  = System.currentTimeMillis();
-        ServerManagerLogger.load(this.getLogger());
+        ServerManagerLogger.loadPluginLogger(this.getLogger());
         ServerManagerLogger.info("Starting BukkitManager...");
 
         if(Updater.needToUpdate(CoreServerType.BUKKIT_MANAGER)){

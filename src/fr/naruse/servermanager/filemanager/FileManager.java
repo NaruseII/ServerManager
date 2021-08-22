@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.filemanager;
 
+import com.diogonunes.jcolor.Attribute;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.connection.packet.PacketDatabaseRequest;
@@ -214,7 +215,13 @@ public class FileManager {
                 if(args.length <= 2){
                     ServerManagerLogger.error("insertCommand <Server name> <Cmd>");
                 }else{
-                    ServerProcess serverProcess = this.serverProcesses.get(args[1]);
+                    ServerProcess serverProcess = null;
+                    for (String s : new HashSet<>(this.serverProcesses.keySet())) {
+                        if(s.startsWith(args[1])) {
+                            serverProcess = this.serverProcesses.get(s);
+                            break;
+                        }
+                    }
                     if(serverProcess == null){
                         ServerManagerLogger.error("Server '"+args[1]+"' not found");
                     }else{
@@ -242,8 +249,43 @@ public class FileManager {
                     }
                 }
                 ServerManagerLogger.info("Done");
+            }else if(line.startsWith("screen -l")){
+                ServerManagerLogger.info(Attribute.CYAN_TEXT(), "Screens:");
+                for (String name : new HashSet<>(serverProcesses.keySet())) {
+                    ServerManagerLogger.info(Attribute.MAGENTA_TEXT(), name);
+                }
+                ServerManagerLogger.info("Done");
+            }else if(line.startsWith("viewScreen") && args.length > 0){
+                ServerProcess serverProcess = null;
+                for (String s : new HashSet<>(this.serverProcesses.keySet())) {
+                    if(s.startsWith(args[1])) {
+                        serverProcess = this.serverProcesses.get(s);
+                        break;
+                    }
+                }
+
+                if(serverProcess == null){
+                    ServerManagerLogger.error("Could not find process '"+args[2]+"'");
+                }
+
+                if(serverProcess.getScreen().isAttached()){
+                    serverProcess.getScreen().detachFromScreen();
+                }else{
+                    for (ServerProcess process : new HashSet<>(serverProcesses.values())) {
+                        if(process.getScreen().isAttached()){
+                            process.getScreen().detachFromScreen();
+                        }
+                    }
+                    serverProcess.getScreen().attachToScreen();
+                }
+            }else if(line.startsWith("detach")){
+                for (ServerProcess process : new HashSet<>(serverProcesses.values())) {
+                    if(process.getScreen().isAttached()){
+                        process.getScreen().detachFromScreen();
+                    }
+                }
             }else{
-                ServerManagerLogger.info("Available commands:");
+                ServerManagerLogger.info(Attribute.CYAN_TEXT(), "Available commands:");
                 ServerManagerLogger.info("");
                 ServerManagerLogger.info("-> stop (Stop server)");
                 ServerManagerLogger.info("-> shutdown <Server name, All>");
@@ -253,6 +295,10 @@ public class FileManager {
                 ServerManagerLogger.info("-> scale");
                 ServerManagerLogger.info("-> insertCommand <Server name> <Cmd>");
                 ServerManagerLogger.info("-> deleteUnUsedLogs");
+                ServerManagerLogger.info("-> screen -l (List all processes)");
+                ServerManagerLogger.info("-> viewScreen <Process Name> (Attach on screen)");
+                ServerManagerLogger.info("-> detach (Detach from current screen)");
+                ServerManagerLogger.info("");
             }
         }
     }

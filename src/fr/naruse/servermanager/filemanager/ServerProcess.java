@@ -19,6 +19,7 @@ public class ServerProcess {
     private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("");
 
     private final FileManager fileManager;
+    private final Screen screen;
     private Process process;
     private final ProcessBuilder processBuilder;
     private final String name;
@@ -56,6 +57,7 @@ public class ServerProcess {
 
         this.logFile = new File(serverLogFolder, "logs.log");
         LOGGER.debug("Creating '"+this.logFile.getName()+"'...");
+        this.screen = new Screen(this);
     }
 
     public void start() {
@@ -103,6 +105,7 @@ public class ServerProcess {
         this.isStopped = true;
 
         new DeleteServerTask(this.template, this.name);
+        this.screen.detachFromScreen();
     }
 
     private void destroy() {
@@ -129,7 +132,7 @@ public class ServerProcess {
         }
     }
 
-    private void sleep(long time){
+    public void sleep(long time){
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
@@ -169,4 +172,9 @@ public class ServerProcess {
     public boolean isStopped() {
         return isStopped;
     }
+
+    public Screen getScreen() {
+        return screen;
+    }
+
 }

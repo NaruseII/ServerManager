@@ -1,5 +1,5 @@
 name: ServerManager
-version: 1.0.13
+version: 1.0.14
 author: Naruse
 main: fr.naruse.servermanager.bukkit.main.BukkitManagerPlugin
 commands:
