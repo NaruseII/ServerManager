@@ -53,7 +53,7 @@ public class Screen {
                         }
                     });
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }else{
                 this.detachFromScreen();

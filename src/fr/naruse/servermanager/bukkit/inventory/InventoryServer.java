@@ -1,5 +1,8 @@
 package fr.naruse.servermanager.bukkit.inventory;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.connection.packet.PacketSwitchServer;
@@ -14,7 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class InventoryServer extends AbstractInventory {
 
@@ -36,7 +42,11 @@ public class InventoryServer extends AbstractInventory {
             inventory.addItem(buildItem(Material.GLASS, 0, Utils.RANDOM.nextLong()+"", true, null));
         }
 
-        for (String name : Sets.newHashSet(server.getData().getUUIDByNameMap().keySet())) {
+        Set<String> set = Sets.newHashSet(server.getData().getUUIDByNameMap().keySet());
+
+        inventory.setItem(43, buildItem(Material.PAPER, 0, "§3Full Player List:", true, Lists.newArrayList("§5"+set.stream().collect(Collectors.joining("§d,§5 ")))));
+
+        for (String name : set) {
             ItemStack itemStack = new ItemStack(Material.SKULL_ITEM, 1, (byte) 3);
             SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
             meta.setOwner(name);

@@ -14,6 +14,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class PacketManager {
 
@@ -34,23 +36,25 @@ public class PacketManager {
         this.serverManager = new ServerManager(new CoreData(CoreServerType.PACKET_MANAGER, new File("configs"), 4848, "packet-manager", 4848)){
             @Override
             public void shutdown() {
-                Optional<Server> optional = ServerList.findServer(CoreServerType.FILE_MANAGER).stream().findFirst();
-
                 boolean loop = false;
-                int size = ServerList.getSize();
-                if(optional.isPresent()){
-                    optional.get().sendPacket(new PacketShutdown());
-                    ServerManagerLogger.info("Waiting for File-Manager to stop...");
-                    loop = true;
-                }else if(size > 1){
+                int size = (int) ServerList.getAll().stream().filter(server -> server.getCoreServerType().is(CoreServerType.FILE_MANAGER)).count();
+
+                if(size == 1){
                     ServerList.getAll().forEach(server -> server.sendPacket(new PacketShutdown()));
                     ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
-                    ServerManagerLogger.warn("Why can't I find File-Manager ? "+(size-1)+" servers are still alive! How is that possible ?");
+                    ServerManagerLogger.warn("Why can't I find File-Manager ? "+size+" servers are still alive! How is that possible ?");
                     ServerManagerLogger.warn("You shouldn't start server without using File-Manager!");
                     ServerManagerLogger.warn("Waiting for Servers to stop...");
                     ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
                     loop = true;
+                }else{
+                    for (Server server : ServerList.findServer(CoreServerType.FILE_MANAGER)) {
+                        server.sendPacket(new PacketShutdown());
+                        ServerManagerLogger.info("Waiting for File-Manager '"+server.getName()+"' to stop...");
+                        loop = true;
+                    }
                 }
+
                 if(loop){
                     try {
                         while (ServerList.getSize() > 1){

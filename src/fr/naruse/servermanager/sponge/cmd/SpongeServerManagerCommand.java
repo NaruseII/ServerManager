@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class SpongeServerManagerCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        src.sendMessage(Text.of("§6/§7sm createServer <Template name>"));
+        src.sendMessage(Text.of("§6/§7sm createServer <Template name> <[File-Manager]>"));
         src.sendMessage(Text.of( "§6/§7sm shutdown <Server name, -All>"));
         src.sendMessage(Text.of( "§6/§7sm insertCommand <Server name> <Command>"));
         src.sendMessage(Text.of( "§6/§7sm status <-ls>"));
@@ -44,9 +44,22 @@ public class SpongeServerManagerCommand implements CommandExecutor {
             String[] args = arguments.split(" ");
 
             if(arguments.isEmpty() || args.length == 0){
-                source.sendMessage(Text.of("§6/§7sm createServer <Template name>"));
+                source.sendMessage(Text.of("§6/§7sm createServer <Template name> <[File-Manager]>"));
             }else{
-                ServerManager.get().getConnectionManager().sendPacket(new PacketCreateServer(args[0]));
+
+                PacketCreateServer packet = new PacketCreateServer(args[0]);
+                if(args.length > 1){
+                    Optional<Server> optionalServer = ServerList.getByNameOptional(args[1]);
+                    if(optionalServer.isPresent()){
+                        optionalServer.get().sendPacket(packet);
+                    }else{
+                        source.sendMessage(Text.of("§cServer '"+args[2]+"' not found."));
+                        return CommandResult.success();
+                    }
+                }else{
+                    ServerManager.get().getConnectionManager().sendPacket(packet);
+                }
+
                 source.sendMessage(Text.of("§aCreation packet sent."));
             }
 

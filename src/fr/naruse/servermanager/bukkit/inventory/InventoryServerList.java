@@ -15,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class InventoryServerList extends AbstractInventory {
 
     public InventoryServerList(JavaPlugin pl, Player p) {
-        super(pl, p, "§lServer List", 9*((ServerList.getAll().size()+1/7)+2));
+        super(pl, p, "§lServer List", 9*6);
     }
 
     @Override

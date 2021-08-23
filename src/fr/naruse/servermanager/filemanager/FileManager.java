@@ -3,9 +3,7 @@ package fr.naruse.servermanager.filemanager;
 import com.diogonunes.jcolor.Attribute;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.config.Configuration;
-import fr.naruse.servermanager.core.connection.packet.PacketDatabaseRequest;
 import fr.naruse.servermanager.core.connection.packet.PacketExecuteConsoleCommand;
-import fr.naruse.servermanager.core.database.Database;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
@@ -47,7 +45,7 @@ public class FileManager {
     public FileManager(long millis) {
         instance = this;
 
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.FILE_MANAGER, new File("configs"), 4848, "file-manager", 0)){
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.FILE_MANAGER, new File("configs"), 4848, "file-manager-"+Utils.randomLetters(4)+"-"+Utils.randomLetters(4), 0)){
             @Override
             public void shutdown() {
                 if(autoScaler != null){

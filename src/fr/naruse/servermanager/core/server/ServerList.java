@@ -35,7 +35,6 @@ public class ServerList {
         if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER)){
             ServerManagerLogger.info("Registering server '"+name+"' -> ["+server.getAddress().getHostAddress()+"] Port: "+port+" SMPort: "+serverManagerPort);
         }
-
         map.put(name, server);
 
         ServerManager.get().getPlugin().callEvent(new ServerPostRegisterEvent(server));
@@ -158,13 +157,22 @@ public class ServerList {
     }
 
     public static Server getByName(String name, boolean addCurrentServer){
+        Optional<Server> optionalServer = getByNameOptional(name, addCurrentServer);
+        return optionalServer.isPresent() ? optionalServer.get() : null;
+    }
+
+    public static Optional<Server> getByNameOptional(String name){
+        return getByNameOptional(name, true);
+    }
+
+    public static Optional<Server> getByNameOptional(String name, boolean addCurrentServer){
         Server server = map.get(name);
         if(server == null && addCurrentServer){
             if(ServerManager.get().getCurrentServer().getName().equals(name)){
                 server = ServerManager.get().getCurrentServer();
             }
         }
-        return server;
+        return server == null ? Optional.empty() : Optional.of(server);
     }
 
     public static int getSize() {
@@ -184,12 +192,13 @@ public class ServerList {
     }
 
     public static Set<String> getAllNames(){
-        return map.keySet();
+        return new HashSet<>(map.keySet());
     }
 
     public enum SortType {
 
         FIND_MOST_POPULATED,
         FIND_LEAST_POPULATED,
+
     }
 }

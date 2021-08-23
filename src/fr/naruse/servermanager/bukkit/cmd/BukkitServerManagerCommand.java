@@ -15,6 +15,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public class BukkitServerManagerCommand implements CommandExecutor, TabCompleter
 
         if(args.length == 0){
             this.sendMessage(sender, "§6/§7sm inventory");
-            this.sendMessage(sender, "§6/§7sm createServer <Template name>");
+            this.sendMessage(sender, "§6/§7sm createServer <Template name> <[File-Manager]>");
             this.sendMessage(sender, "§6/§7sm shutdown <Server name, -All>");
             this.sendMessage(sender, "§6/§7sm insertCommand <Server name> <Command>");
             return this.sendMessage(sender, "§6/§7sm status <-ls>");
@@ -75,11 +76,20 @@ public class BukkitServerManagerCommand implements CommandExecutor, TabCompleter
 
         // CREATE SERVER
         if(args[0].equalsIgnoreCase("createServer")){
-            if(args.length != 2){
-                return this.sendMessage(sender, "§6/§7sm createServer <Template name>");
+            if(args.length < 2){
+                return this.sendMessage(sender, "§6/§7sm createServer <Template name> <[File-Manager]>");
             }
-            String templateName = args[1];
-            this.pl.getServerManager().getConnectionManager().sendPacket(new PacketCreateServer(templateName));
+            PacketCreateServer packet = new PacketCreateServer(args[1]);
+            if(args.length > 2){
+                Optional<Server> optionalServer = ServerList.getByNameOptional(args[2]);
+                if(optionalServer.isPresent()){
+                    optionalServer.get().sendPacket(packet);
+                }else{
+                    return sendMessage(sender, "§cServer '"+args[2]+"' not found.");
+                }
+            }else{
+                this.pl.getServerManager().getConnectionManager().sendPacket(packet);
+            }
             return this.sendMessage(sender, "§aCreation packet sent.");
         }
 
