@@ -34,14 +34,16 @@ public class PacketManager {
                 boolean loop = false;
                 int size = (int) ServerList.getAll().stream().filter(server -> server.getCoreServerType().is(CoreServerType.FILE_MANAGER)).count();
 
-                if (size == 1) {
-                    ServerList.getAll().forEach(server -> server.sendPacket(new PacketShutdown()));
-                    ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
-                    ServerManagerLogger.warn("Why can't I find File-Manager ? " + size + " servers are still alive! How is that possible ?");
-                    ServerManagerLogger.warn("You shouldn't start server without using File-Manager!");
-                    ServerManagerLogger.warn("Waiting for Servers to stop...");
-                    ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
-                    loop = true;
+                if (size == 0) {
+                    if(ServerList.getAll(false).size() != 0){
+                        ServerList.getAll(false).forEach(server -> server.sendPacket(new PacketShutdown()));
+                        ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
+                        ServerManagerLogger.warn("Why can't I find File-Manager ? " + size + " servers are still alive! How is that possible ?");
+                        ServerManagerLogger.warn("You shouldn't start server without using File-Manager!");
+                        ServerManagerLogger.warn("Waiting for Servers to stop...");
+                        ServerManagerLogger.warn("---------------------------------------------------------------------------------------------------------------------------");
+                        loop = true;
+                    }
                 } else {
                     for (Server server : ServerList.findServer(CoreServerType.FILE_MANAGER)) {
                         server.sendPacket(new PacketShutdown());
