@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.core.config;
 
+import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.Utils;
 
 import java.io.*;
@@ -7,9 +8,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Configuration {
@@ -42,6 +41,10 @@ public class Configuration {
         }
     }
 
+    public Configuration(Map<String, Object> map) {
+        this(Utils.GSON.toJson(map));
+    }
+
     private InputStream defaultResourceStream;
     public Configuration(File file, InputStream defaultResourceStream) {
         this.file = file;
@@ -56,6 +59,9 @@ public class Configuration {
                 break;
             } catch (Exception e) {
                 currentCharset++;
+                if(ServerManagerLogger.isDebugMode()){
+                    e.printStackTrace();
+                }
             }
         }
         ConfigurationManager.LOGGER.info("'"+file.getName()+"' loaded");
@@ -73,6 +79,9 @@ public class Configuration {
                 break;
             } catch (Exception e) {
                 currentCharset++;
+                if(ServerManagerLogger.isDebugMode()){
+                    e.printStackTrace();
+                }
             }
         }
         ConfigurationManager.LOGGER.info("'"+file.getName()+"' loaded");
@@ -159,14 +168,6 @@ public class Configuration {
                 fillMap((Map<String, Object>) map.get(key), (Map<String, Object>) resourceMap.get(key));
             }
         }
-
-        for (String key : new HashSet<>(map.keySet())) {
-            if(!resourceMap.containsKey(key)){
-                map.remove(key);
-            }else if(map.get(key) instanceof Map){
-                fillMap((Map<String, Object>) map.get(key), (Map<String, Object>) resourceMap.get(key));
-            }
-        }
     }
 
     public <T> T get(String path){
@@ -201,6 +202,10 @@ public class Configuration {
 
     public ConfigurationSection getSection(String path){
         return new ConfigurationSection(path);
+    }
+
+    public ConfigurationSectionMain getMainSection(){
+        return new ConfigurationSectionMain(this);
     }
 
     public void save(){
@@ -243,7 +248,7 @@ public class Configuration {
 
     public class ConfigurationSection {
 
-        private final String initialPath;
+        protected String initialPath;
         private ConfigurationSection section;
 
         public ConfigurationSection(ConfigurationSection section, String initialPath) {
@@ -295,6 +300,17 @@ public class Configuration {
             return new ConfigurationSection(this, path);
         }
 
+        public List<Configuration> getSectionList(String path){
+            List<Configuration> list = new ArrayList<>();
+            Object sectionObj = this.get(path);
+            if(sectionObj instanceof ArrayList){
+                ((ArrayList<Map<String, Object>>) sectionObj).forEach(hashMap -> list.add(new Configuration(hashMap)));
+            }else{
+                return null;
+            }
+            return list;
+        }
+
         public Map<String, Object> getAll(){
             if(this.section != null){
                 return section.get(initialPath);
@@ -305,6 +321,55 @@ public class Configuration {
 
         public String getInitialPath() {
             return initialPath;
+        }
+    }
+
+    public class ConfigurationSectionMain extends ConfigurationSection {
+
+        private final Configuration configuration;
+
+        public ConfigurationSectionMain(Configuration configuration) {
+            super(null, null);
+            this.configuration = configuration;
+        }
+
+        @Override
+        public <T> T get(String path) {
+            return this.configuration.get(path);
+        }
+
+        @Override
+        public int getInt(String path) {
+            return this.configuration.getInt(path);
+        }
+
+        @Override
+        public long getLong(String path) {
+            return this.configuration.getLong(path);
+        }
+
+        @Override
+        public void set(String path, Object o) {
+            this.configuration.set(path, o);
+        }
+
+        @Override
+        public boolean contains(String path) {
+            return this.configuration.contains(path);
+        }
+
+        @Override
+        public ConfigurationSection getSection(String path) {
+            return this.configuration.getSection(path);
+        }
+
+        @Override
+        public List<Configuration> getSectionList(String path) {
+            return super.getSectionList(path);
+        }
+
+        public void setInitialPath(String newInitialPath){
+            this.initialPath = newInitialPath;
         }
     }
 }

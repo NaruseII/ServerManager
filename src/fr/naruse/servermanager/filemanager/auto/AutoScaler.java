@@ -1,10 +1,12 @@
-package fr.naruse.servermanager.filemanager;
+package fr.naruse.servermanager.filemanager.auto;
 
 import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.filemanager.FileManager;
+import fr.naruse.servermanager.filemanager.ServerProcess;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -37,6 +37,14 @@ public class ConfigurationManager {
 
         LOGGER.info("Loading server template configurations...");
 
+        this.loadTemplates();
+
+        this.serverManager.getPlugin().callEvent(new ConfigurationLoadedEvent(this.serverTemplateFolder, this.config, this.serverTemplateMap));
+
+        LOGGER.info(this.serverTemplateMap.size()+" server template configuration loaded");
+    }
+
+    public void loadTemplates(){
         if(this.serverTemplateFolder.listFiles() != null){
             for (File file : this.serverTemplateFolder.listFiles()) {
                 if(!file.getName().endsWith(".json")){
@@ -46,10 +54,6 @@ public class ConfigurationManager {
                 }
             }
         }
-
-        this.serverManager.getPlugin().callEvent(new ConfigurationLoadedEvent(this.serverTemplateFolder, this.config, this.serverTemplateMap));
-
-        LOGGER.info(this.serverTemplateMap.size()+" server template configuration loaded");
     }
 
     public void shutdown() {

@@ -1,14 +1,13 @@
 package fr.naruse.servermanager.filemanager;
 
-import com.diogonunes.jcolor.Attribute;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.config.Configuration;
-import fr.naruse.servermanager.core.connection.packet.PacketExecuteConsoleCommand;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
-import fr.naruse.servermanager.core.server.Server;
-import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.core.utils.Utils;
+import fr.naruse.servermanager.filemanager.auto.AutoKiller;
+import fr.naruse.servermanager.filemanager.auto.AutoScaler;
+import fr.naruse.servermanager.filemanager.command.FileManagerCommand;
 import fr.naruse.servermanager.filemanager.event.FileManagerEventListener;
 import fr.naruse.servermanager.filemanager.packet.FileManagerProcessPacketListener;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
@@ -117,7 +116,16 @@ public class FileManager {
                 String baseName = configuration.get("baseName");
 
                 if(autoScalerSection.contains(baseName)){
-                    sectionSet.add(autoScalerSection.getSection(baseName));
+                    List<Configuration> list = autoScalerSection.getSectionList(baseName);
+                    if(list == null){
+                        sectionSet.add(autoScalerSection.getSection(baseName));
+                    }else{
+                        for (Configuration config : list) {
+                            Configuration.ConfigurationSectionMain section = config.getMainSection();
+                            section.setInitialPath(baseName);
+                            sectionSet.add(section);
+                        }
+                    }
                 }
             });
 
@@ -153,152 +161,7 @@ public class FileManager {
             }
         });
 
-
-        Scanner scanner = new Scanner(System.in);
-        while (true){
-            String line;
-            try{
-                line = scanner.nextLine();
-            }catch (NoSuchElementException e){
-                continue;
-            }
-
-            String[] args = line.split(" ");
-            if(line.startsWith("stop")){
-
-                System.exit(0);
-            }else if(line.startsWith("shutdown")){
-                if(args.length == 1){
-                    ServerManagerLogger.error("shutdown <Server name>");
-                }
-                if(args[1].equalsIgnoreCase("all")){
-                    for (String s : new HashSet<>(this.serverProcesses.keySet())) {
-                        this.shutdownServer(s);
-                    }
-                }else{
-                    for (String s : new HashSet<>(this.serverProcesses.keySet())) {
-                        if(s.startsWith(args[1])){
-                            this.shutdownServer(s);
-                        }
-                    }
-                }
-            }else if(line.startsWith("generateSecretKey")){
-                ServerManagerLogger.info("Generation...");
-                ServerManagerLogger.info("Key generated: "+this.serverManager.generateNewSecretKey());
-            }else if(line.startsWith("create")){
-                if(args.length == 1){
-                    ServerManagerLogger.error("create <Template Name>");
-                }else{
-                    int count = 1;
-                    if(args.length == 3){
-                        try{
-                            count = Integer.valueOf(args[2]);
-                        }catch (Exception e){
-                            ServerManagerLogger.error("create <Template Name> <[count]>");
-                            continue;
-                        }
-                    }
-                    for (int i = 0; i < count; i++) {
-                        this.createServer(args[1]);
-                    }
-                }
-            }else if(line.startsWith("status")){
-                serverManager.printStatus();
-            }else if(line.startsWith("scale")){
-                if(this.autoScaler != null){
-                    this.autoScaler.scale();
-                    ServerManagerLogger.info("Scaled");
-                }
-            }else if(line.startsWith("insertCommand")){
-                if(args.length <= 2){
-                    ServerManagerLogger.error("insertCommand <Server name> <Cmd>");
-                }else{
-                    ServerProcess serverProcess = null;
-                    for (String s : new HashSet<>(this.serverProcesses.keySet())) {
-                        if(s.startsWith(args[1])) {
-                            serverProcess = this.serverProcesses.get(s);
-                            break;
-                        }
-                    }
-                    if(serverProcess == null){
-                        ServerManagerLogger.error("Server '"+args[1]+"' not found");
-                    }else{
-                        StringBuilder stringBuilder = new StringBuilder(" ");
-                        for (int i = 2; i < args.length; i++) {
-                            stringBuilder.append(" ").append(args[i]);
-                        }
-                        String command = stringBuilder.toString().replace("  ", "");
-                        Server server = ServerList.getByName(serverProcess.getName());
-                        if(server == null){
-                            ServerManagerLogger.error("Server '"+args[1]+"' is starting...");
-                        }else{
-                            server.sendPacket(new PacketExecuteConsoleCommand(command));
-                            ServerManagerLogger.info("Command sent");
-                        }
-                    }
-                }
-            }else if(line.startsWith("deleteUnUsedLogs")){
-                File file = new File("serverLogs");
-                if(file.exists() && file.listFiles() != null){
-                    for (File f : file.listFiles()) {
-                        if(!this.serverProcesses.keySet().contains(f.getName())){
-                            Utils.delete(f);
-                        }
-                    }
-                }
-                ServerManagerLogger.info("Done");
-            }else if(line.startsWith("screen -l")){
-                ServerManagerLogger.info(Attribute.CYAN_TEXT(), "Screens:");
-                for (String name : new HashSet<>(serverProcesses.keySet())) {
-                    ServerManagerLogger.info(Attribute.MAGENTA_TEXT(), name);
-                }
-                ServerManagerLogger.info("Done");
-            }else if(line.startsWith("viewScreen") && args.length > 0){
-                ServerProcess serverProcess = null;
-                for (String s : new HashSet<>(this.serverProcesses.keySet())) {
-                    if(s.startsWith(args[1])) {
-                        serverProcess = this.serverProcesses.get(s);
-                        break;
-                    }
-                }
-
-                if(serverProcess == null){
-                    ServerManagerLogger.error("Could not find process '"+args[2]+"'");
-                }
-
-                if(serverProcess.getScreen().isAttached()){
-                    serverProcess.getScreen().detachFromScreen();
-                }else{
-                    for (ServerProcess process : new HashSet<>(serverProcesses.values())) {
-                        if(process.getScreen().isAttached()){
-                            process.getScreen().detachFromScreen();
-                        }
-                    }
-                    serverProcess.getScreen().attachToScreen();
-                }
-            }else if(line.startsWith("detach")){
-                for (ServerProcess process : new HashSet<>(serverProcesses.values())) {
-                    if(process.getScreen().isAttached()){
-                        process.getScreen().detachFromScreen();
-                    }
-                }
-            }else{
-                ServerManagerLogger.info(Attribute.CYAN_TEXT(), "Available commands:");
-                ServerManagerLogger.info("");
-                ServerManagerLogger.info("-> stop (Stop server)");
-                ServerManagerLogger.info("-> shutdown <Server name, All>");
-                ServerManagerLogger.info("-> status");
-                ServerManagerLogger.info("-> generateSecretKey");
-                ServerManagerLogger.info("-> create <Template Name> <[count]>");
-                ServerManagerLogger.info("-> scale");
-                ServerManagerLogger.info("-> insertCommand <Server name> <Cmd>");
-                ServerManagerLogger.info("-> deleteUnUsedLogs");
-                ServerManagerLogger.info("-> screen -l (List all processes)");
-                ServerManagerLogger.info("-> viewScreen <Process Name> (Attach on screen)");
-                ServerManagerLogger.info("-> detach (Detach from current screen)");
-                ServerManagerLogger.info("");
-            }
-        }
+        new FileManagerCommand(this).run();
     }
 
     public void createServer(String templateName){
@@ -375,5 +238,9 @@ public class FileManager {
 
     public Set<ServerProcess> getAllServerProcess(){
         return new HashSet<>(this.serverProcesses.values());
+    }
+
+    public Map<String, ServerProcess> getServerProcessesMap() {
+        return serverProcesses;
     }
 }

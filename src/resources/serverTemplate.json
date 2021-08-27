@@ -1,6 +1,7 @@
 {
   "baseName": "example",
   "randomName": true,
+  "nameProperty": "RANDOM_4_CHAR",
   "pathTemplate": "/home/server-manager/template/Server-example-1.12.2",
   "pathTarget": "/home/server-manager/servers/",
   "startFileName": "spigot-1.12.2.jar",
@@ -13,7 +14,8 @@
     "editServerPort": true,
     "editServerName": true,
     "editMaxPlayers": true,
-    "maxPlayers": 50
+    "maxPlayers": 50,
+    "noGui": true
   },
   "config.yml": {
     "editMaxPlayers": true,

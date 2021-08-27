@@ -5,15 +5,18 @@ import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.filemanager.FileManager;
+import fr.naruse.servermanager.filemanager.NameProperty;
 import fr.naruse.servermanager.filemanager.ServerProcess;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class CreateServerTask {
 
+    private static final ConcurrentMap<String, Integer> nameCountByTemplateMap = new ConcurrentHashMap<>();
     private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("CreateServerTask");
 
     public CreateServerTask(FileManager fileManager, String templateName) {
@@ -25,17 +28,24 @@ public class CreateServerTask {
         }
 
         String name = template.get("baseName");
-        int repeat = 0;
-        do{
-            boolean random = template.get("randomName");
-            if(repeat >= 6){
-                name += "-" +Utils.randomLetters(12)+"-"+Utils.randomLetters(12);
-                break;
-            }else if(random){
+
+        boolean random = template.get("randomName");
+        NameProperty nameProperty = NameProperty.valueOf(template.get("nameProperty"));
+
+        if(random){
+            if((nameProperty == null || nameProperty == NameProperty.RANDOM_4_CHAR)){
                 name += "-" +Utils.randomLetters(4)+"-"+Utils.randomLetters(4);
+            }else if(nameProperty == NameProperty.RANDOM_8_CHAR){
+                name += "-" +Utils.randomLetters(8)+"-"+Utils.randomLetters(8);
+            }else if(nameProperty == NameProperty.FROM_0){
+                int count = this.nameCountByTemplateMap.getOrDefault(templateName, 0)+1;
+                this.nameCountByTemplateMap.put(templateName, count);
+                name += "-" +count;
             }
-            repeat++;
-        }while (fileManager.getServerProcess(name) != null);
+        }else if(fileManager.getServerProcess(name) == null){
+            name += "-" +Utils.randomLetters(12)+"-"+Utils.randomLetters(12);
+        }
+
         if(fileManager.getServerProcess(name) != null){
             LOGGER.error("Could not create '"+templateName+"' all names are used! This isn't supposed to happen unless you create "+((12*26*26*2)*2+(4*26*26*2)*2)+" servers!");
             return;
@@ -84,6 +94,7 @@ public class CreateServerTask {
         boolean isBatchFile = template.get("isBatchFile");
         boolean isShellFile = template.get("isShellFile");
         boolean isJarFile = template.get("isJarFile");
+        boolean noGui = template.getSection("server.properties").get("noGui");
 
         try {
             this.editVanillaConfig(template, new File(serverFolder, "server.properties"), name);
@@ -106,6 +117,10 @@ public class CreateServerTask {
                 args.addAll(Arrays.asList(template.get("additionalStartArgs").toString().split(" ")));
             }
             args.add(startFileName);
+
+            if(noGui){
+                args.add("nogui");
+            }
 
             processBuilder = new ProcessBuilder(args);
             processBuilder.directory(serverFolder);

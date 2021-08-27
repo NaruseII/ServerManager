@@ -197,6 +197,10 @@ public class ServerManagerLogger {
         }
     }
 
+    public static boolean isDebugMode(){
+        return debug;
+    }
+
     public static class Logger {
 
         private String tag;
