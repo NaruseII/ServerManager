@@ -2,17 +2,23 @@ package fr.naruse.servermanager.packetmanager;
 
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
-import fr.naruse.servermanager.core.database.Database;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.packetmanager.command.PacketManagerCommand;
-import fr.naruse.servermanager.packetmanager.packet.PacketManagerProcessPacketListener;
+import fr.naruse.servermanager.packetmanager.database.Database;
+import fr.naruse.servermanager.packetmanager.packet.PacketManagerEventListener;
+import fr.naruse.servermanager.packetmanager.utils.Metrics;
 
 import java.io.File;
 
 public class PacketManager {
+
+    private static PacketManager instance;
+    public static PacketManager get() {
+        return instance;
+    }
 
     public static void main(String[] args) {
         long millis  = System.currentTimeMillis();
@@ -24,11 +30,11 @@ public class PacketManager {
     }
 
     private final ServerManager serverManager;
-    private final Database database = new Database();
+    private final Database database;
 
     public PacketManager(long millis) {
-
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.PACKET_MANAGER, new File("configs"), 4848, "packet-manager", 4848)) {
+        instance = this;
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.PACKET_MANAGER, new File("configs"), "packet-manager", 4848)) {
             @Override
             public void shutdown() {
                 boolean loop = false;
@@ -62,10 +68,15 @@ public class PacketManager {
                         e.printStackTrace();
                     }
                 }
+
+                database.save();
                 super.shutdown();
             }
         };
-        this.serverManager.registerPacketProcessing(new PacketManagerProcessPacketListener(this));
+
+        this.database = new Database();
+
+        this.serverManager.registerEventListener(new PacketManagerEventListener());
 
         new Metrics(serverManager, 11607);
 

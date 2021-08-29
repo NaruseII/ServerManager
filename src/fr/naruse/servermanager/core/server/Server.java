@@ -19,11 +19,13 @@ public class Server {
     private final CoreServerType coreServerType;
     private int serverManagerPort;
     private int port;
+    private String host;
 
-    public Server(String name, int port, int serverManagerPort, CoreServerType coreServerType) {
+    public Server(String name, int port, String host, int serverManagerPort, CoreServerType coreServerType) {
         this.serverManager = ServerManager.get();
         this.name = name;
         this.port = port;
+        this.host = host;
         this.serverManagerPort = serverManagerPort;
         this.coreServerType = coreServerType;
     }
@@ -65,7 +67,7 @@ public class Server {
     }
 
     public InetAddress getAddress() {
-        return Utils.getLocalHost();
+        return Utils.findHost(this.host, false);
     }
 
     @Override

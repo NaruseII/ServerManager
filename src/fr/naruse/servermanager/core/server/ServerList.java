@@ -16,12 +16,12 @@ public class ServerList {
 
     private static final Map<String, Server> map = new HashMap<>();
 
-    public static Server createNewServer(String name, int port, int serverManagerPort, CoreServerType coreServerType){
+    public static Server createNewServer(String name, int port, String host, int serverManagerPort, CoreServerType coreServerType){
         if(map.containsKey(name)){
             return null;
         }
 
-        Server server = new Server(name, port, serverManagerPort, coreServerType);
+        Server server = new Server(name, port, host, serverManagerPort, coreServerType);
         if(server.equals(ServerManager.get().getCurrentServer())){
             return null;
         }
@@ -80,12 +80,16 @@ public class ServerList {
         return findServer(new CoreServerType[]{coreServerType}, sortType, nameStartsWith, predicate);
     }
 
+    public static Optional<Server> findServer(CoreServerType[] coreServerTypes, SortType sortType, String nameStartsWith){
+        return findServer(coreServerTypes, sortType, nameStartsWith, server -> true);
+    }
+
     public static Optional<Server> findServer(CoreServerType[] coreServerTypes, SortType sortType, String nameStartsWith, Predicate<Server> predicate){
         return getAll().stream().filter(server -> server.getCoreServerType().is(coreServerTypes) && server.getName().startsWith(nameStartsWith)).sorted((o1, o2) -> {
             if(o1.getData().getPlayerSize() > o2.getData().getPlayerSize()){
-                return sortType == SortType.FIND_MOST_POPULATED ? 1 : -1;
-            }else if(o1.getData().getPlayerSize() < o2.getData().getPlayerSize()){
                 return sortType == SortType.FIND_MOST_POPULATED ? -1 : 1;
+            }else if(o1.getData().getPlayerSize() < o2.getData().getPlayerSize()){
+                return sortType == SortType.FIND_MOST_POPULATED ? 1 : -1;
             }
             return 0;
         }).filter(predicate).findFirst();
@@ -189,6 +193,17 @@ public class ServerList {
             set.add(ServerManager.get().getCurrentServer());
         }
         return set;
+    }
+
+    public static List<Server> sort(List<Server> list, SortType sortType){
+        return list.stream().sorted((o1, o2) -> {
+            if(o1.getData().getPlayerSize() > o2.getData().getPlayerSize()){
+                return sortType == SortType.FIND_MOST_POPULATED ? 1 : -1;
+            }else if(o1.getData().getPlayerSize() < o2.getData().getPlayerSize()){
+                return sortType == SortType.FIND_MOST_POPULATED ? -1 : 1;
+            }
+            return 0;
+        }).collect(Collectors.toList());
     }
 
     public static Set<String> getAllNames(){

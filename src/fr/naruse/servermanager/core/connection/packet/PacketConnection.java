@@ -16,11 +16,13 @@ public class PacketConnection implements IPacket {
 
     private String name;
     private int port;
+    private String host;
     private int serverManagerPort;
     private CoreServerType coreServerType;
     public PacketConnection(Server server) {
         this.name = server.getName();
         this.port = server.getPort();
+        this.host = server.getAddress().getHostAddress();
         this.serverManagerPort = server.getServerManagerPort();
         this.coreServerType = server.getCoreServerType();
     }
@@ -28,6 +30,7 @@ public class PacketConnection implements IPacket {
     @Override
     public void write(DataOutputStream stream) throws IOException {
         stream.writeInt(this.port);
+        stream.writeUTF(this.host);
         stream.writeInt(this.serverManagerPort);
         stream.writeUTF(this.name);
         stream.writeUTF(this.coreServerType.name());
@@ -36,6 +39,7 @@ public class PacketConnection implements IPacket {
     @Override
     public void read(DataInputStream stream) throws IOException {
         this.port = stream.readInt();
+        this.host = stream.readUTF();
         this.serverManagerPort = stream.readInt();
         this.name = stream.readUTF();
         this.coreServerType = CoreServerType.valueOf(stream.readUTF());
@@ -43,6 +47,6 @@ public class PacketConnection implements IPacket {
 
     @Override
     public void process(ServerManager serverManager) {
-        ServerList.createNewServer(this.name, this.port, this.serverManagerPort, this.coreServerType);
+        ServerList.createNewServer(this.name, this.port, this.host, this.serverManagerPort, this.coreServerType);
     }
 }

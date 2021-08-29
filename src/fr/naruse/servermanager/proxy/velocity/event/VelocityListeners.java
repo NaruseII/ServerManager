@@ -4,16 +4,12 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
-import fr.naruse.servermanager.core.CoreServerType;
-import fr.naruse.servermanager.core.api.events.IEvent;
-import fr.naruse.servermanager.core.api.events.server.ServerDeleteEvent;
-import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
-import fr.naruse.servermanager.core.connection.packet.PacketProxyRequestConfigWrite;
+import fr.naruse.servermanager.core.api.events.server.ServerPostRegisterEvent;
 import fr.naruse.servermanager.core.server.Server;
-import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.proxy.common.ProxyListeners;
 import fr.naruse.servermanager.proxy.velocity.api.ServerManagerVelocityEvent;
 import fr.naruse.servermanager.proxy.velocity.main.VelocityManagerPlugin;
+import fr.naruse.servermanager.proxy.velocity.server.VelocityServerHandler;
 
 public class VelocityListeners {
 
@@ -33,6 +29,8 @@ public class VelocityListeners {
             server.getData().removeStatus(Server.Status.READY);
             server.getData().addStatus(Server.Status.ALLOCATED);
         }
+
+        VelocityServerHandler.reloadServers(this.pl, false);
     }
 
     @Subscribe
@@ -45,10 +43,16 @@ public class VelocityListeners {
             server.getData().removeStatus(Server.Status.ALLOCATED);
             server.getData().addStatus(Server.Status.READY);
         }
+
+        VelocityServerHandler.reloadServers(this.pl, false);
     }
 
     @Subscribe
-    public void onServerManagerEvent(ServerManagerVelocityEvent event){
-        ProxyListeners.onServerManagerEvent(event.getEvent());
+    public void onServerRegisterEvent(ServerManagerVelocityEvent e) {
+        if(e.getEvent() instanceof ServerPostRegisterEvent){
+            if(ProxyListeners.onServerRegisterEvent((ServerPostRegisterEvent) e.getEvent())){
+                VelocityServerHandler.reloadServers(this.pl);
+            }
+        }
     }
 }

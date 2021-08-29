@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.bukkit.inventory;
 
+import fr.naruse.servermanager.core.CoreData;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.server.Server;
@@ -26,7 +27,8 @@ public class InventoryServerList extends AbstractInventory {
             this.addServer(server);
         }
 
-        this.addServer(new Server("packet-manager", ServerManager.get().getCoreData().getServerManagerPort(), ServerManager.get().getCoreData().getServerManagerPort(), CoreServerType.PACKET_MANAGER));
+        CoreData coreData = ServerManager.get().getCoreData();
+        this.addServer(new Server("packet-manager", coreData.getServerManagerPort(), coreData.getPacketManagerHost(), coreData.getServerManagerPort(), CoreServerType.PACKET_MANAGER));
 
         inventory.setItem(inventory.getSize()-1, buildItem(Material.BARRIER, 0, "§cBack", false, null));
     }

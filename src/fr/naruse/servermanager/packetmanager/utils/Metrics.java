@@ -1,4 +1,4 @@
-package fr.naruse.servermanager.packetmanager;
+package fr.naruse.servermanager.packetmanager.utils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

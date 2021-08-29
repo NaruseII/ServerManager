@@ -1,6 +1,7 @@
 package fr.naruse.servermanager.bukkit.inventory;
 
 import com.google.common.collect.Lists;
+import fr.naruse.servermanager.core.CoreData;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.server.Server;
@@ -183,7 +184,8 @@ public abstract class AbstractInventory implements Listener {
         String name = ChatColor.stripColor(item.getItemMeta().getDisplayName());
         Server server = ServerList.getByName(name);
         if(name.equals("packet-manager")){
-            server = new Server("packet-manager", ServerManager.get().getCoreData().getServerManagerPort(), ServerManager.get().getCoreData().getServerManagerPort(), CoreServerType.PACKET_MANAGER);
+            CoreData coreData = ServerManager.get().getCoreData();
+            server = new Server("packet-manager", coreData.getServerManagerPort(), coreData.getPacketManagerHost(), coreData.getServerManagerPort(), CoreServerType.PACKET_MANAGER);
         }
         return server;
     }

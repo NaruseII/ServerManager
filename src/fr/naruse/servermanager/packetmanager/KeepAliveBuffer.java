@@ -18,7 +18,7 @@ public class KeepAliveBuffer {
     public static void put(PacketKeepAlive packet){
         Server server = ServerList.getByName(packet.getName());
         if(server == null){
-            server = ServerList.createNewServer(packet.getName(), packet.getPort(), packet.getServerManagerPort(), packet.getCoreServerType());
+            server = ServerList.createNewServer(packet.getName(), packet.getPort(), packet.getAddress(), packet.getServerManagerPort(), packet.getCoreServerType());
             if(server == null){
                 return;
             }

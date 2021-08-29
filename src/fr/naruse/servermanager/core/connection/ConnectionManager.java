@@ -29,16 +29,13 @@ public class ConnectionManager {
 
     private final ServerManager serverManager;
 
-    private InetAddress inetAddress;
     private int localPort;
 
     public ConnectionManager(ServerManager serverManager) {
         LOGGER.info("Starting ConnectionManager...");
         this.serverManager = serverManager;
 
-        this.inetAddress = Utils.getLocalHost();
-
-        LOGGER.info("Local address is '"+this.inetAddress.getHostAddress()+"'");
+        LOGGER.info("Packet-Manager is '"+serverManager.getCoreData().getPacketManagerHost()+":"+serverManager.getCoreData().getPacketManagerPort()+"'");
 
         LOGGER.info("Starting server thread...");
         this.startServerThread();
@@ -51,16 +48,23 @@ public class ConnectionManager {
             try {
                 boolean flag = this.serverManager.getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER);
 
-                ServerSocket serverSocket = new ServerSocket(flag ? this.serverManager.getCoreData().getServerPort() : this.serverManager.getCoreData().getServerManagerPort());
+                ServerSocket serverSocket;
+                if(flag){
+                    serverSocket = new ServerSocket(flag ? this.serverManager.getCoreData().getPacketManagerPort() : this.serverManager.getCoreData().getServerManagerPort(), 50, InetAddress.getByName("0.0.0.0"));
+                    LOGGER.info("Binding on address '"+serverSocket.getInetAddress().getHostAddress()+"'");
+                }else{
+                    serverSocket = new ServerSocket(flag ? this.serverManager.getCoreData().getPacketManagerPort() : this.serverManager.getCoreData().getServerManagerPort());
+                }
+
                 LOGGER.info((flag ? "Server":"Client")+" thread started");
-                LOGGER.info("Listening on port "+(this.localPort = serverSocket.getLocalPort()));
-                if(this.serverManager.getCoreData().getServerPort() == 0){
-                    this.serverManager.getCoreData().setServerPort(this.localPort);
+                LOGGER.info("Binding on port "+(this.localPort = serverSocket.getLocalPort()));
+                if(this.serverManager.getCoreData().getPacketManagerPort() == 0){
+                    this.serverManager.getCoreData().setPacketManagerPort(this.localPort);
                 }
 
                 this.serverManager.getCurrentServer().setServerManagerPort(this.localPort);
                 if(!flag){
-                    this.serverManager.getConnectionManager().sendPacket(new PacketConnection(this.serverManager.getCurrentServer()));
+                    this.sendPacket(new PacketConnection(this.serverManager.getCurrentServer()));
                 }
 
                 while (true){
@@ -103,16 +107,16 @@ public class ConnectionManager {
     }
 
     public void sendPacket(Server server, IPacket packet){
-        this.sendPacket(packet, this.inetAddress, server.getServerManagerPort());
+        this.sendPacket(packet, server.getAddress(), server.getServerManagerPort());
     }
 
     public void sendPacket(Set<Server> servers, IPacket packet){
-        servers.forEach(server -> this.sendPacket(packet, this.inetAddress, server.getServerManagerPort()));
+        servers.forEach(server -> this.sendPacket(packet, server.getAddress(), server.getServerManagerPort()));
     }
 
     // to Packet-Manager
     public void sendPacket(IPacket packet){
-        this.sendPacket(packet, this.inetAddress, this.serverManager.getCoreData().getServerPort());
+        this.sendPacket(packet, Utils.getPacketManagerHost(), this.serverManager.getCoreData().getPacketManagerPort());
     }
 
     private int retryCount = 0;
@@ -149,7 +153,7 @@ public class ConnectionManager {
             } catch (Exception e) {
                 if(e.getClass().isAssignableFrom(ConnectException.class)){
 
-                    if(port == this.serverManager.getCoreData().getServerPort()){
+                    if(port == this.serverManager.getCoreData().getPacketManagerPort()){
                         this.retryCount++;
 
                         if(this.serverManager.isShuttingDowned()){
@@ -162,7 +166,11 @@ public class ConnectionManager {
                             LOGGER.error("");
                             LOGGER.warn("Shutting down...");
                             ServerProcess.BE_PATIENT = true;
-                            System.exit(1);
+                            if(!this.serverManager.getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER, CoreServerType.FILE_MANAGER)){
+                                this.serverManager.getPlugin().shutdown();
+                            }else{
+                                System.exit(1);
+                            }
                         }else if(this.retryCount <= count){
                             LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
                             LOGGER.warn("Retrying... ("+this.retryCount+"/"+count+")");
@@ -170,7 +178,6 @@ public class ConnectionManager {
                     }else{
                         LOGGER.error("Couldn't send packet to ["+inetAddress.getHostAddress()+":"+port+"] !");
                     }
-
                 }else{
                     e.printStackTrace();
                 }

@@ -6,15 +6,18 @@ public class CoreData {
 
     private final CoreServerType coreServerType;
     private final File dataFolder;
-    private int serverPort;
+    private String packetManagerHost;
+    private int packetManagerPort;
     private int serverManagerPort = 0;
     private String serverName;
     private int port;
+    private String currentAddress;
 
-    public CoreData(CoreServerType coreServerType, File dataFolder, int serverPort, String serverName, int port) {
+    public CoreData(CoreServerType coreServerType, File dataFolder, String serverName, int port) {
         this.coreServerType = coreServerType;
         this.dataFolder = dataFolder;
-        this.serverPort = serverPort;
+        this.packetManagerHost = "localhost";
+        this.packetManagerPort = 4848;
         this.serverName = serverName;
         this.port = port;
     }
@@ -31,8 +34,8 @@ public class CoreData {
         this.port = port;
     }
 
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
+    public void setPacketManagerPort(int packetManagerPort) {
+        this.packetManagerPort = packetManagerPort;
     }
 
     public String getServerName() {
@@ -51,7 +54,23 @@ public class CoreData {
         return dataFolder;
     }
 
-    public int getServerPort() {
-        return serverPort;
+    public int getPacketManagerPort() {
+        return packetManagerPort;
+    }
+
+    public String getPacketManagerHost() {
+        return packetManagerHost;
+    }
+
+    public void setPacketManagerHost(String packetManagerHost) {
+        this.packetManagerHost = packetManagerHost;
+    }
+
+    public String getCurrentAddress() {
+        return currentAddress;
+    }
+
+    public void setCurrentAddress(String currentAddress) {
+        this.currentAddress = currentAddress;
     }
 }

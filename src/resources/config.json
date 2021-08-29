@@ -4,7 +4,11 @@
   "debug": false,
   "startServerOnStart": {
   },
-  "serverPort": 4848,
+  "currentAddress": "localhost",
+  "packet-manager": {
+    "serverAddress": "localhost",
+    "serverPort": 4848
+  },
   "autoScaler": {
     "enabled": false
   },

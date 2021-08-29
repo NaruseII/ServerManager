@@ -48,7 +48,7 @@ public class SpongeManagerPlugin implements IServerManagerPlugin {
             return;
         }
 
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.SPONGE_MANAGER, this.getDataFolder(), 4848, null, Sponge.getServer().getBoundAddress().get().getPort()), this);
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.SPONGE_MANAGER, this.getDataFolder(), null, Sponge.getServer().getBoundAddress().get().getPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(Sponge.getServer().getMaxPlayers());
         this.serverManager.registerPacketProcessing(new SpongeProcessPacketListener(this));
 

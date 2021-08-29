@@ -9,6 +9,7 @@ import fr.naruse.servermanager.filemanager.FileManager;
 import fr.naruse.servermanager.filemanager.ServerProcess;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -40,6 +41,7 @@ public class AutoScaler {
 
         Set<Server> set = ServerList.getAll();
         Set<ServerProcess> serverProcesses = FileManager.get().getAllServerProcess();
+        Set<String> inCreationTemplates = new HashSet<>();
 
         for (Configuration.ConfigurationSection section : this.sectionSet) {
             Matches matches = Matches.valueOf(section.get("match"));
@@ -48,16 +50,23 @@ public class AutoScaler {
                 continue;
             }
 
-            if(matches.match(set.stream().filter(server -> server.getName().startsWith(section.getInitialPath())).collect(Collectors.toSet()), value)){
+            String baseName = section.getInitialPath();
+            if(inCreationTemplates.contains(baseName)){
+                continue;
+            }
 
-                long count = serverProcesses.stream().filter(process -> process.getName().startsWith(section.getInitialPath()) && ServerList.getByName(process.getName()) == null).count();
+            if(matches.match(set.stream().filter(server -> server.getName().startsWith(baseName)).collect(Collectors.toSet()), value)){
+
+                long count = serverProcesses.stream().filter(process -> process.getName().startsWith(baseName) && ServerList.getByName(process.getName()) == null).count();
                 if(count != 0){
                     continue;
                 }
 
                 for (int i = 0; i < section.getInt("startServers"); i++) {
-                    fileManager.createServer(section.getInitialPath());
+                    fileManager.createServer(baseName);
                 }
+
+                inCreationTemplates.add(baseName);
             }
         }
     }

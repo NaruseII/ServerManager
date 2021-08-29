@@ -2,6 +2,7 @@ package fr.naruse.servermanager.core;
 
 import com.diogonunes.jcolor.Attribute;
 import fr.naruse.servermanager.core.api.events.*;
+import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.config.ConfigurationManager;
 import fr.naruse.servermanager.core.connection.ConnectionManager;
 import fr.naruse.servermanager.core.connection.KeepAliveServerThread;
@@ -57,10 +58,14 @@ public class ServerManager {
             coreData.setServerName(this.configurationManager.getConfig().get("currentServerName"));
             ServerManagerLogger.info("Server name is '"+coreData.getServerName()+"'");
         }
-        coreData.setServerPort(this.configurationManager.getConfig().getInt("serverPort"));
+        Configuration configuration = this.configurationManager.getConfig();
+        Configuration.ConfigurationSection packetManagerSection = configuration.getSection("packet-manager");
+        coreData.setPacketManagerPort(packetManagerSection.getInt("serverPort"));
+        coreData.setPacketManagerHost(packetManagerSection.get("serverAddress"));
+        coreData.setCurrentAddress(configuration.get("currentAddress"));
 
 
-        this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getServerManagerPort(), coreData.getCoreServerType());
+        this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getCurrentAddress(), coreData.getServerManagerPort(), coreData.getCoreServerType());
         Packets.load();
         this.connectionManager = new ConnectionManager(this);
 
@@ -113,26 +118,20 @@ public class ServerManager {
 
     public void processPacket(IPacket packet){
         this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processAllPackets(packet));
-        if(packet instanceof PacketReloadProxyServers){
-            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processReloadProxyServers((PacketReloadProxyServers) packet));
-        }else if(packet instanceof PacketProxyRequestConfigWrite){
-            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processProxyRequestConfigWrite((PacketProxyRequestConfigWrite) packet));
-        }else if(packet instanceof PacketExecuteConsoleCommand){
+        if(packet instanceof PacketExecuteConsoleCommand){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processExecuteConsoleCommand((PacketExecuteConsoleCommand) packet));
         }else if(packet instanceof PacketSwitchServer){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processSwitchServer((PacketSwitchServer) packet));
         }else if(packet instanceof PacketBroadcast){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processBroadcast((PacketBroadcast) packet));
-        }else if(packet instanceof PacketDatabaseRequest){
-            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processDatabaseRequest((PacketDatabaseRequest) packet));
-        }else if(packet instanceof PacketDatabaseRequestUpdate){
-            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processDatabaseRequestUpdate((PacketDatabaseRequestUpdate) packet));
         }else if(packet instanceof PacketTeleportToLocation){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processTeleportToLocation((PacketTeleportToLocation) packet));
         }else if(packet instanceof PacketTeleportToPlayer){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processTeleportToPlayer((PacketTeleportToPlayer) packet));
         }else if(packet instanceof PacketKickPlayer){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processKickPlayer((PacketKickPlayer) packet));
+        }else if(packet instanceof PacketSendTemplate){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processSendTemplate((PacketSendTemplate) packet));
         }
     }
 

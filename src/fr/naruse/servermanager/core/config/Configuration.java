@@ -208,18 +208,26 @@ public class Configuration {
         return new ConfigurationSectionMain(this);
     }
 
-    public void save(){
-        if(this.json != null){
-            return;
-        }
+    public void save(File file){
         try{
-            String json = Utils.GSON.toJson(this.map);
-            FileWriter fileWriter = new FileWriter(this.file);
-            fileWriter.write(json);
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            FileWriter fileWriter = new FileWriter(file);
+            if(this.json != null){
+                fileWriter.write(this.json);
+            }else{
+                String json = Utils.GSON.toJson(this.map);
+                fileWriter.write(json);
+            }
             fileWriter.close();
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public void save(){
+        this.save(this.file);
     }
 
     public File getConfigFile() {
@@ -243,6 +251,10 @@ public class Configuration {
                 return StandardCharsets.UTF_16LE;
         }
         return null;
+    }
+
+    public String toJson() {
+        return Utils.GSON.toJson(this.map);
     }
 
 

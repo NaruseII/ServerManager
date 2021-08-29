@@ -1,6 +1,7 @@
 package fr.naruse.servermanager.filemanager.task;
 
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
@@ -39,8 +40,12 @@ public class CreateServerTask {
                 name += "-" +Utils.randomLetters(8)+"-"+Utils.randomLetters(8);
             }else if(nameProperty == NameProperty.FROM_0){
                 int count = this.nameCountByTemplateMap.getOrDefault(templateName, 0)+1;
-                this.nameCountByTemplateMap.put(templateName, count);
+
+                while (ServerList.getByNameOptional(name+"-"+count).isPresent()){
+                    count++;
+                }
                 name += "-" +count;
+                this.nameCountByTemplateMap.put(templateName, count);
             }
         }else if(fileManager.getServerProcess(name) == null){
             name += "-" +Utils.randomLetters(12)+"-"+Utils.randomLetters(12);
@@ -184,7 +189,11 @@ public class CreateServerTask {
         Map<String, Object> map = new HashMap<>();
         map.put("key", ServerManager.get().getConfigurationManager().getConfig().get("key"));
         map.put("currentServerName", serverName);
-        map.put("serverPort", ServerManager.get().getCoreData().getServerPort());
+        map.put("currentAddress", ServerManager.get().getCoreData().getCurrentAddress());
+        Map<String, Object> packetManagerMap = new HashMap<>();
+        packetManagerMap.put("serverPort", ServerManager.get().getCoreData().getPacketManagerPort());
+        packetManagerMap.put("serverAddress", ServerManager.get().getCoreData().getPacketManagerHost());
+        map.put("packet-manager", packetManagerMap);
 
         try {
             FileWriter fileWriter = new FileWriter(configJson);

@@ -38,7 +38,7 @@ public class PacketServerList implements IPacket {
             packetKeepAlive.read(stream);
             Server server = ServerList.getByName(packetKeepAlive.getName());
             if(server == null){
-                server = ServerList.createNewServer(packetKeepAlive.getName(), packetKeepAlive.getPort(), packetKeepAlive.getServerManagerPort(), packetKeepAlive.getCoreServerType());
+                server = ServerList.createNewServer(packetKeepAlive.getName(), packetKeepAlive.getPort(), packetKeepAlive.getAddress(), packetKeepAlive.getServerManagerPort(), packetKeepAlive.getCoreServerType());
             }
 
             if(server == null){

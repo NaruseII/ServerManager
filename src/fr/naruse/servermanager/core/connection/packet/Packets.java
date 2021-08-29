@@ -21,17 +21,16 @@ public class Packets {
         registerPacket("CREATE_SERVER", PacketCreateServer.class);
         registerPacket("SHUTDOWN", PacketShutdown.class);
         registerPacket("SERVER_LIST", PacketServerList.class);
-        registerPacket("RELOAD_PROXY_SERVERS", PacketReloadProxyServers.class);
-        registerPacket("PROXY_REQUEST_CONFIG_WRITE", PacketProxyRequestConfigWrite.class);
         registerPacket("EXECUTE_CONSOLE_COMMAND", PacketExecuteConsoleCommand.class);
         registerPacket("SWITCH_SERVER", PacketSwitchServer.class);
         registerPacket("BROADCAST", PacketBroadcast.class);
-        registerPacket("DATABASE_REQUEST", PacketDatabaseRequest.class);
-        registerPacket("DATABASE_ANSWER", PacketDatabaseAnswer.class);
-        registerPacket("DATABASE_REQUEST_UPDATE", PacketDatabaseRequestUpdate.class);
         registerPacket("TELEPORT_TO_LOCATION", PacketTeleportToLocation.class);
         registerPacket("TELEPORT_TO_PLAYER", PacketTeleportToPlayer.class);
         registerPacket("KICK_PLAYER", PacketKickPlayer.class);
+        registerPacket("DATABASE_UPDATE", PacketDatabase.Update.class);
+        registerPacket("DATABASE_DESTROY", PacketDatabase.Destroy.class);
+        registerPacket("DATABASE_UPDATE_CACHE", PacketDatabase.UpdateCache.class);
+        registerPacket("SEND_TEMPLATE", PacketSendTemplate.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

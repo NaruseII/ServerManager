@@ -12,7 +12,7 @@ import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.IServerManagerPlugin;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.api.events.IEvent;
-import fr.naruse.servermanager.core.connection.packet.PacketReloadProxyServers;
+import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.SLF4JCustomLogger;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.Updater;
@@ -20,6 +20,7 @@ import fr.naruse.servermanager.proxy.common.ProxyUtils;
 import fr.naruse.servermanager.proxy.velocity.api.ServerManagerVelocityEvent;
 import fr.naruse.servermanager.proxy.velocity.event.VelocityListeners;
 import fr.naruse.servermanager.proxy.velocity.packet.VelocityProcessPacketListener;
+import fr.naruse.servermanager.proxy.velocity.server.VelocityServerHandler;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -31,6 +32,8 @@ public class VelocityManagerPlugin implements IServerManagerPlugin {
     private final Logger logger;
     private final Path dataFolderPath;
     private ServerManager serverManager;
+
+    private Configuration templateConfiguration;
 
     @Inject
     public VelocityManagerPlugin(ProxyServer proxyServer, Logger logger, @DataDirectory  Path dataFolderPath) {
@@ -50,14 +53,14 @@ public class VelocityManagerPlugin implements IServerManagerPlugin {
             return;
         }
 
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.VELOCITY_MANAGER, this.dataFolderPath.toFile(), 4848, null, this.proxyServer.getBoundAddress().getPort()), this);
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.VELOCITY_MANAGER, this.dataFolderPath.toFile(), null, this.proxyServer.getBoundAddress().getPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(this.proxyServer.getConfiguration().getShowMaxPlayers());
 
         VelocityProcessPacketListener velocityProcessPacketListener = new VelocityProcessPacketListener(this);
         this.serverManager.registerPacketProcessing(velocityProcessPacketListener);
 
         ProxyUtils.load(this.dataFolderPath.toFile());
-        velocityProcessPacketListener.processReloadProxyServers(new PacketReloadProxyServers("null", true));
+        VelocityServerHandler.reloadServers(this);
 
         this.proxyServer.getEventManager().register(this, new VelocityListeners(this));
 
@@ -85,5 +88,14 @@ public class VelocityManagerPlugin implements IServerManagerPlugin {
 
     public ProxyServer getProxyServer() {
         return proxyServer;
+    }
+
+    public Configuration getTemplateConfiguration() {
+        return templateConfiguration;
+    }
+
+    public void setTemplateConfiguration(Configuration templateConfiguration) {
+        this.templateConfiguration = templateConfiguration;
+        VelocityServerHandler.reloadServers(this);
     }
 }

@@ -3,6 +3,7 @@ package fr.naruse.servermanager.core.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 
 import java.io.File;
@@ -24,6 +25,7 @@ public class Utils {
     public static final Type SET_TYPE = new TypeToken<Set<String>>(){}.getType();
     public static final Type LIST_GENERIC_TYPE = new TypeToken<List>(){}.getType();
     public static final Type MAP_GENERIC_TYPE = new TypeToken<Map>(){}.getType();
+    public static final Type LIST_MAP_TYPE = new TypeToken<List<Map<String, Object>>>(){}.getType();
 
     public static final char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz".toCharArray();
     public static final Random RANDOM = new Random();
@@ -124,6 +126,10 @@ public class Utils {
         }
     }
 
+    public static InetAddress getPacketManagerHost(){
+        return findHost(ServerManager.get().getCoreData().getPacketManagerHost(), true);
+    }
+
     public static InetAddress getLocalHost(){
         InetAddress inetAddress = findHost(null, false);
         if(inetAddress == null){
@@ -135,7 +141,7 @@ public class Utils {
         return inetAddress;
     }
 
-    private static InetAddress findHost(String host, boolean trace){
+    public static InetAddress findHost(String host, boolean trace){
         try {
             return host == null ? InetAddress.getLocalHost() : InetAddress.getByName(host);
         } catch (UnknownHostException unknownHostException) {

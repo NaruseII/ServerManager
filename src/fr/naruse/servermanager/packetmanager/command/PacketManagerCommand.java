@@ -14,7 +14,6 @@ public class PacketManagerCommand extends AbstractCoreCommand {
         this.registerCommand("stop", new CommandStop());
         this.registerCommand("generateSecretKey", new CommandGenerateSecretKey());
         this.registerCommand("status", new CommandStatus());
-        this.registerCommand("database", new CommandDatabase());
     }
 
     @Override
@@ -24,15 +23,6 @@ public class PacketManagerCommand extends AbstractCoreCommand {
         ServerManagerLogger.info("-> stop (Stop server)");
         ServerManagerLogger.info("-> generateSecretKey");
         ServerManagerLogger.info("-> status");
-        ServerManagerLogger.info("-> database (Show all datas)");
-    }
-
-    private class CommandDatabase implements ICommand {
-
-        @Override
-        public void onCommand(String line, String[] args) {
-            ServerManagerLogger.info("Database's datas:");
-            packetManager.getDatabase().getMap().forEach((s, dataObject) -> ServerManagerLogger.info("["+s+"] -> "+dataObject.getValue().toString()));
-        }
+        ServerManagerLogger.info("");
     }
 }

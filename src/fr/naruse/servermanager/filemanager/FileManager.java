@@ -9,9 +9,7 @@ import fr.naruse.servermanager.filemanager.auto.AutoKiller;
 import fr.naruse.servermanager.filemanager.auto.AutoScaler;
 import fr.naruse.servermanager.filemanager.command.FileManagerCommand;
 import fr.naruse.servermanager.filemanager.event.FileManagerEventListener;
-import fr.naruse.servermanager.filemanager.packet.FileManagerProcessPacketListener;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
-import fr.naruse.servermanager.filemanager.task.EditProxyConfigFile;
 
 import java.io.File;
 import java.util.*;
@@ -37,14 +35,14 @@ public class FileManager {
     }
 
     private final ServerManager serverManager;
-    private final Map<String, ServerProcess> serverProcesses = new HashMap<>();
+    private final ConcurrentHashMap<String, ServerProcess> serverProcesses = new ConcurrentHashMap<>();
     private AutoScaler autoScaler;
     private AutoKiller autoKiller;
 
     public FileManager(long millis) {
         instance = this;
 
-        this.serverManager = new ServerManager(new CoreData(CoreServerType.FILE_MANAGER, new File("configs"), 4848, "file-manager-"+Utils.randomLetters(4)+"-"+Utils.randomLetters(4), 0)){
+        this.serverManager = new ServerManager(new CoreData(CoreServerType.FILE_MANAGER, new File("configs"), "file-manager-"+Utils.randomLetters(4)+"-"+Utils.randomLetters(4), 0)){
             @Override
             public void shutdown() {
                 if(autoScaler != null){
@@ -80,8 +78,6 @@ public class FileManager {
                 while (!EXECUTOR_SERVICE.isTerminated()) ;
 
                 ServerManagerLogger.info("Stopping task threads...");
-                EditProxyConfigFile.EXECUTOR_SERVICE.shutdown();
-                while (!EditProxyConfigFile.EXECUTOR_SERVICE.isTerminated()) ;
 
                 ERROR_EXECUTOR_SERVICE.shutdown();
                 super.shutdown();
@@ -104,7 +100,6 @@ public class FileManager {
         }
         ServerManagerLogger.info(found+" undeleted servers found and deleted.");
 
-        serverManager.registerPacketProcessing(new FileManagerProcessPacketListener(this));
         serverManager.registerEventListener(new FileManagerEventListener(this));
 
         Configuration.ConfigurationSection autoScalerSection = serverManager.getConfigurationManager().getConfig().getSection("autoScaler");

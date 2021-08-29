@@ -6,25 +6,24 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class PacketDatabaseRequestUpdate implements IPacket {
+public class PacketSendTemplate implements IPacket {
 
-    public PacketDatabaseRequestUpdate() {
+    public PacketSendTemplate() {
     }
 
-    private PacketDatabaseRequest packet;
-    public PacketDatabaseRequestUpdate(PacketDatabaseRequest packet) {
-        this.packet = packet;
+    private String json;
+    public PacketSendTemplate(String json) {
+        this.json = json;
     }
 
     @Override
     public void write(DataOutputStream stream) throws IOException {
-        packet.write(stream);
+        stream.writeUTF(this.json);
     }
 
     @Override
     public void read(DataInputStream stream) throws IOException {
-        this.packet = new PacketDatabaseRequest();
-        this.packet.read(stream);
+        this.json = stream.readUTF();
     }
 
     @Override
@@ -32,7 +31,7 @@ public class PacketDatabaseRequestUpdate implements IPacket {
 
     }
 
-    public PacketDatabaseRequest getPacket() {
-        return packet;
+    public String getJson() {
+        return json;
     }
 }
