@@ -1,7 +1,11 @@
 package fr.naruse.servermanager.filemanager.task;
 
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.connection.packet.AbstractPacketResponsive;
+import fr.naruse.servermanager.core.connection.packet.PacketFileManagerRequest;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.core.utils.CustomRunnable;
+import fr.naruse.servermanager.core.utils.ThreadLock;
 import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
@@ -17,7 +21,6 @@ import java.util.concurrent.ConcurrentMap;
 
 public class CreateServerTask {
 
-    private static final ConcurrentMap<String, Integer> nameCountByTemplateMap = new ConcurrentHashMap<>();
     private final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("CreateServerTask");
 
     public CreateServerTask(FileManager fileManager, String templateName) {
@@ -28,36 +31,37 @@ public class CreateServerTask {
             return;
         }
 
-        String name = template.get("baseName");
+        final String[] name = {template.get("baseName")};
 
         boolean random = template.get("randomName");
         NameProperty nameProperty = NameProperty.valueOf(template.get("nameProperty"));
 
         if(random){
             if((nameProperty == null || nameProperty == NameProperty.RANDOM_4_CHAR)){
-                name += "-" +Utils.randomLetters(4)+"-"+Utils.randomLetters(4);
+                name[0] += "-" +Utils.randomLetters(4)+"-"+Utils.randomLetters(4);
             }else if(nameProperty == NameProperty.RANDOM_8_CHAR){
-                name += "-" +Utils.randomLetters(8)+"-"+Utils.randomLetters(8);
+                name[0] += "-" +Utils.randomLetters(8)+"-"+Utils.randomLetters(8);
             }else if(nameProperty == NameProperty.FROM_0){
-                int count = this.nameCountByTemplateMap.getOrDefault(templateName, 0)+1;
 
-                while (ServerList.getByNameOptional(name+"-"+count).isPresent()){
-                    count++;
-                }
-                name += "-" +count;
-                this.nameCountByTemplateMap.put(templateName, count);
+                Thread thread = Thread.currentThread();
+                AbstractPacketResponsive abstractPacket = new PacketFileManagerRequest.NewName(fileManager.getServerManager().getCurrentServer().getName(), thread.getId(), name[0]);
+                fileManager.getServerManager().getConnectionManager().sendResponsivePacket(thread, abstractPacket, object -> {
+                    PacketFileManagerRequest.NewNameResponse packet = (PacketFileManagerRequest.NewNameResponse) object;
+                    name[0] = packet.getNewName();
+                });
+
             }
-        }else if(fileManager.getServerProcess(name) == null){
-            name += "-" +Utils.randomLetters(12)+"-"+Utils.randomLetters(12);
+        }else if(fileManager.getServerProcess(name[0]) == null){
+            name[0] += "-" +Utils.randomLetters(12)+"-"+Utils.randomLetters(12);
         }
 
-        if(fileManager.getServerProcess(name) != null){
+        if(fileManager.getServerProcess(name[0]) != null){
             LOGGER.error("Could not create '"+templateName+"' all names are used! This isn't supposed to happen unless you create "+((12*26*26*2)*2+(4*26*26*2)*2)+" servers!");
             return;
         }
 
-        LOGGER.setTag("CreateServerTask - "+name);
-        LOGGER.debug("Starting creation of '"+name+"'...");
+        LOGGER.setTag("CreateServerTask - "+ name[0]);
+        LOGGER.debug("Starting creation of '"+ name[0] +"'...");
 
         String templateFolderUrl = template.get("pathTemplate");
         LOGGER.debug("Template folder URL is '"+templateFolderUrl+"'");
@@ -74,7 +78,7 @@ public class CreateServerTask {
             templateFolder.mkdirs();
         }
 
-        File serverFolder = new File(targetFolder, name);
+        File serverFolder = new File(targetFolder, name[0]);
         LOGGER.debug("Server folder URL is '"+serverFolder.getAbsolutePath()+"'");
         serverFolder.mkdirs();
 
@@ -88,7 +92,7 @@ public class CreateServerTask {
         LOGGER.debug("Copy done !");
 
         LOGGER.debug("Editing 'ServerManager/config.json'...");
-        this.editServerManagerPluginConfig(serverFolder, name);
+        this.editServerManagerPluginConfig(serverFolder, name[0]);
         LOGGER.debug("'ServerManager/config.json' edited");
 
         LOGGER.debug("Getting ready to start the server...");
@@ -102,7 +106,7 @@ public class CreateServerTask {
         boolean noGui = template.getSection("server.properties").get("noGui");
 
         try {
-            this.editVanillaConfig(template, new File(serverFolder, "server.properties"), name);
+            this.editVanillaConfig(template, new File(serverFolder, "server.properties"), name[0]);
 
             this.editProxyConfig(template, serverFolder);
         } catch (IOException e) {
@@ -133,7 +137,7 @@ public class CreateServerTask {
             processBuilder = new ProcessBuilder(startFileName);
             processBuilder.directory(serverFolder);
         }
-        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name, template, serverFolder, template.get("keepLogs")));
+        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name[0], template, serverFolder, template.get("keepLogs")));
     }
 
     private void editProxyConfig(Configuration template, File serverFolder) throws IOException {

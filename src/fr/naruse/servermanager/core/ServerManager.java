@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class ServerManager {
 
-    public static final String VERSION = "1.0.16";
+    public static final String VERSION = "1.0.17";
 
     private static ServerManager instance;
     public static ServerManager get() {
@@ -62,7 +62,6 @@ public class ServerManager {
         coreData.setPacketManagerPort(packetManagerSection.getInt("serverPort"));
         coreData.setPacketManagerHost(packetManagerSection.get("serverAddress"));
         coreData.setCurrentAddress(Utils.getCurrentAddress());
-
 
         this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getCurrentAddress(), coreData.getServerManagerPort(), coreData.getCoreServerType());
         Packets.load();

@@ -28,5 +28,6 @@
     }
   },
   "keepLogs": true,
-  "isPersistent": false
+  "isPersistent": false,
+  "defaultStatus": []
 }

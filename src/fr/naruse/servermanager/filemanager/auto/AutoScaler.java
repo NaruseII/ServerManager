@@ -39,7 +39,6 @@ public class AutoScaler {
             return;
         }
 
-        Set<Server> set = ServerList.getAll();
         Set<ServerProcess> serverProcesses = FileManager.get().getAllServerProcess();
         Set<String> inCreationTemplates = new HashSet<>();
 
@@ -55,12 +54,12 @@ public class AutoScaler {
                 continue;
             }
 
-            if(matches.match(set.stream().filter(server -> server.getName().startsWith(baseName)).collect(Collectors.toSet()), value)){
+            if(matches.match(serverProcesses.stream().filter(server -> server.getName().startsWith(baseName)).collect(Collectors.toSet()), value)){
 
-                long count = serverProcesses.stream().filter(process -> process.getName().startsWith(baseName) && ServerList.getByName(process.getName()) == null).count();
+                /*long count = set.stream().filter(process -> ServerList.getByName(process.getName()) == null).count();
                 if(count != 0){
                     continue;
-                }
+                }*/
 
                 for (int i = 0; i < section.getInt("startServers"); i++) {
                     fileManager.createServer(baseName);

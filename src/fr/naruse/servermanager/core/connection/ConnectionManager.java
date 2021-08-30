@@ -3,14 +3,14 @@ package fr.naruse.servermanager.core.connection;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.api.events.packet.AsyncPacketReceiveEvent;
 import fr.naruse.servermanager.core.api.events.packet.AsyncPacketSendEvent;
+import fr.naruse.servermanager.core.config.Configuration;
+import fr.naruse.servermanager.core.connection.packet.*;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.ServerManager;
-import fr.naruse.servermanager.core.connection.packet.IPacket;
-import fr.naruse.servermanager.core.connection.packet.PacketConnection;
-import fr.naruse.servermanager.core.connection.packet.PacketDisconnection;
-import fr.naruse.servermanager.core.connection.packet.Packets;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.server.ServerList;
+import fr.naruse.servermanager.core.utils.CustomRunnable;
+import fr.naruse.servermanager.core.utils.ThreadLock;
 import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.filemanager.ServerProcess;
 
@@ -35,8 +35,13 @@ public class ConnectionManager {
         LOGGER.info("Starting ConnectionManager...");
         this.serverManager = serverManager;
 
-        LOGGER.info("Listening on '"+serverManager.getCoreData().getCurrentAddress()+"'");
-        LOGGER.info("Packet-Manager is '"+serverManager.getCoreData().getPacketManagerHost()+":"+serverManager.getCoreData().getPacketManagerPort()+"'");
+        if(!this.serverManager.getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER)){
+            LOGGER.info("Packet-Manager is '"+this.serverManager.getCoreData().getPacketManagerHost()+":"+serverManager.getCoreData().getPacketManagerPort()+"'");
+        }else{
+            Configuration configuration = this.serverManager.getConfigurationManager().getConfig();
+            configuration.getSection("packet-manager").set("serverAddress", this.serverManager.getCoreData().getCurrentAddress());
+            configuration.save();
+        }
 
         LOGGER.info("Starting server thread...");
         this.startServerThread();
@@ -47,24 +52,23 @@ public class ConnectionManager {
     private void startServerThread() {
         EXECUTOR_SERVICE.submit(() -> {
             try {
-                boolean flag = this.serverManager.getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER);
+                boolean isPacketManager = this.serverManager.getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER);
 
                 ServerSocket serverSocket;
-                if(flag){
-                    serverSocket = new ServerSocket(flag ? this.serverManager.getCoreData().getPacketManagerPort() : this.serverManager.getCoreData().getServerManagerPort(), 50, InetAddress.getByName("0.0.0.0"));
-                    LOGGER.info("Binding on address '"+serverSocket.getInetAddress().getHostAddress()+"'");
+                if(isPacketManager){
+                    serverSocket = new ServerSocket(isPacketManager ? this.serverManager.getCoreData().getPacketManagerPort() : this.serverManager.getCoreData().getServerManagerPort(), 50, Utils.findHost("0.0.0.0", false));
                 }else{
-                    serverSocket = new ServerSocket(flag ? this.serverManager.getCoreData().getPacketManagerPort() : this.serverManager.getCoreData().getServerManagerPort());
+                    serverSocket = new ServerSocket(isPacketManager ? this.serverManager.getCoreData().getPacketManagerPort() : this.serverManager.getCoreData().getServerManagerPort());
                 }
 
-                LOGGER.info((flag ? "Server":"Client")+" thread started");
-                LOGGER.info("Binding on port "+(this.localPort = serverSocket.getLocalPort()));
+                LOGGER.info((isPacketManager ? "Server":"Client")+" thread started");
+                LOGGER.info("Listening on '"+serverManager.getCoreData().getCurrentAddress()+":"+(this.localPort = serverSocket.getLocalPort())+"'");
                 if(this.serverManager.getCoreData().getPacketManagerPort() == 0){
                     this.serverManager.getCoreData().setPacketManagerPort(this.localPort);
                 }
 
                 this.serverManager.getCurrentServer().setServerManagerPort(this.localPort);
-                if(!flag){
+                if(!isPacketManager){
                     this.sendPacket(new PacketConnection(this.serverManager.getCurrentServer()));
                 }
 
@@ -91,6 +95,10 @@ public class ConnectionManager {
                             }
 
                             packet.process(this.serverManager);
+
+                            if(packet instanceof AbstractPacketResponsive){
+                                ThreadLock.unlock((AbstractPacketResponsive) packet);
+                            }
                             this.serverManager.processPacket(packet);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -120,6 +128,11 @@ public class ConnectionManager {
         this.sendPacket(packet, Utils.getPacketManagerHost(), this.serverManager.getCoreData().getPacketManagerPort());
     }
 
+    public void sendResponsivePacket(Thread thread, AbstractPacketResponsive packet, CustomRunnable<AbstractPacketResponsive> onResponse){
+        this.sendPacket(packet);
+        ThreadLock.lock(thread, onResponse);
+    }
+
     private int retryCount = 0;
     private void sendPacket(IPacket packet, InetAddress inetAddress, int port){
         EXECUTOR_SERVICE.submit(() -> {
@@ -132,9 +145,6 @@ public class ConnectionManager {
                     return;
                 }
                 InetAddress finalInetAddress = event.getDestinationAddress();
-                if(finalInetAddress.isAnyLocalAddress()){
-                    finalInetAddress = Utils.getLocalHost();
-                }
 
                 int finalPort = event.getDestinationPort();
 
@@ -157,7 +167,9 @@ public class ConnectionManager {
                 socket.close();
             } catch (Exception e) {
                 if(e.getClass().isAssignableFrom(ConnectException.class)){
-
+                    if(this.serverManager.isShuttingDowned()){
+                        return;
+                    }
                     if(port == this.serverManager.getCoreData().getPacketManagerPort()){
                         this.retryCount++;
 

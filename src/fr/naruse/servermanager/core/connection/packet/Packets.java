@@ -31,6 +31,9 @@ public class Packets {
         registerPacket("DATABASE_DESTROY", PacketDatabase.Destroy.class);
         registerPacket("DATABASE_UPDATE_CACHE", PacketDatabase.UpdateCache.class);
         registerPacket("SEND_TEMPLATE", PacketSendTemplate.class);
+        registerPacket("FILE_MANAGER_REQUEST_NEW_NAME", PacketFileManagerRequest.NewName.class);
+        registerPacket("FILE_MANAGER_REQUEST_NEW_NAME_RESPONSE", PacketFileManagerRequest.NewNameResponse.class);
+        registerPacket("ADD_STATUS", PacketAddStatus.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

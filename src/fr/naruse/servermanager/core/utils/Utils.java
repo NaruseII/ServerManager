@@ -1,6 +1,5 @@
 package fr.naruse.servermanager.core.utils;
 
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -11,13 +10,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Type;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
-import java.util.logging.Level;
 
 public class Utils {
 
@@ -166,22 +161,11 @@ public class Utils {
     }
 
     public static String getCurrentAddress() {
-        try {
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = networkInterfaces.nextElement();
-                Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
-
-                while (inetAddresses.hasMoreElements()) {
-                    InetAddress inetAddress = inetAddresses.nextElement();
-
-                    if (inetAddress instanceof Inet4Address && !inetAddress.getHostAddress().equals("127.0.0.1")) {
-                        return inetAddress.getHostAddress();
-                    }
-                }
-            }
-        } catch (Exception e) {
+        try{
+            final Socket socket = new Socket();
+            socket.connect(new InetSocketAddress("google.com", 80));
+            return socket.getLocalAddress().getHostAddress();
+        }catch (Exception e){
             e.printStackTrace();
         }
         return "localhost";

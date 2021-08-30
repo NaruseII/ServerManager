@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 
 import java.nio.file.Path;
 
-@Plugin(id = "servermanager", name = "ServerManager", version = "1.0.16", url = "https://www.mc-market.org/resources/20469/", description = "ServerManager Velocity Manager", authors = "Naruse")
+@Plugin(id = "servermanager", name = "ServerManager", version = "1.0.17", url = "https://www.mc-market.org/resources/20469/", description = "ServerManager Velocity Manager", authors = "Naruse")
 public class VelocityManagerPlugin implements IServerManagerPlugin {
 
     private final ProxyServer proxyServer;

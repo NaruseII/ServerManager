@@ -128,7 +128,7 @@ public class ServerProcess {
         }
         process.destroy();
         if(cant.get() && System.currentTimeMillis()-startTime < 60000){
-            LOGGER.warn("I detected a recent start, but I can't stop all subprocess on Java below 1.9! You'll probably need to stop it manually.");
+            LOGGER.debug("I detected a recent start, but I can't stop all subprocess on Java below 1.9! You'll probably need to stop it manually.");
         }
     }
 
