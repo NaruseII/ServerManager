@@ -8,6 +8,9 @@ public interface IDatabaseTable {
 
     String getName();
 
+    IDatabaseLine getLine(String whereColumn, Object whereValue);
+
+    @Deprecated
     IDatabaseLine getLine(Object... values);
 
     IDatabaseLine newLine();

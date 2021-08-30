@@ -58,11 +58,10 @@ public class ServerManager {
             coreData.setServerName(this.configurationManager.getConfig().get("currentServerName"));
             ServerManagerLogger.info("Server name is '"+coreData.getServerName()+"'");
         }
-        Configuration configuration = this.configurationManager.getConfig();
-        Configuration.ConfigurationSection packetManagerSection = configuration.getSection("packet-manager");
+        Configuration.ConfigurationSection packetManagerSection = this.configurationManager.getConfig().getSection("packet-manager");
         coreData.setPacketManagerPort(packetManagerSection.getInt("serverPort"));
         coreData.setPacketManagerHost(packetManagerSection.get("serverAddress"));
-        coreData.setCurrentAddress(configuration.get("currentAddress"));
+        coreData.setCurrentAddress(Utils.getCurrentAddress());
 
 
         this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getCurrentAddress(), coreData.getServerManagerPort(), coreData.getCoreServerType());

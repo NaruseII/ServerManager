@@ -19,14 +19,6 @@ import java.util.stream.Collectors;
 
 public class ProxyListeners {
 
-    public static boolean onServerRegisterEvent(ServerPostRegisterEvent e){
-        Server server = e.getServer();
-        if(server.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER)){
-            return true;
-        }
-        return false;
-    }
-
     public static void processTeleportToLocation(PacketTeleportToLocation packet) {
         Optional<Server> optional = ServerList.findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER}, packet.getPlayerName());
         if(optional.isPresent()){

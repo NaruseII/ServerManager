@@ -189,7 +189,6 @@ public class CreateServerTask {
         Map<String, Object> map = new HashMap<>();
         map.put("key", ServerManager.get().getConfigurationManager().getConfig().get("key"));
         map.put("currentServerName", serverName);
-        map.put("currentAddress", ServerManager.get().getCoreData().getCurrentAddress());
         Map<String, Object> packetManagerMap = new HashMap<>();
         packetManagerMap.put("serverPort", ServerManager.get().getCoreData().getPacketManagerPort());
         packetManagerMap.put("serverAddress", ServerManager.get().getCoreData().getPacketManagerHost());

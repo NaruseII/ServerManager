@@ -4,9 +4,9 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
+import fr.naruse.servermanager.core.api.events.server.ServerPostDeleteEvent;
 import fr.naruse.servermanager.core.api.events.server.ServerPostRegisterEvent;
 import fr.naruse.servermanager.core.server.Server;
-import fr.naruse.servermanager.proxy.common.ProxyListeners;
 import fr.naruse.servermanager.proxy.velocity.api.ServerManagerVelocityEvent;
 import fr.naruse.servermanager.proxy.velocity.main.VelocityManagerPlugin;
 import fr.naruse.servermanager.proxy.velocity.server.VelocityServerHandler;
@@ -50,9 +50,9 @@ public class VelocityListeners {
     @Subscribe
     public void onServerRegisterEvent(ServerManagerVelocityEvent e) {
         if(e.getEvent() instanceof ServerPostRegisterEvent){
-            if(ProxyListeners.onServerRegisterEvent((ServerPostRegisterEvent) e.getEvent())){
-                VelocityServerHandler.reloadServers(this.pl);
-            }
+            VelocityServerHandler.reloadServers(this.pl);
+        }else if(e.getEvent() instanceof ServerPostDeleteEvent){
+            VelocityServerHandler.reloadServers(this.pl);
         }
     }
 }

@@ -4,7 +4,6 @@
   "debug": false,
   "startServerOnStart": {
   },
-  "currentAddress": "localhost",
   "packet-manager": {
     "serverAddress": "localhost",
     "serverPort": 4848

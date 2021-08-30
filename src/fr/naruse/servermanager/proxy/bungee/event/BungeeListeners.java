@@ -1,5 +1,7 @@
 package fr.naruse.servermanager.proxy.bungee.event;
 
+import fr.naruse.servermanager.core.api.events.server.ServerDeleteEvent;
+import fr.naruse.servermanager.core.api.events.server.ServerPostDeleteEvent;
 import fr.naruse.servermanager.core.api.events.server.ServerPostRegisterEvent;
 import fr.naruse.servermanager.proxy.bungee.api.ServerManagerBungeeEvent;
 import fr.naruse.servermanager.proxy.bungee.main.BungeeManagerPlugin;
@@ -9,6 +11,7 @@ import fr.naruse.servermanager.proxy.common.ProxyListeners;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -53,9 +56,9 @@ public class BungeeListeners implements Listener {
     @EventHandler
     public void onServerRegisterEvent(ServerManagerBungeeEvent e) {
         if(e.getEvent() instanceof ServerPostRegisterEvent){
-            if(ProxyListeners.onServerRegisterEvent((ServerPostRegisterEvent) e.getEvent())){
-                BungeeServerHandler.reloadServers(this.pl);
-            }
+            BungeeServerHandler.reloadServers(this.pl);
+        }else if(e.getEvent() instanceof ServerPostDeleteEvent){
+            BungeeServerHandler.reloadServers(this.pl);
         }
     }
 }

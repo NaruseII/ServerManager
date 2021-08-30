@@ -12,6 +12,7 @@ public class DatabaseTable implements IDatabaseTable {
     private String name;
     private TableStructure tableStructure;
     private Set<DatabaseLine> databaseLineSet;
+    private HashMap<ColumnStructure, Map<Object, DatabaseLine>> objectListByColumn = new HashMap<>();
 
     private DatabaseTable(){ }
 
@@ -19,6 +20,7 @@ public class DatabaseTable implements IDatabaseTable {
         this.name = name;
         this.tableStructure = tableStructure;
         this.databaseLineSet = databaseLineSet;
+
     }
 
     @Override
@@ -27,7 +29,25 @@ public class DatabaseTable implements IDatabaseTable {
     }
 
     @Override
-    public IDatabaseLine getLine(Object... values) {
+    public IDatabaseLine getLine(String whereColumn, Object whereValue){
+        ColumnStructure columnStructure = this.tableStructure.getColumnStructure(whereColumn);
+        if(columnStructure == null){
+            return null;
+        }
+        Map<Object, DatabaseLine> map = this.objectListByColumn.get(columnStructure);
+        Set<Object> set = new HashSet<>(map.keySet());
+        for (Object object : set) {
+            if(object.equals(whereValue)){
+                return map.get(object);
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public IDatabaseLine getLine(Object... values){
         for (DatabaseLine databaseLine : new HashSet<>(this.databaseLineSet)) {
             boolean ret = false;
             for (Object value : values) {
@@ -77,6 +97,7 @@ public class DatabaseTable implements IDatabaseTable {
         DatabaseTable table = (DatabaseTable) iDatabaseTable;
         this.tableStructure = table.getTableStructure();
         this.databaseLineSet = table.getDatabaseLineSet();
+        this.refreshObjectListMap();
     }
 
     private void setName(String name) {
@@ -89,10 +110,24 @@ public class DatabaseTable implements IDatabaseTable {
 
     private void setDatabaseLineSet(Set<DatabaseLine> databaseLineSet) {
         this.databaseLineSet = databaseLineSet;
+        this.refreshObjectListMap();
     }
 
     private void setTableStructure(TableStructure tableStructure) {
         this.tableStructure = tableStructure;
+    }
+
+    private void refreshObjectListMap(){
+        this.objectListByColumn.clear();
+        for (ColumnStructure columnStructure : this.tableStructure.getAllColumnStructure()) {
+            this.objectListByColumn.put(columnStructure, new HashMap<>());
+        }
+
+        for (DatabaseLine databaseLine : this.databaseLineSet) {
+            for (ColumnStructure columnStructure : this.tableStructure.getAllColumnStructure()) {
+                this.objectListByColumn.get(columnStructure).put(databaseLine.getValue(columnStructure.getColumnName()), databaseLine);
+            }
+        }
     }
 
     @Override
@@ -151,7 +186,7 @@ public class DatabaseTable implements IDatabaseTable {
 
                     for (String columnName : allNames) {
                         if(dataConfiguration.contains(columnName)){
-                            builder.addObject(tableStructure.getLineStructure(columnName), dataConfiguration.get(columnName));
+                            builder.addObject(tableStructure.getColumnStructure(columnName), dataConfiguration.get(columnName));
                         }
                     }
 

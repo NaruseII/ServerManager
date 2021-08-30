@@ -15,7 +15,7 @@ public class TableStructure {
         return new ArrayList<>(this.columnStructureMap.values()).get(index);
     }
 
-    public ColumnStructure getLineStructure(String columnName){
+    public ColumnStructure getColumnStructure(String columnName){
         return this.columnStructureMap.get(columnName);
     }
 

@@ -35,6 +35,7 @@ public class ConnectionManager {
         LOGGER.info("Starting ConnectionManager...");
         this.serverManager = serverManager;
 
+        LOGGER.info("Listening on '"+serverManager.getCoreData().getCurrentAddress()+"'");
         LOGGER.info("Packet-Manager is '"+serverManager.getCoreData().getPacketManagerHost()+":"+serverManager.getCoreData().getPacketManagerPort()+"'");
 
         LOGGER.info("Starting server thread...");
@@ -131,6 +132,10 @@ public class ConnectionManager {
                     return;
                 }
                 InetAddress finalInetAddress = event.getDestinationAddress();
+                if(finalInetAddress.isAnyLocalAddress()){
+                    finalInetAddress = Utils.getLocalHost();
+                }
+
                 int finalPort = event.getDestinationPort();
 
                 Socket socket = new Socket(finalInetAddress, finalPort);
