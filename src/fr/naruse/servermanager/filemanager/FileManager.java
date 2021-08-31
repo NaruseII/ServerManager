@@ -75,7 +75,14 @@ public class FileManager {
 
                 ServerManagerLogger.info("Stopping server creator thread pool...");
                 EXECUTOR_SERVICE.shutdown();
-                while (!EXECUTOR_SERVICE.isTerminated()) ;
+                long startEndMillis = System.currentTimeMillis();
+                while (!EXECUTOR_SERVICE.isTerminated()){
+                    if(System.currentTimeMillis()-startEndMillis > 5000){
+                        ServerManagerLogger.info("Killing interrupted remaining threads...");
+                        EXECUTOR_SERVICE.shutdownNow();
+                        break;
+                    }
+                }
 
                 ServerManagerLogger.info("Stopping task threads...");
 
