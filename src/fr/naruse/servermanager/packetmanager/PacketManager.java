@@ -3,12 +3,14 @@ package fr.naruse.servermanager.packetmanager;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.core.plugin.Plugins;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.packetmanager.command.PacketManagerCommand;
 import fr.naruse.servermanager.packetmanager.database.Database;
-import fr.naruse.servermanager.packetmanager.packet.PacketManagerEventListener;
+import fr.naruse.servermanager.packetmanager.event.PacketManagerEventListener;
+import fr.naruse.servermanager.packetmanager.packet.PacketManagerPacketListener;
 import fr.naruse.servermanager.packetmanager.utils.Metrics;
 
 import java.io.File;
@@ -77,6 +79,10 @@ public class PacketManager {
         this.database = new Database();
 
         this.serverManager.registerEventListener(new PacketManagerEventListener());
+        this.serverManager.registerPacketProcessing(new PacketManagerPacketListener());
+
+        PacketManagerCommand packetManagerCommand = new PacketManagerCommand(this);
+        Plugins.loadPlugins();
 
         new Metrics(serverManager, 11607);
 
@@ -85,7 +91,7 @@ public class PacketManager {
         ServerManagerLogger.info("");
         ServerManagerLogger.info("Type help to see commands");
 
-        new PacketManagerCommand(this).run();
+        packetManagerCommand.run();
     }
 
     public ServerManager getServerManager() {

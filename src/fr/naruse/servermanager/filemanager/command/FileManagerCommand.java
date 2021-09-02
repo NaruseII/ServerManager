@@ -18,6 +18,7 @@ public class FileManagerCommand extends AbstractCoreCommand {
     private final FileManager fileManager;
 
     public FileManagerCommand(FileManager fileManager) {
+        super();
         this.fileManager = fileManager;
         this.registerCommand("stop", new CommandStop());
         this.registerCommand("shutdown", new CommandShutdown());
@@ -49,6 +50,9 @@ public class FileManagerCommand extends AbstractCoreCommand {
         ServerManagerLogger.info("-> viewScreen <Process Name> (Attach on screen)");
         ServerManagerLogger.info("-> detach (Detach from current screen)");
         ServerManagerLogger.info("-> reloadTemplates");
+        for (String pluginCommandUsage : this.pluginCommandUsages) {
+            ServerManagerLogger.info("-> "+pluginCommandUsage);
+        }
         ServerManagerLogger.info("");
     }
 

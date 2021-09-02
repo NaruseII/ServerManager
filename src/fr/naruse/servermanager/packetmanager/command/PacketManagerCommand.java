@@ -10,6 +10,7 @@ public class PacketManagerCommand extends AbstractCoreCommand {
     private final PacketManager packetManager;
 
     public PacketManagerCommand(PacketManager packetManager) {
+        super();
         this.packetManager = packetManager;
         this.registerCommand("stop", new CommandStop());
         this.registerCommand("generateSecretKey", new CommandGenerateSecretKey());
@@ -23,6 +24,9 @@ public class PacketManagerCommand extends AbstractCoreCommand {
         ServerManagerLogger.info("-> stop (Stop server)");
         ServerManagerLogger.info("-> generateSecretKey");
         ServerManagerLogger.info("-> status");
+        for (String pluginCommandUsage : this.pluginCommandUsages) {
+            ServerManagerLogger.info("-> "+pluginCommandUsage);
+        }
         ServerManagerLogger.info("");
     }
 }

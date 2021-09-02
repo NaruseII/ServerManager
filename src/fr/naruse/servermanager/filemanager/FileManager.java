@@ -1,14 +1,17 @@
 package fr.naruse.servermanager.filemanager;
 
 import fr.naruse.servermanager.core.*;
+import fr.naruse.servermanager.core.api.events.plugin.PluginFileManagerEvent;
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.core.plugin.Plugins;
 import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.filemanager.auto.AutoKiller;
 import fr.naruse.servermanager.filemanager.auto.AutoScaler;
 import fr.naruse.servermanager.filemanager.command.FileManagerCommand;
 import fr.naruse.servermanager.filemanager.event.FileManagerEventListener;
+import fr.naruse.servermanager.filemanager.packet.FileManagerPacketListener;
 import fr.naruse.servermanager.filemanager.task.CreateServerTask;
 
 import java.io.File;
@@ -45,6 +48,8 @@ public class FileManager {
         this.serverManager = new ServerManager(new CoreData(CoreServerType.FILE_MANAGER, new File("configs"), "file-manager-"+Utils.randomLetters(4)+"-"+Utils.randomLetters(4), 0)){
             @Override
             public void shutdown() {
+                Plugins.shutdownPlugins();
+
                 if(autoScaler != null){
                     ServerManagerLogger.info("Stopping AutoScaler...");
                     autoScaler.shutdown();
@@ -108,6 +113,7 @@ public class FileManager {
         ServerManagerLogger.info(found+" undeleted servers found and deleted.");
 
         serverManager.registerEventListener(new FileManagerEventListener(this));
+        serverManager.registerPacketProcessing(new FileManagerPacketListener());
 
         Configuration.ConfigurationSection autoScalerSection = serverManager.getConfigurationManager().getConfig().getSection("autoScaler");
         if(autoScalerSection.get("enabled")){
@@ -150,6 +156,9 @@ public class FileManager {
             this.autoKiller = new AutoKiller(this, timeOutMap);
         }
 
+        FileManagerCommand fileManagerCommand = new FileManagerCommand(this);
+        Plugins.loadPlugins();
+
         ServerManagerLogger.info("Start done! (It took "+(System.currentTimeMillis()-millis)+"ms)");
 
         ServerManagerLogger.info("");
@@ -163,11 +172,19 @@ public class FileManager {
             }
         });
 
-        new FileManagerCommand(this).run();
+        fileManagerCommand.run();
     }
 
     public void createServer(String templateName){
         Future future = EXECUTOR_SERVICE.submit(() -> {
+
+            //Plugin event
+            PluginFileManagerEvent.AsyncPreCreateServerEvent event = new PluginFileManagerEvent.AsyncPreCreateServerEvent(templateName);
+            Plugins.fireEvent(event);
+            if(event.isCancelled()){
+                return;
+            }
+
             new CreateServerTask(this, templateName);
         });
         ERROR_EXECUTOR_SERVICE.submit(() -> {
