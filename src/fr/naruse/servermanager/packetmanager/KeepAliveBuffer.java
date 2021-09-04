@@ -34,7 +34,9 @@ public class KeepAliveBuffer {
 
     private static void process(){
         new HashMap<>(map).forEach((server, packet) -> {
-            KeepAliveServerThread.EXECUTOR_SERVICE.submit(() -> server.getData().setCountBeforeDelete(3));
+            if(!KeepAliveServerThread.EXECUTOR_SERVICE.isShutdown()){
+                KeepAliveServerThread.EXECUTOR_SERVICE.submit(() -> server.getData().setCountBeforeDelete(3));
+            }
             server.getData().setCapacity(packet.getCapacity());
             server.getData().setUUIDByNameMap(packet.getUUIDByNameMap());
             server.getData().setDataMap(packet.getDataMap());

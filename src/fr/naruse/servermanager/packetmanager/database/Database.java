@@ -50,12 +50,20 @@ public class Database {
         LOGGER.info("Database loaded");
     }
 
-    public void update(IDatabaseTable table) {
-        this.getTableMap().put(table.getName(), table);
+    public void update(IDatabaseTable table, String serverSender) {
+        IDatabaseTable oldTable = this.getTableMap().get(table.getName());
+        if(oldTable == null){
+            this.getTableMap().put(table.getName(), table);
+        }else{
+            ((DatabaseTable) oldTable).replaceBy(table);
+        }
         this.save();
 
+        IDatabaseTable finalTable = this.getTableMap().get(table.getName());
         for (Server server : ServerList.getAll(false)) {
-            server.sendPacket(new PacketDatabase.UpdateCache(new HashSet<>(this.getTableMap().values())));
+            if(!server.getName().equals(serverSender)){
+                server.sendPacket(new PacketDatabase.Update(finalTable));
+            }
         }
     }
 
@@ -70,12 +78,16 @@ public class Database {
         Database.LOGGER.debug(this.getTableMap().size()+" tables saved");
     }
 
-    public void destroy(IDatabaseTable table){
-        this.getTableMap().remove(table.getName());
+    public void destroy(String table){
+        this.getTableMap().remove(table);
 
-        File file = new File(this.databaseFolder, table.getName()+".json");
+        File file = new File(this.databaseFolder, table+".json");
         if(file.exists()){
             Utils.delete(file);
+        }
+
+        for (Server server : ServerList.getAll(false)) {
+            server.sendPacket(new PacketDatabase.Destroy(table));
         }
     }
 

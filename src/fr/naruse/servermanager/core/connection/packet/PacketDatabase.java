@@ -8,9 +8,7 @@ import fr.naruse.servermanager.core.database.DatabaseTable;
 import fr.naruse.servermanager.core.database.IDatabaseTable;
 import fr.naruse.servermanager.packetmanager.PacketManager;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +17,7 @@ public class PacketDatabase {
     public static class Update implements IPacket {
 
         private IDatabaseTable table;
+        private String serverSender;
 
         public Update() { }
 
@@ -28,12 +27,19 @@ public class PacketDatabase {
 
         @Override
         public void write(DataOutputStream stream) throws IOException {
-            stream.writeUTF(this.table.serialize());
+            stream.writeUTF(ServerManager.get().getCurrentServer().getName());
+            byte[] jsonBytes = this.table.serialize().getBytes();
+
+            PacketUtils.writeByteArray(stream, jsonBytes);
         }
 
         @Override
         public void read(DataInputStream stream) throws IOException {
-            this.table = DatabaseTable.Builder.deserialize(new Configuration(stream.readUTF()));
+            this.serverSender = stream.readUTF();
+            byte[] bytes = PacketUtils.readByteArray(stream);
+            if(bytes != null){
+                this.table = DatabaseTable.Builder.deserialize(new Configuration(new String(bytes)));
+            }
         }
 
         @Override
@@ -41,7 +47,11 @@ public class PacketDatabase {
             if(!ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER)){
                 return;
             }
-            PacketManager.get().getDatabase().update(this.table);
+            PacketManager.get().getDatabase().update(this.table, this.serverSender);
+        }
+
+        public String getServerSender() {
+            return serverSender;
         }
 
         public IDatabaseTable getTable() {
@@ -51,33 +61,34 @@ public class PacketDatabase {
 
     public static class Destroy implements IPacket {
 
-        private IDatabaseTable table;
+        private String table;
 
         public Destroy() { }
 
-        public Destroy(IDatabaseTable table) {
+        public Destroy(String table) {
             this.table = table;
         }
 
         @Override
         public void write(DataOutputStream stream) throws IOException {
-            stream.writeUTF(this.table.getName());
+            stream.writeUTF(this.table);
         }
 
         @Override
         public void read(DataInputStream stream) throws IOException {
-            this.table = DatabaseAPI.getCache().getDatabaseTable(stream.readUTF());
+            this.table = stream.readUTF();
         }
 
         @Override
         public void process(ServerManager serverManager) {
-            if(!ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER)){
-                return;
+            if(ServerManager.get().getCoreData().getCoreServerType().is(CoreServerType.PACKET_MANAGER)){
+                PacketManager.get().getDatabase().destroy(this.table);
+            }else{
+                ((DatabaseAPI.Cache) DatabaseAPI.getCache()).destroy(this.table);
             }
-            PacketManager.get().getDatabase().destroy(this.table);
         }
 
-        public IDatabaseTable getTable() {
+        public String getTable() {
             return table;
         }
     }
@@ -114,7 +125,7 @@ public class PacketDatabase {
 
         @Override
         public void process(ServerManager serverManager) {
-            ((DatabaseAPI.Cache) DatabaseAPI.getCache()).updateCache(this.set);
+            this.set.forEach(iDatabaseTable -> ((DatabaseAPI.Cache) DatabaseAPI.getCache()).updateCache(iDatabaseTable));
         }
 
         public Set<IDatabaseTable> getTableSet() {

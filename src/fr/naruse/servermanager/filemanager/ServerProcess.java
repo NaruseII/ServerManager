@@ -9,6 +9,7 @@ import fr.naruse.servermanager.filemanager.task.DeleteServerTask;
 
 import java.io.*;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -142,7 +143,7 @@ public class ServerProcess {
 
     private void waitFor(){
         try {
-            process.waitFor();
+            process.waitFor(17, TimeUnit.SECONDS);
             sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();

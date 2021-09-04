@@ -3,6 +3,7 @@ package fr.naruse.servermanager.core.database;
 import fr.naruse.servermanager.core.database.structure.ColumnStructure;
 import fr.naruse.servermanager.core.database.structure.TableStructure;
 import fr.naruse.servermanager.core.utils.MultiMap;
+import fr.naruse.servermanager.core.utils.Utils;
 
 import java.util.*;
 
@@ -61,6 +62,11 @@ public class DatabaseLine implements IDatabaseLine {
     }
 
     @Override
+    public List getList(String columnName) {
+        return this.getValue(columnName);
+    }
+
+    @Override
     public void setValue(String columnName, Object value) {
         ColumnStructure columnStructure = this.columnStructureByNameMap.get(columnName);
         if(columnStructure == null){
@@ -68,6 +74,7 @@ public class DatabaseLine implements IDatabaseLine {
         }
 
         this.structureObjectMap.put(value, columnStructure);
+        this.table.putInObjectListMap(columnStructure, value, this);
     }
 
     @Override
@@ -93,6 +100,11 @@ public class DatabaseLine implements IDatabaseLine {
         }
 
         return map;
+    }
+
+    @Override
+    public String toString() {
+        return Utils.GSON.toJson(serialize());
     }
 
     public static class Builder {

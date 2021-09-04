@@ -3,6 +3,7 @@ package fr.naruse.servermanager.core.database.structure;
 import fr.naruse.servermanager.core.database.ValueType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ColumnStructure {
@@ -35,6 +36,14 @@ public class ColumnStructure {
             case INTEGER: return Integer.valueOf((int) (double) object);
             case LONG: return Long.valueOf((long) (double) object);
             case DOUBLE: return Double.valueOf((double) object);
+            case ARRAY:
+                if(object instanceof List){
+                    List list = (List) object;
+                    if(list.size() == 1 && list.get(0) instanceof List){
+                        return list.get(0);
+                    }
+                }
+                return object;
         }
         return object;
     }
@@ -47,5 +56,14 @@ public class ColumnStructure {
         map.put("valueType", this.valueType);
 
         return map;
+    }
+
+    @Override
+    public String toString() {
+        return "ColumnStructure{" +
+                "columnId=" + columnId +
+                ", columnName='" + columnName + '\'' +
+                ", valueType=" + valueType +
+                '}';
     }
 }

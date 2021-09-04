@@ -60,7 +60,7 @@ public class FileManagerCommand extends AbstractCoreCommand {
 
         @Override
         public void onCommand(String line, String[] args) {
-            if(args.length == 1){
+            if(args.length <= 1){
                 ServerManagerLogger.error("shutdown <Server name>");
             }
             if(args[1].equalsIgnoreCase("all")){
@@ -93,7 +93,7 @@ public class FileManagerCommand extends AbstractCoreCommand {
 
         @Override
         public void onCommand(String line, String[] args) {
-            if(args.length == 0){
+            if(args.length <= 1){
                 help();
                 return;
             }
@@ -107,7 +107,8 @@ public class FileManagerCommand extends AbstractCoreCommand {
             }
 
             if(serverProcess == null){
-                ServerManagerLogger.error("Could not find process '"+args[2]+"'");
+                ServerManagerLogger.error("Could not find process '"+args[1]+"'");
+                return;
             }
 
             if(serverProcess.getScreen().isAttached()){
@@ -127,7 +128,7 @@ public class FileManagerCommand extends AbstractCoreCommand {
 
         @Override
         public void onCommand(String line, String[] args) {
-            if(args.length == 0 || !args[0].equals("-l")){
+            if(args.length <= 1 || !args[0].equals("-l")){
                 help();
                 return;
             }
@@ -205,7 +206,7 @@ public class FileManagerCommand extends AbstractCoreCommand {
 
         @Override
         public void onCommand(String line, String[] args) {
-            if(args.length == 1){
+            if(args.length <= 1){
                 ServerManagerLogger.error("create <Template Name>");
             }else{
                 int count = 1;

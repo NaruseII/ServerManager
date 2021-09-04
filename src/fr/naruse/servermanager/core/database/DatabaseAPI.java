@@ -12,7 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class DatabaseAPI {
 
@@ -40,7 +42,7 @@ public class DatabaseAPI {
     }
 
     public static void destroy(IDatabaseTable databaseTable){
-        ServerManager.get().getConnectionManager().sendPacket(new PacketDatabase.Destroy(databaseTable));
+        ServerManager.get().getConnectionManager().sendPacket(new PacketDatabase.Destroy(databaseTable.getName()));
     }
 
     public static ICache getCache() {
@@ -65,17 +67,17 @@ public class DatabaseAPI {
             return this.tableMap.containsKey(tableName);
         }
 
-        public void updateCache(Set<IDatabaseTable> set){
-            for (IDatabaseTable newTable : set) {
-                IDatabaseTable oldTable = this.getDatabaseTable(newTable.getName());
-                if(oldTable == null){
-                    this.tableMap.put(newTable.getName(), newTable);
-                }else{
-                    ((DatabaseTable) oldTable).replaceBy(newTable);
-                }
+        public void updateCache(IDatabaseTable newTable){
+            IDatabaseTable oldTable = this.getDatabaseTable(newTable.getName());
+            if(oldTable == null){
+                this.tableMap.put(newTable.getName(), newTable);
+            }else{
+                ((DatabaseTable) oldTable).replaceBy(newTable);
             }
+        }
 
-            new HashSet<>(this.tableMap.values()).stream().filter(iDatabaseTable -> !set.contains(iDatabaseTable)).forEach(table -> this.tableMap.remove(table.getName()));
+        public void destroy(String table){
+            this.tableMap.remove(table);
         }
     }
 

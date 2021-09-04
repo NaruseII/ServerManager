@@ -22,7 +22,12 @@ public class ThreadLock {
     public static void unlock(AbstractPacketResponsive packet){
         Thread thread = lockedMap.remove(packet.getThreadId());
         if(thread != null){
-            runnableMap.get(thread).run(packet);
+
+            CustomRunnable runnable = runnableMap.get(thread);
+            if(runnable != null){
+                runnable.run(packet);
+            }
+
             thread.resume();
         }
     }

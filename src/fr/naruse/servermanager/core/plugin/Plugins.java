@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 import java.util.jar.*;
 import java.util.stream.Collectors;
@@ -20,7 +19,7 @@ public class Plugins extends ClassLoader {
     public static final String SM_PLUGIN_KEY = "smPlugins";
     private static final ServerManagerLogger.Logger LOGGER = new ServerManagerLogger.Logger("PluginLoader");
     private static final File PLUGIN_FOLDER = new File("plugins");
-    private static final Set<SMPlugin> plugins = new ConcurrentSkipListSet<>();
+    private static final Set<SMPlugin> plugins = new HashSet<>();
 
     static {
         PLUGIN_FOLDER.mkdirs();

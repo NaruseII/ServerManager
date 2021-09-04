@@ -20,7 +20,6 @@ public class DatabaseTable implements IDatabaseTable {
         this.name = name;
         this.tableStructure = tableStructure;
         this.databaseLineSet = databaseLineSet;
-
     }
 
     @Override
@@ -29,20 +28,31 @@ public class DatabaseTable implements IDatabaseTable {
     }
 
     @Override
-    public IDatabaseLine getLine(String whereColumn, Object whereValue){
+    public Optional<IDatabaseLine> getLine(String whereColumn, Object whereValue){
+        Set<IDatabaseLine> set = this.getLines(whereColumn, whereValue);
+        return set == null ? Optional.empty() : set.stream().findFirst();
+    }
+
+    @Override
+    public Set<IDatabaseLine> getLines(String whereColumn, Object whereValue) {
+        Set<IDatabaseLine> lineSet = new HashSet<>();
         ColumnStructure columnStructure = this.tableStructure.getColumnStructure(whereColumn);
+
         if(columnStructure == null){
-            return null;
+            throw new RuntimeException(new NoSuchFieldException("No column found for name '"+whereColumn+"'"));
         }
-        Map<Object, DatabaseLine> map = this.objectListByColumn.get(columnStructure);
+
+        Map<Object, DatabaseLine> map = this.objectListByColumn.getOrDefault(columnStructure, new HashMap<>());
+
         Set<Object> set = new HashSet<>(map.keySet());
+
         for (Object object : set) {
             if(object.equals(whereValue)){
-                return map.get(object);
+                lineSet.add(map.get(object));
             }
         }
 
-        return null;
+        return lineSet;
     }
 
     @Override
@@ -95,6 +105,7 @@ public class DatabaseTable implements IDatabaseTable {
 
     public void replaceBy(IDatabaseTable iDatabaseTable){
         DatabaseTable table = (DatabaseTable) iDatabaseTable;
+
         this.tableStructure = table.getTableStructure();
         this.databaseLineSet = table.getDatabaseLineSet();
         this.refreshObjectListMap();
@@ -128,6 +139,18 @@ public class DatabaseTable implements IDatabaseTable {
                 this.objectListByColumn.get(columnStructure).put(databaseLine.getValue(columnStructure.getColumnName()), databaseLine);
             }
         }
+    }
+
+    void putInObjectListMap(ColumnStructure columnStructure, Object object, DatabaseLine line){
+        if(!this.objectListByColumn.containsKey(columnStructure)){
+            this.objectListByColumn.put(columnStructure, new HashMap<>());
+        }
+        this.objectListByColumn.get(columnStructure).put(object, line);
+    }
+
+    @Override
+    public String toString() {
+        return serialize();
     }
 
     @Override

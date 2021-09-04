@@ -2,6 +2,7 @@ package fr.naruse.servermanager.core.database;
 
 import fr.naruse.servermanager.core.database.structure.TableStructure;
 
+import java.util.List;
 import java.util.Set;
 
 public interface IDatabaseLine {
@@ -15,6 +16,8 @@ public interface IDatabaseLine {
     Double getDouble(String columnName);
 
     Long getLong(String columnName);
+
+    List getList(String columnName);
 
     void setValue(String columnName, Object value);
 
