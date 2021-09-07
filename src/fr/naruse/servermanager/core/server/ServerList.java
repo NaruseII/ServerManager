@@ -148,6 +148,14 @@ public class ServerList {
         return findServer(coreServerTypes).stream().filter(server -> server.getData().containsPlayer(uuid)).findFirst();
     }
 
+    public static Set<Server> findServers(String baseName){
+        return findServers(baseName, false);
+    }
+
+    public static Set<Server> findServers(String baseName, boolean includeCurrent){
+        return getAll(includeCurrent).stream().filter(server -> server.getName().startsWith(baseName)).collect(Collectors.toSet());
+    }
+
     public static boolean isPlayerOnline(String playerName){
         return findPlayerBukkitServer(playerName).isPresent();
     }

@@ -5,9 +5,15 @@ import java.util.*;
 public class TableStructure {
 
     private final Map<String, ColumnStructure> columnStructureMap = new HashMap<>();
+    private final Set<String> targetTemplates = new HashSet<>();
 
     public TableStructure registerColumnStructure(ColumnStructure columnStructure){
         this.columnStructureMap.put(columnStructure.getColumnName(), columnStructure);
+        return this;
+    }
+
+    public TableStructure registerTarget(String... templateTarget){
+        this.targetTemplates.addAll(Arrays.asList(templateTarget));
         return this;
     }
 
@@ -27,13 +33,24 @@ public class TableStructure {
         return new ArrayList<>(this.columnStructureMap.values());
     }
 
-    public List<Map<String, Object>> serialize(){
+    public Set<String> getTargetTemplates() {
+        return targetTemplates;
+    }
+
+    public Map serialize(){
+        Map<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
 
         for (ColumnStructure columnStructure : new HashSet<>(columnStructureMap.values())) {
             list.add(columnStructure.serialize());
         }
 
-        return list;
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("targetTemplates", this.targetTemplates);
+
+        map.put("columns", list);
+        map.put("properties", properties);
+
+        return map;
     }
 }

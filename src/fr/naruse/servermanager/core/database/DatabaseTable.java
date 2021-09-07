@@ -181,17 +181,23 @@ public class DatabaseTable implements IDatabaseTable {
             }
 
             // Loading structure
-            List<Configuration> structureList = configuration.getMainSection().getSectionList("structure");
-            if(structureList == null){
+            Configuration.ConfigurationSection structureSection = configuration.getMainSection().getSection("structure");
+            Configuration.ConfigurationSection propertiesSection = structureSection.getSection("properties");
+
+            List<Configuration> columnsStructureList = structureSection.getSectionList("columns");
+            if(columnsStructureList == null){
                 return null;
             }
             TableStructure tableStructure = new TableStructure();
-            for (Configuration columnConfig : structureList) {
+            for (Configuration columnConfig : columnsStructureList) {
                 int columnId = columnConfig.getInt("id");
                 String columnName = columnConfig.get("name");
                 ValueType valueType = ValueType.valueOf(columnConfig.get("valueType"));
                 tableStructure.registerColumnStructure(new ColumnStructure(columnId, columnName, valueType));
             }
+
+            List<String> list = propertiesSection.get("targetTemplates");
+            tableStructure.registerTarget(list.toArray(new String[0]));
 
             table.setTableStructure(tableStructure);
 

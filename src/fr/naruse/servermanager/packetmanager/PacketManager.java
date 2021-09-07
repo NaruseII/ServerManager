@@ -1,8 +1,10 @@
 package fr.naruse.servermanager.packetmanager;
 
 import fr.naruse.servermanager.core.*;
+import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.connection.packet.PacketShutdown;
 import fr.naruse.servermanager.core.logging.ServerManagerLogger;
+import fr.naruse.servermanager.packetmanager.database.MongoAPI;
 import fr.naruse.servermanager.core.plugin.Plugins;
 import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
@@ -33,6 +35,7 @@ public class PacketManager {
 
     private final ServerManager serverManager;
     private final Database database;
+    private Configuration mongoConfiguration;
 
     public PacketManager(long millis) {
         instance = this;
@@ -72,9 +75,19 @@ public class PacketManager {
                 }
 
                 database.save();
+
+                if(MongoAPI.get() != null){
+                    MongoAPI.get().shutdown();
+                }
+
                 super.shutdown();
             }
         };
+
+        this.mongoConfiguration = new Configuration(new File(this.serverManager.getCoreData().getDataFolder(), "mongodb.json"), true);
+        if((boolean) this.mongoConfiguration.get("enabled")){
+            new MongoAPI(this.mongoConfiguration);
+        }
 
         this.database = new Database();
 

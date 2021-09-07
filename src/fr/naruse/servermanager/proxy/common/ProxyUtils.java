@@ -47,6 +47,9 @@ public class ProxyUtils {
         DEFAULT_SERVER_CONFIGURATION = new Configuration(new File(dataFolder, "proxyDefaultServers.json"), true);
 
         List<Map<String, Object>> list = DEFAULT_SERVER_CONFIGURATION.get("defaultServers");
+        if(list == null){
+            return;
+        }
         for (Map<String, Object> map : list) {
             Configuration configuration = new Configuration(Utils.GSON.toJson(map));
 

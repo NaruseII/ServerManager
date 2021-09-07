@@ -51,7 +51,7 @@ public class CreateServerTask {
                 });
 
             }
-        }else if(fileManager.getServerProcess(name[0]) == null){
+        }else if(fileManager.getServerProcess(name[0]) != null){
             name[0] += "-" +Utils.randomLetters(12)+"-"+Utils.randomLetters(12);
         }
 

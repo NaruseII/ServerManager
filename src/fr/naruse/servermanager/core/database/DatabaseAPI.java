@@ -6,15 +6,9 @@ import fr.naruse.servermanager.core.database.structure.ColumnStructure;
 import fr.naruse.servermanager.core.database.structure.TableStructure;
 import fr.naruse.servermanager.packetmanager.database.Database;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class DatabaseAPI {
 

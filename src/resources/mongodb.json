@@ -1,0 +1,5 @@
+{
+  "enabled": false,
+  "url": "mongodb+srv://user:pass@sample.host:27017/",
+  "databaseName": "naruse"
+}
