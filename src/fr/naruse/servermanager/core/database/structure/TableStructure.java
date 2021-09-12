@@ -37,20 +37,21 @@ public class TableStructure {
         return targetTemplates;
     }
 
-    public Map serialize(){
+    public Map<String, Object> serializeProperties(){
         Map<String, Object> map = new HashMap<>();
+
+        map.put("targetTemplates", this.targetTemplates);
+
+        return map;
+    }
+
+    public List<Map<String, Object>> serializeColumns(){
         List<Map<String, Object>> list = new ArrayList<>();
 
         for (ColumnStructure columnStructure : new HashSet<>(columnStructureMap.values())) {
             list.add(columnStructure.serialize());
         }
 
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("targetTemplates", this.targetTemplates);
-
-        map.put("columns", list);
-        map.put("properties", properties);
-
-        return map;
+        return list;
     }
 }

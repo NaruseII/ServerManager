@@ -1,6 +1,10 @@
 package fr.naruse.servermanager.core.api.events.plugin;
 
 import fr.naruse.servermanager.core.api.events.ICancellableEvent;
+import fr.naruse.servermanager.core.api.events.IEvent;
+import fr.naruse.servermanager.filemanager.ServerProcess;
+
+import java.util.List;
 
 public class PluginFileManagerEvent {
 
@@ -24,6 +28,25 @@ public class PluginFileManagerEvent {
 
         public String getTemplateName() {
             return templateName;
+        }
+    }
+
+    public static class AsyncConsoleOutputEvent implements IEvent {
+
+        private final ServerProcess serverProcess;
+        private final List<String> newLines;
+
+        public AsyncConsoleOutputEvent(ServerProcess serverProcess, List<String> newLines) {
+            this.serverProcess = serverProcess;
+            this.newLines = newLines;
+        }
+
+        public List<String> getNewLines() {
+            return newLines;
+        }
+
+        public ServerProcess getServerProcess() {
+            return serverProcess;
         }
     }
 

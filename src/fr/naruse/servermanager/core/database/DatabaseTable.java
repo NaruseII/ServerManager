@@ -158,7 +158,8 @@ public class DatabaseTable implements IDatabaseTable {
         Map<String, Object> map = new HashMap<>();
 
         map.put("name", this.getName());
-        map.put("structure", this.getTableStructure().serialize());
+        map.put("structureColumns", this.getTableStructure().serializeColumns());
+        map.put("structureProperties", this.getTableStructure().serializeProperties());
 
         List<Map<String, Object>> list = new ArrayList<>();
         for (IDatabaseLine line : this.getAllLines()) {
@@ -176,15 +177,14 @@ public class DatabaseTable implements IDatabaseTable {
             String name = configuration.get("name");
 
             table.setName(name);
-            if(!configuration.contains("structure")){
+            if(!configuration.contains("structureColumns")){
                 return null;
             }
 
             // Loading structure
-            Configuration.ConfigurationSection structureSection = configuration.getMainSection().getSection("structure");
-            Configuration.ConfigurationSection propertiesSection = structureSection.getSection("properties");
+            Configuration.ConfigurationSection propertiesSection = configuration.getSection("structureProperties");
 
-            List<Configuration> columnsStructureList = structureSection.getSectionList("columns");
+            List<Configuration> columnsStructureList = configuration.getMainSection().getSectionList("structureColumns");
             if(columnsStructureList == null){
                 return null;
             }
