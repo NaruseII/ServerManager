@@ -1,4 +1,4 @@
-package fr.naruse.servermanager.bukkit.event;
+package fr.naruse.servermanager.bukkit.listener;
 
 import fr.naruse.servermanager.bukkit.main.BukkitManagerPlugin;
 import fr.naruse.servermanager.core.server.Server;

@@ -1,7 +1,7 @@
 name: ServerManager
 version: 1.0.20
 author: Naruse
-main: fr.naruse.servermanager.bukkit.main.BukkitManagerPlugin
+main: fr.naruse.servermanager.nukkit.main.NukkitManagerPlugin
 commands:
   servermanager:
     aliases:

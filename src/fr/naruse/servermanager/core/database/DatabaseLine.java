@@ -38,7 +38,7 @@ public class DatabaseLine implements IDatabaseLine {
         if(columnStructure == null){
             return null;
         }
-        return (T) this.structureObjectMap.reverse().get(columnStructure);
+        return (T) columnStructure.transform(this.structureObjectMap.reverse().get(columnStructure));
     }
 
     @Override
@@ -58,11 +58,6 @@ public class DatabaseLine implements IDatabaseLine {
 
     @Override
     public Long getLong(String columnName) {
-        return this.getValue(columnName);
-    }
-
-    @Override
-    public List getList(String columnName) {
         return this.getValue(columnName);
     }
 

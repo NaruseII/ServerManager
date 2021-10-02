@@ -98,7 +98,7 @@ public class BukkitServerManagerCommand implements CommandExecutor, TabCompleter
             if(args.length != 2){
                 return this.sendMessage(sender, "§6/§7sm shutdown <Server, -All>");
             }
-            Set<Server> set = ServerList.findServer(CoreServerType.BUKKIT_MANAGER, CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER, CoreServerType.SPONGE_MANAGER);
+            Set<Server> set = ServerList.findServer(CoreServerType.BUKKIT_MANAGER, CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER);
             if(!args[1].equalsIgnoreCase("-all")){
                 set = set.stream().filter(server -> server.getName().startsWith(args[1])).collect(Collectors.toSet());
             }

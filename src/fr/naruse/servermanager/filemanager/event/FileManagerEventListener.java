@@ -21,7 +21,7 @@ public class FileManagerEventListener extends EventListener {
 
     @Override
     public void onServerDeleteEvent(ServerDeleteEvent e) {
-        if(e.getServer().getCoreServerType().is(CoreServerType.BUNGEE_MANAGER, CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER)){
+        if(e.getServer().getCoreServerType().is(CoreServerType.BUNGEE_MANAGER, CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER)){
             this.fileManager.shutdownServer(e.getServer().getName());
         }
     }

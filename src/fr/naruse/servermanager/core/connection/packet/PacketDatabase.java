@@ -6,10 +6,13 @@ import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.core.database.DatabaseAPI;
 import fr.naruse.servermanager.core.database.DatabaseTable;
 import fr.naruse.servermanager.core.database.IDatabaseTable;
+import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.packetmanager.PacketManager;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class PacketDatabase {
@@ -105,21 +108,27 @@ public class PacketDatabase {
 
         @Override
         public void write(DataOutputStream stream) throws IOException {
-            stream.writeInt(this.set.size());
+            List<String> list = new ArrayList<>();
             for (IDatabaseTable table : this.set) {
-                new Update(table).write(stream);
+                list.add(table.serialize());
             }
+
+            byte[] jsonBytes = Utils.GSON.toJson(list).getBytes();
+
+            PacketUtils.writeByteArray(stream, jsonBytes);
         }
 
         @Override
         public void read(DataInputStream stream) throws IOException {
             this.set = new HashSet<>();
-            int size = stream.readInt();
 
-            for (int i = 0; i < size; i++) {
-                Update update = new Update();
-                update.read(stream);
-                this.set.add(update.getTable());
+            byte[] bytes = PacketUtils.readByteArray(stream);
+            if(bytes != null){
+                String json = new String(bytes);
+                List<String> list = Utils.GSON.fromJson(json, Utils.LIST_GENERIC_TYPE);
+                for (String s : list) {
+                    this.set.add(DatabaseTable.Builder.deserialize(new Configuration(s)));
+                }
             }
         }
 

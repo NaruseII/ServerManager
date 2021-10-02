@@ -64,7 +64,7 @@ public class BungeeServerHandler {
 
 
         // Adding new servers
-        ServerList.getAll().stream().filter(s -> !set.contains(s.getName()) && s.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER)).forEach(server -> {
+        ServerList.getAll().stream().filter(s -> !set.contains(s.getName()) && s.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER)).forEach(server -> {
             ServerInfo serverInfo = buildServerInfo(server.getName(), server.getAddress().getHostAddress(), server.getPort(), false);
             BungeeCord.getInstance().getServers().put(server.getName(), serverInfo);
         });
@@ -84,7 +84,6 @@ public class BungeeServerHandler {
         }
 
        if(log){
-           ServerManagerLogger.info("Servers reloaded");
            if(defaultServer != null){
                ServerManagerLogger.info("Default server is '"+defaultServer.getName()+"'");
            }else{

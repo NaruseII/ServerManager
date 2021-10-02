@@ -18,7 +18,7 @@ import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.proxy.common.ProxyUtils;
 import fr.naruse.servermanager.proxy.velocity.api.ServerManagerVelocityEvent;
-import fr.naruse.servermanager.proxy.velocity.event.VelocityListeners;
+import fr.naruse.servermanager.proxy.velocity.listener.VelocityListeners;
 import fr.naruse.servermanager.proxy.velocity.packet.VelocityProcessPacketListener;
 import fr.naruse.servermanager.proxy.velocity.server.VelocityServerHandler;
 import org.slf4j.Logger;

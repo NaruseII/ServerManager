@@ -51,7 +51,7 @@ public class VelocityServerHandler {
         });
 
         // Adding new servers
-        ServerList.getAll().stream().filter(s -> s.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER)).forEach(server -> {
+        ServerList.getAll().stream().filter(s -> s.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER)).forEach(server -> {
             buildServerInfo(pl, server.getName(), server.getAddress().getHostAddress(), server.getPort(), false);
         });
         for (ProxyDefaultServer server : ProxyUtils.PROXY_DEFAULT_SERVER_MAP.values()) {
@@ -65,7 +65,6 @@ public class VelocityServerHandler {
         }
 
         if(log){
-            ServerManagerLogger.info("Servers reloaded");
             if(defaultServer.isPresent()){
                 ServerManagerLogger.info("Default server is '"+defaultServer.get().getServerInfo().getName()+"'");
             }else{

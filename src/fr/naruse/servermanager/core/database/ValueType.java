@@ -6,7 +6,6 @@ public enum ValueType {
     INTEGER,
     DOUBLE,
     LONG,
-    ARRAY,
 
 
 }

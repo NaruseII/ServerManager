@@ -1,4 +1,4 @@
-package fr.naruse.servermanager.sponge.event;
+package fr.naruse.servermanager.sponge.listener;
 
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.server.Server;

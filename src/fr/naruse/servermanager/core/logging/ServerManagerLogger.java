@@ -3,13 +3,17 @@ package fr.naruse.servermanager.core.logging;
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
 import fr.naruse.servermanager.core.ServerManager;
+import fr.naruse.servermanager.core.api.events.plugin.PluginFileManagerEvent;
 import fr.naruse.servermanager.core.config.Configuration;
+import fr.naruse.servermanager.core.plugin.Plugins;
 import fr.naruse.servermanager.core.utils.Utils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.logging.Level;
 
@@ -125,6 +129,8 @@ public class ServerManagerLogger {
             }else{
                 System.out.println(colored);
             }
+
+            Plugins.fireEvent(new PluginFileManagerEvent.AsyncConsoleOutputEvent(null, Collections.singletonList(colored)));
 
             LOGS_BUILDER.append(stringBuilder).append("\n");
         }

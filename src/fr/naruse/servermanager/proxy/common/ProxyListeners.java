@@ -1,5 +1,6 @@
 package fr.naruse.servermanager.proxy.common;
 
+import com.google.common.collect.Maps;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.api.events.IEvent;
@@ -11,16 +12,15 @@ import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.proxy.bungee.api.ServerManagerBungeeEvent;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ProxyListeners {
 
     public static void processTeleportToLocation(PacketTeleportToLocation packet) {
-        Optional<Server> optional = ServerList.findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER}, packet.getPlayerName());
+        Optional<Server> optional = ServerList.findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER}, packet.getPlayerName());
         if(optional.isPresent()){
             optional.get().sendPacket(packet);
         }
@@ -40,7 +40,7 @@ public class ProxyListeners {
 
         ServerList.SortType sortType = ServerList.SortType.valueOf(prioritiesSection.get("sortType"));
 
-        List<Server> list = ServerList.getAll(false).stream().filter(server -> server.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER)).collect(Collectors.toList());
+        List<Server> list = ServerList.getAll(false).stream().filter(server -> server.getCoreServerType().is(CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER)).collect(Collectors.toList());
         ServerList.sort(list, sortType);
 
         return list;
@@ -49,11 +49,43 @@ public class ProxyListeners {
     public static Optional<Server> findDefaultServer(Configuration configuration){
         Configuration.ConfigurationSection configSection = configuration.getSection("config.yml");
         Configuration.ConfigurationSection prioritiesSection = configSection.getSection("priorities");
+        Configuration.ConfigurationSection templatesSection = prioritiesSection.getSection("forceOnTemplates");
 
-        CoreServerType[] defaultServerTypes = new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER};
         ServerList.SortType sortType = ServerList.SortType.valueOf(prioritiesSection.get("sortType"));
-        String forceTemplate = prioritiesSection.get("forceOnTemplate");
 
-        return ServerList.findServer(defaultServerTypes, sortType, forceTemplate);
+        Map<Integer, List<String>> map = new HashMap<>();
+        templatesSection.getAll().forEach((template, o) -> {
+            try{
+                int priority = templatesSection.getInt(template);
+
+                if(!map.containsKey(priority)){
+                    map.put(priority, new ArrayList<>());
+                }
+                List<String> list = map.get(priority);
+                list.add(template);
+                map.put(priority, list);
+            }catch (Exception e){}
+        });
+
+        List<Integer> list = new ArrayList<>(map.keySet());
+
+        Collections.sort(list);
+        Collections.reverse(list);
+
+        for (Integer priority : list) {
+            List<String> templateList = map.get(priority);
+
+            for (String template : templateList) {
+                List<Server> servers = ServerList.sort(new ArrayList<>(ServerList.findServers(template, false)), sortType);
+
+                for (Server server : servers) {
+                    if(server.getData().getCapacity() > server.getData().getPlayerSize()){
+                        return Optional.of(server);
+                    }
+                }
+            }
+        }
+
+        return Optional.empty();
     }
 }

@@ -68,6 +68,9 @@ public class Updater {
             if(coreServerType.is(CoreServerType.VELOCITY_MANAGER) && (boolean) acceptStartSection.get("velocity-manager")){
                 b = false;
             }
+            if(coreServerType.is(CoreServerType.NUKKIT_MANAGER) && (boolean) acceptStartSection.get("nukkit-manager")){
+                b = false;
+            }
 
             List<String> list = notUpToDateSection.get("bypassForVersion");
             if(list != null && !list.isEmpty() && list.contains(currentVersion)){

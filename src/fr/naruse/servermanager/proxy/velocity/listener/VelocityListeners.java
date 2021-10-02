@@ -1,4 +1,4 @@
-package fr.naruse.servermanager.proxy.velocity.event;
+package fr.naruse.servermanager.proxy.velocity.listener;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;

@@ -2,6 +2,8 @@ package fr.naruse.servermanager.core.database.structure;
 
 import fr.naruse.servermanager.core.database.ValueType;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +35,19 @@ public class ColumnStructure {
     public Object transform(Object object){
         switch (this.valueType){
             case STRING: return object.toString();
-            case INTEGER: return Integer.valueOf((int) (double) object);
-            case LONG: return Long.valueOf((long) (double) object);
-            case DOUBLE: return Double.valueOf((double) object);
-            case ARRAY:
-                if(object instanceof List){
-                    List list = (List) object;
-                    if(list.size() == 1 && list.get(0) instanceof List){
-                        return list.get(0);
-                    }
+            case INTEGER:
+                if(!(object instanceof Integer)){
+                    return Integer.valueOf((int) (double) object);
+                }
+                return object;
+            case LONG:
+                if(!(object instanceof Long)){
+                    return Long.valueOf((long) (double) object);
+                }
+                return object;
+            case DOUBLE:
+                if(!(object instanceof Double)){
+                    return Double.valueOf((double) object);
                 }
                 return object;
         }

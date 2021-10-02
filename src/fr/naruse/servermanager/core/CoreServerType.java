@@ -8,6 +8,7 @@ public enum CoreServerType {
     PACKET_MANAGER,
     SPONGE_MANAGER,
     VELOCITY_MANAGER,
+    NUKKIT_MANAGER
     ;
 
     public boolean is(CoreServerType... types) {

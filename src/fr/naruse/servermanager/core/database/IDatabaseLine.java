@@ -17,8 +17,6 @@ public interface IDatabaseLine {
 
     Long getLong(String columnName);
 
-    List getList(String columnName);
-
     void setValue(String columnName, Object value);
 
     Set getAllValues();

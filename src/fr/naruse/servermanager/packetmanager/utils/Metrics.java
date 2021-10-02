@@ -124,6 +124,7 @@ public class Metrics {
             map.put("Bungee", 0);
             map.put("FileManager", 0);
             map.put("PacketManager", 1);
+            map.put("NukkitManager", 1);
 
             for (Server server : ServerList.getAll()) {
                 switch (server.getCoreServerType()) {
@@ -141,6 +142,9 @@ public class Metrics {
                         break;
                     case FILE_MANAGER:
                         map.put("FileManager", map.get("FileManager")+1);
+                        break;
+                    case NUKKIT_MANAGER:
+                        map.put("NukkitManager", map.get("NukkitManager")+1);
                         break;
                 }
             }
@@ -239,7 +243,7 @@ public class Metrics {
         // Minecraft specific data
 
         int playerAmount = 0;
-        for (Server server : ServerList.findServer(CoreServerType.SPONGE_MANAGER, CoreServerType.BUKKIT_MANAGER)) {
+        for (Server server : ServerList.findServer(CoreServerType.SPONGE_MANAGER, CoreServerType.BUKKIT_MANAGER, CoreServerType.NUKKIT_MANAGER)) {
             playerAmount += server.getData().getPlayerSize();
         }
 

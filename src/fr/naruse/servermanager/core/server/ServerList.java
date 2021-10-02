@@ -103,25 +103,43 @@ public class ServerList {
         return findPlayerServer(CoreServerType.SPONGE_MANAGER, playerName);
     }
 
+    public static Optional<Server> findPlayerNukkitServer(String playerName){
+        return findPlayerServer(CoreServerType.NUKKIT_MANAGER, playerName);
+    }
+
     public static Optional<Server> findPlayerBukkitOrSpongeServer(String playerName){
         return findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER}, playerName);
+    }
+
+    public static Optional<Server> findPlayerBukkitOrSpongeOrNukkitServer(String playerName){
+        return findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER}, playerName);
     }
 
     public static Optional<Server> findPlayerProxyServer(String playerName){
         return findPlayerServer(new CoreServerType[]{CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER}, playerName);
     }
 
-    public static Optional<Server> findPlayerBukkitServer(UUID uuid){
-        return findPlayerServer(CoreServerType.BUKKIT_MANAGER, uuid);
+
+    public static Optional<Server> findPlayerNukkitServer(UUID uuid){
+        return findPlayerServer(CoreServerType.NUKKIT_MANAGER, uuid);
     }
 
     public static Optional<Server> findPlayerSpongeServer(UUID uuid){
         return findPlayerServer(CoreServerType.SPONGE_MANAGER, uuid);
     }
 
+    public static Optional<Server> findPlayerBukkitServer(UUID uuid){
+        return findPlayerServer(CoreServerType.BUKKIT_MANAGER, uuid);
+    }
+
     public static Optional<Server> findPlayerBukkitOrSpongeServer(UUID uuid){
         return findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER}, uuid);
     }
+
+    public static Optional<Server> findPlayerBukkitOrSpongeOrNukkitServer(UUID uuid){
+        return findPlayerServer(new CoreServerType[]{CoreServerType.BUKKIT_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER}, uuid);
+    }
+
 
     public static Optional<Server> findPlayerProxyServer(UUID uuid){
         return findPlayerServer(new CoreServerType[]{CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER}, uuid);

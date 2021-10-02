@@ -2,7 +2,7 @@ package fr.naruse.servermanager.proxy.bungee.main;
 
 import fr.naruse.servermanager.core.config.Configuration;
 import fr.naruse.servermanager.proxy.bungee.api.ServerManagerBungeeEvent;
-import fr.naruse.servermanager.proxy.bungee.event.BungeeListeners;
+import fr.naruse.servermanager.proxy.bungee.listener.BungeeListeners;
 import fr.naruse.servermanager.proxy.bungee.packet.BungeeProcessPacketListener;
 import fr.naruse.servermanager.core.*;
 import fr.naruse.servermanager.core.api.events.IEvent;

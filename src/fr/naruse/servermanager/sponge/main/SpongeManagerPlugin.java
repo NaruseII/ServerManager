@@ -9,7 +9,7 @@ import fr.naruse.servermanager.core.logging.ServerManagerLogger;
 import fr.naruse.servermanager.core.utils.Updater;
 import fr.naruse.servermanager.sponge.api.ServerManagerSpongeEvent;
 import fr.naruse.servermanager.sponge.cmd.SpongeServerManagerCommand;
-import fr.naruse.servermanager.sponge.event.SpongeListeners;
+import fr.naruse.servermanager.sponge.listener.SpongeListeners;
 import fr.naruse.servermanager.core.logging.SLF4JCustomLogger;
 import fr.naruse.servermanager.sponge.packet.SpongeProcessPacketListener;
 import org.slf4j.Logger;

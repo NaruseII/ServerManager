@@ -100,7 +100,7 @@ public class SpongeServerManagerCommand implements CommandExecutor {
             if(arguments.isEmpty() || args.length == 0){
                 source.sendMessage(Text.of( "§6/§7sm shutdown <Server name, -All>"));
             }else{
-                Set<Server> set = ServerList.findServer(CoreServerType.BUKKIT_MANAGER, CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER, CoreServerType.SPONGE_MANAGER);
+                Set<Server> set = ServerList.findServer(CoreServerType.BUKKIT_MANAGER, CoreServerType.BUNGEE_MANAGER, CoreServerType.VELOCITY_MANAGER, CoreServerType.SPONGE_MANAGER, CoreServerType.NUKKIT_MANAGER);
                 if(!args[0].equalsIgnoreCase("-all")){
                     set = set.stream().filter(server -> server.getName().startsWith(args[0])).collect(Collectors.toSet());
                 }
