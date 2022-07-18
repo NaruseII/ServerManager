@@ -17,4 +17,8 @@ public class ProcessPacketListener {
     public void processKickPlayer(PacketKickPlayer packet) { }
 
     public void processSendTemplate(PacketSendTemplate packet) { }
+
+    public void processCreateTemplate(PacketCreateTemplate packet) { }
+
+    public void processSaveServer(PacketSaverServer packet){ }
 }

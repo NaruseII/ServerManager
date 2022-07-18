@@ -7,6 +7,7 @@ import fr.naruse.servermanager.core.api.events.server.ServerPostDeleteEvent;
 import fr.naruse.servermanager.core.api.events.server.ServerPostRegisterEvent;
 import fr.naruse.servermanager.core.api.events.server.ServerRegisterEvent;
 import fr.naruse.api.logging.GlobalLogger;
+import fr.naruse.servermanager.core.connection.packet.PacketUtils;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -17,6 +18,10 @@ public class ServerList {
     private static final Map<String, Server> map = new HashMap<>();
 
     public static Server createNewServer(String name, int port, String host, int serverManagerPort, CoreServerType coreServerType){
+        return createNewServer(name, port, host, serverManagerPort, coreServerType, null);
+    }
+
+    public static Server createNewServer(String name, int port, String host, int serverManagerPort, CoreServerType coreServerType, Map<String, Object> dataMap){
         if(map.containsKey(name)){
             return null;
         }
@@ -24,6 +29,10 @@ public class ServerList {
         Server server = new Server(name, port, host, serverManagerPort, coreServerType);
         if(server.equals(ServerManager.get().getCurrentServer())){
             return null;
+        }
+
+        if(dataMap != null){
+            server.getData().setAll(dataMap);
         }
 
         ServerRegisterEvent event = new ServerRegisterEvent(server);
@@ -175,11 +184,11 @@ public class ServerList {
     }
 
     public static boolean isPlayerOnline(String playerName){
-        return findPlayerBukkitServer(playerName).isPresent();
+        return findPlayerBukkitOrSpongeOrNukkitServer(playerName).isPresent();
     }
 
     public static boolean isPlayerOnline(UUID uuid){
-        return findPlayerBukkitServer(uuid).isPresent();
+        return findPlayerBukkitOrSpongeOrNukkitServer(uuid).isPresent();
     }
 
     public static Server getByName(String name){

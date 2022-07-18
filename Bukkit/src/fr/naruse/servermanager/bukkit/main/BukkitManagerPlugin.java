@@ -21,6 +21,7 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
     private double doubleVersion;
 
     private ServerManager serverManager;
+    private BasicServerManagerPlugin basicServerManagerPlugin;
 
     @Override
     public void onEnable() {
@@ -48,6 +49,7 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
         this.serverManager = new ServerManager(new CoreData(CoreServerType.BUKKIT_MANAGER, this.getDataFolder(), serverName, Bukkit.getPort()), this);
         this.serverManager.getCurrentServer().getData().setCapacity(Bukkit.getMaxPlayers());
         this.serverManager.registerPacketProcessing(new BukkitProcessPacketListener(this));
+        this.basicServerManagerPlugin = new BasicServerManagerPlugin(this.serverManager.getEventListenerSet());
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             this.serverManager.getCurrentServer().getData().getUUIDByNameMap().put(player.getName(), player.getUniqueId());
@@ -73,6 +75,9 @@ public class BukkitManagerPlugin extends JavaPlugin implements IServerManagerPlu
 
     @Override
     public void callEvent(IEvent event) {
+        if(this.basicServerManagerPlugin != null){
+            this.basicServerManagerPlugin.callEvent(event);
+        }
         Runnable runnable = () -> Bukkit.getPluginManager().callEvent(new ServerManagerBukkitEvent(event));
         if(doubleVersion >= 1.13){
             if(this.serverManager != null && this.serverManager.isShuttingDowned()){

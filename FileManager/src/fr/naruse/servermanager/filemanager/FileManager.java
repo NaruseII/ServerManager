@@ -176,6 +176,18 @@ public class FileManager {
     }
 
     public void createServer(String templateName){
+        this.createServer(templateName, false, null);
+    }
+
+    public void createServer(String templateName, boolean isSavedServer){
+        this.createServer(templateName, isSavedServer, null);
+    }
+
+    public void createServer(String templateName, Map<String, Object> initialServerData){
+        this.createServer(templateName, false, initialServerData);
+    }
+
+    public void createServer(String templateName, boolean isSavedServer, Map<String, Object> initialServerData){
         Future future = EXECUTOR_SERVICE.submit(() -> {
 
             //Plugin event
@@ -185,7 +197,9 @@ public class FileManager {
                 return;
             }
 
-            new CreateServerTask(this, templateName);
+            CreateServerTask createServerTask = new CreateServerTask(this, templateName, initialServerData, isSavedServer);
+
+            Plugins.fireEvent(new PluginFileManagerEvent.AsyncPostCreateServerEvent(createServerTask, initialServerData));
         });
         ERROR_EXECUTOR_SERVICE.submit(() -> {
             try {
@@ -200,7 +214,11 @@ public class FileManager {
 
     public void followProcess(ServerProcess process) {
         this.serverProcesses.put(process.getName(), process);
-        process.start();
+        try {
+            process.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public ServerProcess getServerProcess(String serverName){

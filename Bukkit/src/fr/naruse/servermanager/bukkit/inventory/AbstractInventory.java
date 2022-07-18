@@ -1,6 +1,9 @@
 package fr.naruse.servermanager.bukkit.inventory;
 
 import com.google.common.collect.Lists;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import fr.naruse.servermanager.bukkit.utils.Heads;
 import fr.naruse.servermanager.core.CoreData;
 import fr.naruse.servermanager.core.CoreServerType;
 import fr.naruse.servermanager.core.ServerManager;
@@ -19,9 +22,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Field;
+import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 public abstract class AbstractInventory implements Listener {
 
@@ -112,6 +119,28 @@ public abstract class AbstractInventory implements Listener {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    protected ItemStack buildSkull(Material material, Heads.Head headUrl, String name, boolean enchant, List<String> lore) {
+        ItemStack head = this.buildItem(material, 3, name, enchant, lore);
+        SkullMeta skullMeta = (SkullMeta)head.getItemMeta();
+        StringBuilder s_url = new StringBuilder();
+        s_url.append(headUrl.getURL());
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), (String)null);
+        byte[] data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", s_url).getBytes());
+        gameProfile.getProperties().put("textures", new Property("textures", new String(data)));
+
+        try {
+            Field field = skullMeta.getClass().getDeclaredField("profile");
+            field.setAccessible(true);
+            field.set(skullMeta, gameProfile);
+        } catch (Exception var12) {
+            var12.printStackTrace();
+        }
+
+        skullMeta.setDisplayName(name);
+        head.setItemMeta(skullMeta);
+        return head;
     }
 
     protected void setDecoration() {

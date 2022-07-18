@@ -109,6 +109,10 @@ public class Server {
             this.dataMap.put(dataName, o);
         }
 
+        public void setAll(Map<String, Object> map){
+            this.dataMap.putAll(map);
+        }
+
         public int getCapacity() {
             return capacity;
         }

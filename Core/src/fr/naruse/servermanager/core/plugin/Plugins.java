@@ -5,7 +5,6 @@ import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.api.config.Configuration;
 import fr.naruse.api.logging.GlobalLogger;
 
-import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -40,9 +39,8 @@ public class Plugins extends ClassLoader {
         }
         LOGGER.info(plugins.size()+" plugins loaded");
         ServerManager.get().getCurrentServer().getData().set(SM_PLUGIN_KEY, getAll().stream().map(new Function<SMPlugin, String>() {
-            @Nullable
             @Override
-            public String apply(@Nullable SMPlugin smPlugin) {
+            public String apply(SMPlugin smPlugin) {
                 return smPlugin.getPluginName();
             }
         }).collect(Collectors.toList()));

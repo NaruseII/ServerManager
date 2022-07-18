@@ -1,4 +1,4 @@
 name: ServerManager
-version: 1.0.20
+version: 1.0.21
 author: Naruse
 main: fr.naruse.servermanager.proxy.bungee.main.BungeeManagerPlugin

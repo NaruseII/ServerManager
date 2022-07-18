@@ -3,14 +3,12 @@ package fr.naruse.servermanager.filemanager.task;
 import fr.naruse.servermanager.core.ServerManager;
 import fr.naruse.servermanager.core.connection.packet.AbstractPacketResponsive;
 import fr.naruse.servermanager.core.connection.packet.PacketFileManagerRequest;
-import fr.naruse.servermanager.core.server.ServerList;
-import fr.naruse.servermanager.core.utils.CustomRunnable;
-import fr.naruse.servermanager.core.utils.ThreadLock;
 import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.api.config.Configuration;
 import fr.naruse.api.logging.GlobalLogger;
 import fr.naruse.servermanager.filemanager.FileManager;
 import fr.naruse.servermanager.filemanager.NameProperty;
+import fr.naruse.servermanager.filemanager.SaverUtils;
 import fr.naruse.servermanager.filemanager.ServerProcess;
 
 import java.io.*;
@@ -21,15 +19,30 @@ public class CreateServerTask {
 
     private final GlobalLogger.Logger LOGGER = new GlobalLogger.Logger("CreateServerTask");
 
-    public CreateServerTask(FileManager fileManager, String templateName) {
+    private File targetFolder;
+    private File templateFolder;
+    private File serverFolder;
+    private String[] name;
+
+    public CreateServerTask(FileManager fileManager, String templateName, Map<String, Object> initialServerData, boolean isSavedServer) {
         LOGGER.info("Launching new task...");
         Configuration template = fileManager.getServerManager().getConfigurationManager().getTemplate(templateName);
         if(template == null){
-            LOGGER.error("Template '"+templateName+".json' not found!");
-            return;
+
+            Configuration.ConfigurationSection section = SaverUtils.CONFIGURATION.getSection(templateName);
+            boolean flag = true;
+            if(section != null){
+                template = fileManager.getServerManager().getConfigurationManager().getTemplate(section.get("templateName"));
+                flag = template == null;
+            }
+
+            if(flag){
+                LOGGER.error("Template '"+templateName+".json' not found!");
+                return;
+            }
         }
 
-        final String[] name = {template.get("baseName")};
+        name = new String[]{template.get("baseName")};
 
         boolean random = template.get("randomName");
         NameProperty nameProperty = NameProperty.valueOf(template.get("nameProperty"));
@@ -63,7 +76,7 @@ public class CreateServerTask {
 
         String templateFolderUrl = template.get("pathTemplate");
         LOGGER.debug("Template folder URL is '"+templateFolderUrl+"'");
-        File templateFolder = new File(templateFolderUrl);
+        templateFolder = new File(templateFolderUrl);
         if(!templateFolder.exists()){
             LOGGER.error("Template folder '"+templateFolder.getAbsolutePath()+"' not found!");
             return;
@@ -71,12 +84,12 @@ public class CreateServerTask {
 
         String targetFolderUrl = template.get("pathTarget");
         LOGGER.debug("Target folder URL is '"+targetFolderUrl+"'");
-        File targetFolder = new File(targetFolderUrl);
+        targetFolder = new File(targetFolderUrl);
         if(!templateFolder.exists()){
             templateFolder.mkdirs();
         }
 
-        File serverFolder = new File(targetFolder, name[0]);
+        serverFolder = new File(targetFolder, name[0]);
         LOGGER.debug("Server folder URL is '"+serverFolder.getAbsolutePath()+"'");
         serverFolder.mkdirs();
 
@@ -85,13 +98,36 @@ public class CreateServerTask {
             return;
         }
 
-        LOGGER.debug("Starting copy...");
-        Utils.copyDirectory(templateFolder, serverFolder);
-        LOGGER.debug("Copy done !");
+        if(isSavedServer){
+            LOGGER.debug("Starting unzip...");
 
-        LOGGER.debug("Editing 'ServerManager/config.json'...");
-        this.editServerManagerPluginConfig(serverFolder, name[0]);
-        LOGGER.debug("'ServerManager/config.json' edited");
+            String fileName = SaverUtils.getFileName(templateName);
+            if(fileName == null){
+                LOGGER.error("Could not find saved server with key '"+templateName+"'");
+                return;
+            }
+
+            File savedServerFolder = new File(SaverUtils.SAVE_FOLDER, fileName);
+            try {
+                SaverUtils.ZipHelper.unzipFolder(savedServerFolder, serverFolder.toPath());
+            } catch (IOException e) {
+                LOGGER.error("Could not unzip saved server '"+fileName+"!");
+            }
+
+            LOGGER.debug("Unzip done");
+
+            Utils.delete(savedServerFolder);
+            SaverUtils.delete(templateName);
+        }else{
+            LOGGER.debug("Starting copy...");
+            Utils.copyDirectory(templateFolder, serverFolder);
+            LOGGER.debug("Copy done !");
+
+            LOGGER.debug("Editing 'ServerManager/config.json'...");
+            this.editServerManagerPluginConfig(serverFolder, name[0], initialServerData);
+            LOGGER.debug("'ServerManager/config.json' edited");
+
+        }
 
         LOGGER.debug("Getting ready to start the server...");
 
@@ -135,7 +171,10 @@ public class CreateServerTask {
             processBuilder = new ProcessBuilder(startFileName);
             processBuilder.directory(serverFolder);
         }
-        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name[0], template, serverFolder, template.get("keepLogs")));
+
+        System.setProperty("IReallyKnowWhatIAmDoingISwear", "true");
+
+        fileManager.followProcess(new ServerProcess(fileManager, processBuilder, name[0], template, serverFolder, template.get("keepLogs"), templateName));
     }
 
     private void editProxyConfig(Configuration template, File serverFolder) throws IOException {
@@ -173,7 +212,7 @@ public class CreateServerTask {
         }
     }
 
-    private void editServerManagerPluginConfig(File serverFolder, String serverName) {
+    private void editServerManagerPluginConfig(File serverFolder, String serverName, Map<String, Object> initialServerData) {
         boolean isSponge = new File(serverFolder, "mods").exists();
         boolean isVelocity = new File(serverFolder, "velocity.toml").exists();
 
@@ -195,6 +234,9 @@ public class CreateServerTask {
         packetManagerMap.put("serverPort", ServerManager.get().getCoreData().getPacketManagerPort());
         packetManagerMap.put("serverAddress", ServerManager.get().getCoreData().getPacketManagerHost());
         map.put("packet-manager", packetManagerMap);
+        if(initialServerData != null){
+            map.put("initialServerData", initialServerData);
+        }
 
         try {
             FileWriter fileWriter = new FileWriter(configJson);
@@ -252,5 +294,25 @@ public class CreateServerTask {
                 fileWriter1.close();
             }
         }
+    }
+
+    public File getServerFolder() {
+        return serverFolder;
+    }
+
+    public File getTargetFolder() {
+        return targetFolder;
+    }
+
+    public File getTemplateFolder() {
+        return templateFolder;
+    }
+
+    public void setTargetFolder(File targetFolder) {
+        this.targetFolder = targetFolder;
+    }
+
+    public String getName() {
+        return name[0];
     }
 }

@@ -47,7 +47,9 @@ public class VelocityServerHandler {
             String name = registeredServer.getServerInfo().getName();
             return ServerList.getByName(name) == null && !ProxyUtils.PROXY_DEFAULT_SERVER_MAP.containsKey(name);
         }).forEach(registeredServer -> {
-            pl.getProxyServer().unregisterServer(registeredServer.getServerInfo());
+            if(pl.getProxyServer().getServer(registeredServer.getServerInfo().getName()).isPresent()){
+                pl.getProxyServer().unregisterServer(registeredServer.getServerInfo());
+            }
         });
 
         // Adding new servers

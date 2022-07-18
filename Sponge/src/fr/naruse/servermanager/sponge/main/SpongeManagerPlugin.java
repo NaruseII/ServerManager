@@ -25,7 +25,7 @@ import org.spongepowered.api.plugin.Plugin;
 import javax.inject.Inject;
 import java.io.File;
 
-@Plugin(id = "servermanager", name = "ServerManager", version = "1.0.0", description = "ServerManager Sponge Manager")
+@Plugin(id = "servermanager", name = "ServerManager", version = "1.0.21", description = "ServerManager Sponge Manager")
 public class SpongeManagerPlugin implements IServerManagerPlugin {
 
     @Inject

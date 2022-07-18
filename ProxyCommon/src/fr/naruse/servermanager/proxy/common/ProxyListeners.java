@@ -56,7 +56,9 @@ public class ProxyListeners {
                 List<String> list = map.get(priority);
                 list.add(template);
                 map.put(priority, list);
-            }catch (Exception e){}
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         });
 
         List<Integer> list = new ArrayList<>(map.keySet());

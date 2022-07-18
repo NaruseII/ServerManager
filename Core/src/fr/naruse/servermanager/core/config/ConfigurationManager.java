@@ -75,4 +75,8 @@ public class ConfigurationManager {
     public Configuration getConfig() {
         return config;
     }
+
+    public File getServerTemplateFolder() {
+        return serverTemplateFolder;
+    }
 }

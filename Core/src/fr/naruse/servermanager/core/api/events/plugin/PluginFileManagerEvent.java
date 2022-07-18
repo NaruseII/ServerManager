@@ -3,8 +3,10 @@ package fr.naruse.servermanager.core.api.events.plugin;
 import fr.naruse.servermanager.core.api.events.ICancellableEvent;
 import fr.naruse.servermanager.core.api.events.IEvent;
 import fr.naruse.servermanager.filemanager.ServerProcess;
+import fr.naruse.servermanager.filemanager.task.CreateServerTask;
 
 import java.util.List;
+import java.util.Map;
 
 public class PluginFileManagerEvent {
 
@@ -28,6 +30,25 @@ public class PluginFileManagerEvent {
 
         public String getTemplateName() {
             return templateName;
+        }
+    }
+
+    public static class AsyncPostCreateServerEvent implements IEvent{
+
+        private final CreateServerTask createServerTask;
+        private final Map<String, Object> initialServerData;
+
+        public AsyncPostCreateServerEvent(CreateServerTask createServerTask, Map<String, Object> initialServerData) {
+            this.createServerTask = createServerTask;
+            this.initialServerData = initialServerData;
+        }
+
+        public CreateServerTask getCreateServerTask() {
+            return createServerTask;
+        }
+
+        public Map<String, Object> getInitialServerData() {
+            return initialServerData;
         }
     }
 

@@ -7,6 +7,7 @@ import fr.naruse.servermanager.core.server.Server;
 import fr.naruse.servermanager.core.server.ServerList;
 import fr.naruse.servermanager.core.utils.Utils;
 import fr.naruse.servermanager.filemanager.task.DeleteServerTask;
+import fr.naruse.servermanager.filemanager.task.SaveServerTask;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -29,12 +30,15 @@ public class ServerProcess {
     private final File logFile;
     private final File serverFolder;
     private final boolean keepLogs;
+    private final String templateName;
     private long startTime;
+    private boolean saveOnShutdown = false;
+    private String saveKey;
 
     private boolean isStopped = false;
     private boolean isShuttingDown = false;
 
-    public ServerProcess(FileManager fileManager, ProcessBuilder processBuilder, String name, Configuration template, File serverFolder, boolean keepLogs) {
+    public ServerProcess(FileManager fileManager, ProcessBuilder processBuilder, String name, Configuration template, File serverFolder, boolean keepLogs, String templateName) {
         LOGGER.setTag("ServerProcess - "+name);
         LOGGER.info("Starting following process...");
 
@@ -44,6 +48,7 @@ public class ServerProcess {
         this.processBuilder = processBuilder;
         this.serverFolder = serverFolder;
         this.keepLogs = keepLogs;
+        this.templateName = templateName;
 
         if(!LOG_FOLDER.exists()){
             LOGGER.debug("Creating log folder...");
@@ -81,10 +86,10 @@ public class ServerProcess {
 
     public void shutdown() {
         if(this.isShuttingDown){
-           return;
+            return;
         }
         this.isShuttingDown = true;
-        if(process.isAlive()){
+        if(this.process.isAlive()){
             LOGGER.info("Stopping server...");
 
             Server server = ServerList.getByName(this.name);
@@ -106,6 +111,10 @@ public class ServerProcess {
         }
         this.isStopped = true;
 
+        if(this.shouldSaveOnShutdown()){
+            new SaveServerTask(this, this.getSaveKey());
+        }
+
         new DeleteServerTask(this.template, this.name);
         this.screen.detachFromScreen();
     }
@@ -113,7 +122,7 @@ public class ServerProcess {
     private void destroy() {
         AtomicBoolean cant = new AtomicBoolean(false);
         try {
-            Method method = process.getClass().getDeclaredMethod("descendants");
+            Method method = this.process.getClass().getDeclaredMethod("descendants");
             if(method != null){
                 Stream stream = (Stream) method.invoke(process);
                 stream.forEach(o -> {
@@ -128,7 +137,7 @@ public class ServerProcess {
         } catch (Exception e) {
             cant.set(true);
         }
-        process.destroy();
+        this.process.destroy();
         if(cant.get() && System.currentTimeMillis()-startTime < 60000){
             LOGGER.debug("I detected a recent start, but I can't stop all subprocess on Java below 1.9! You'll probably need to stop it manually.");
         }
@@ -136,7 +145,7 @@ public class ServerProcess {
 
     private void waitFor(){
         try {
-            process.waitFor(17, TimeUnit.SECONDS);
+            this.process.waitFor(17, TimeUnit.SECONDS);
             Utils.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,11 +153,11 @@ public class ServerProcess {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public File getLogFile() {
-        return logFile;
+        return this.logFile;
     }
 
     public static File getLogFolder() {
@@ -156,19 +165,35 @@ public class ServerProcess {
     }
 
     public File getServerFolder() {
-        return serverFolder;
+        return this.serverFolder;
     }
 
     public Configuration getTemplate() {
-        return template;
+        return this.template;
     }
 
     public boolean isStopped() {
-        return isStopped;
+        return this.isStopped;
     }
 
     public Screen getScreen() {
-        return screen;
+        return this.screen;
     }
 
+    public void setSaveOnShutdown(boolean saveOnShutdown, String saveKey) {
+        this.saveOnShutdown = saveOnShutdown;
+        this.saveKey = saveKey;
+    }
+
+    public boolean shouldSaveOnShutdown() {
+        return this.saveOnShutdown;
+    }
+
+    public String getSaveKey() {
+        return this.saveKey;
+    }
+
+    public String getTemplateName() {
+        return this.templateName;
+    }
 }

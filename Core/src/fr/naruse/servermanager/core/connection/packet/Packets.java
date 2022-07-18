@@ -34,6 +34,8 @@ public class Packets {
         registerPacket("FILE_MANAGER_REQUEST_NEW_NAME", PacketFileManagerRequest.NewName.class);
         registerPacket("FILE_MANAGER_REQUEST_NEW_NAME_RESPONSE", PacketFileManagerRequest.NewNameResponse.class);
         registerPacket("ADD_STATUS", PacketAddStatus.class);
+        registerPacket("CREATE_TEMPLATE", PacketCreateTemplate.class);
+        registerPacket("SAVE_SERVER", PacketSaverServer.class);
 
         ServerManager.get().getPlugin().callEvent(new PacketLoadEvent(packetByName, nameByPacket));
 

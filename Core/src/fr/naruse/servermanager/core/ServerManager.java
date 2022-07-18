@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class ServerManager {
 
-    public static final String VERSION = "1.0.20";
+    public static final String VERSION = "1.0.21";
 
     private static ServerManager instance;
     public static ServerManager get() {
@@ -66,6 +66,10 @@ public class ServerManager {
 
         this.server = new Server(coreData.getServerName(), coreData.getPort(), coreData.getCurrentAddress(), coreData.getServerManagerPort(), coreData.getCoreServerType());
 
+        if(this.configurationManager.getConfig().contains("initialServerData")){
+            this.server.getData().setAll(this.configurationManager.getConfig().get("initialServerData"));
+        }
+
         Packets.load();
 
         this.connectionManager = new ConnectionManager(this);
@@ -94,7 +98,7 @@ public class ServerManager {
         this.configurationManager.shutdown();
         this.connectionManager.shutdown();
         GlobalLogger.info(Attribute.MAGENTA_TEXT(), "Server stopped. See you soon!");
-        GlobalLogger.saveLogs(new File(this.coreData.getDataFolder(), "lastest.log"));
+        GlobalLogger.saveLogs(new File(this.coreData.getDataFolder(), "latest.log"));
     }
 
     public String generateNewSecretKey(){
@@ -133,6 +137,10 @@ public class ServerManager {
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processKickPlayer((PacketKickPlayer) packet));
         }else if(packet instanceof PacketSendTemplate){
             this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processSendTemplate((PacketSendTemplate) packet));
+        }else if(packet instanceof PacketCreateTemplate){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processCreateTemplate((PacketCreateTemplate) packet));
+        }else if(packet instanceof PacketSaverServer){
+            this.processPacketListenerSet.forEach(processPacketListener -> processPacketListener.processSaveServer((PacketSaverServer) packet));
         }
     }
 
@@ -162,6 +170,10 @@ public class ServerManager {
 
     public boolean isShuttingDowned() {
         return isShuttingDowned;
+    }
+
+    public Set<EventListener> getEventListenerSet() {
+        return eventListenerSet;
     }
 
     public void printStatus() {

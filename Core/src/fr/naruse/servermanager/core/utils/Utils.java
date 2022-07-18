@@ -69,7 +69,7 @@ public class Utils {
         return true;
     }
 
-    private static boolean copyFile(File sourceFile, File destFile) {
+    public static boolean copyFile(File sourceFile, File destFile) {
         try{
             if (!sourceFile.exists()) {
                 return false;
@@ -166,7 +166,8 @@ public class Utils {
             socket.connect(new InetSocketAddress("google.com", 80));
             return socket.getLocalAddress().getHostAddress();
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
+            GlobalLogger.warn("Could not ping google.com");
         }
         return "localhost";
     }
@@ -175,7 +176,7 @@ public class Utils {
         try {
             Thread.sleep(l);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+
         }
     }
 }

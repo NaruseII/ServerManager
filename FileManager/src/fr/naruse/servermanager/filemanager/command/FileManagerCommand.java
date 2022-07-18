@@ -33,6 +33,8 @@ public class FileManagerCommand extends AbstractCoreCommand {
         this.registerCommand("detach", new CommandDetach());
         this.registerCommand("reloadTemplates", new CommandReloadTemplates());
         this.registerCommand("complexScreen", new CommandComplexScreen());
+        this.registerCommand("save", new CommandSave());
+        this.registerCommand("createFromSave", new CommandCreateFromSave());
     }
 
     @Override
@@ -52,6 +54,9 @@ public class FileManagerCommand extends AbstractCoreCommand {
         GlobalLogger.info("-> detach (Detach from current screen)");
         GlobalLogger.info("-> reloadTemplates");
         GlobalLogger.info("-> complexScreen <Process Name> (New window with logs | Only for graphical machines)");
+        GlobalLogger.info("-> save <Process Name> <SaveKey>");
+        GlobalLogger.info("-> createFromSave <SaveKey>");
+
         for (String pluginCommandUsage : this.pluginCommandUsages) {
             GlobalLogger.info("-> "+pluginCommandUsage);
         }
@@ -260,6 +265,47 @@ public class FileManagerCommand extends AbstractCoreCommand {
             }
 
             serverProcess.getScreen().newWindow();
+        }
+    }
+
+    private class CommandSave implements ICommand {
+
+        @Override
+        public void onCommand(String line, String[] args) {
+            if(args.length <= 2){
+                help();
+                return;
+            }
+
+            ServerProcess serverProcess = null;
+            for (String s : new HashSet<>(fileManager.getServerProcessesMap().keySet())) {
+                if(s.startsWith(args[1])) {
+                    serverProcess = fileManager.getServerProcessesMap().get(s);
+                    break;
+                }
+            }
+
+            if(serverProcess == null){
+                GlobalLogger.error("Could not find process '"+args[1]+"'");
+                return;
+            }
+
+            serverProcess.setSaveOnShutdown(!serverProcess.shouldSaveOnShutdown(), args[2]);
+            GlobalLogger.info("Server will be saved on stop");
+        }
+
+    }
+
+    private class CommandCreateFromSave implements ICommand {
+
+        @Override
+        public void onCommand(String line, String[] args) {
+            if(args.length <= 1){
+                help();
+                return;
+            }
+
+            fileManager.createServer(args[1], true);
         }
     }
 }
